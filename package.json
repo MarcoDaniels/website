@@ -1,0 +1,11 @@
+{
+  "name": "marco-daniels",
+  "private": true,
+  "version": "0.0.1",
+  "author": "Marco Daniel Martins <marcodanielmartins@gmail.com>",
+  "license": "ISC",
+  "scripts": {
+    "serve": "firebase serve --only hosting",
+    "deploy": "firebase deploy --only hosting"
+  }
+}
