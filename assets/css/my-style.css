@@ -1,80 +1,9 @@
-.label-wrapper {
-    margin-right: 0;
-    margin-left: 0;
-}
-.header {
-    text-align: right;
-    border-bottom: 1px solid;
-}
-.footer {
-    margin-top: 40px;
-    text-align: right;
-    border-top: 1px solid;
-}
-.new-row {
-    margin-top: 15px;
-}
-.contact-block {
-    margin-top: 5px;
-}
-.contact-icon {
-    width: 25px;
-    display: inline-block;
+.content {
+    left: 0;
+    line-height: 200px;
+    margin-top: -100px;
+    position: absolute;
     text-align: center;
-}
-.contact-name  {
+    top: 50%;
     width: 100%;
-    font-size: 12px;
-}
-
-.info-row {
-    padding-left: 10px;
-    margin-top: 15px;
-}
-.info-date {
-    display: block;
-    font-size: 13px;
-    padding-left: 10px;
-    margin-top: 5px;
-}
-.info-location {
-    display: block;
-    font-size: 13px;
-    padding-left: 10px;
-}
-.info-description {
-    margin-top: 5px;
-    background-color: #FCFCFC;
-    padding: 10px;
-    font-size: 14px;
-}
-
-code {
-    color: #000000;
-    background-color: #FCFCFC;
-}
-.code {
-    background-color: #FCFCFC;
-    text-align: center;
-    font-size: 17px;
-    line-height: 27px;
-    min-height: 50px;
-    padding: 10px;
-}
-
-h1 {
-    font-size: 15px;
-    margin-top: 5px;
-}
-h2 {
-    border-bottom: 1px solid;
-    font-weight: lighter;
-}
-h3 {
-    font-size: 17px;
-    font-weight: bold;
-    margin-bottom: 1px;
-}
-hr {
-    width: 80%;
 }
