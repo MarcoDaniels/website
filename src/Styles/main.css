@@ -1,0 +1,12 @@
+.address-bar {
+    background: lightgray;
+}
+.status-bar {
+    background: lightgrey;
+}
+
+
+.info {
+    text-align: center;
+    font-size: 20px;
+}
