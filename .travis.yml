@@ -1,0 +1,15 @@
+language: node_js
+node_js:
+  - "9.4"
+notifications:
+  email: false
+env:
+  - REACT_APP_GRAPH_QL_API=$REACT_APP_GRAPH_QL_API
+script:
+  - echo "Deploying!"
+install:
+  - yarn
+  - yarn build
+  - npm install -g firebase-tools
+after_success:
+  - firebase deploy --only hosting,functions --project $PROJECT_ID --token $FIREBASE_TOKEN
