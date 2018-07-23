@@ -4,7 +4,7 @@ import { ApolloClient } from 'apollo-client'
 import { createHttpLink } from 'apollo-link-http'
 import { ApolloProvider } from 'react-apollo'
 import { InMemoryCache } from 'apollo-cache-inmemory'
-import App from './app'
+import App from './App'
 
 const httpLink = createHttpLink({
     uri: process.env.REACT_APP_GRAPH_QL_API,
