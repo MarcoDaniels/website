@@ -6,11 +6,13 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
+    "postinstall": "crlf --set=LF node_modules/elm-optimize-level-2/bin/elm-optimize-level-2.js",
     "start": "elm-pages dev",
     "build": "elm-pages build",
     "elm-pages": "elm-pages"
   },
   "devDependencies": {
+    "crlf": "1.1.1",
     "elm-optimize-level-2": "0.2.3",
     "elm-pages": "2.1.11",
     "elm-review": "2.7.0"
