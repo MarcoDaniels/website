@@ -1,24 +1,18 @@
 {
   "name": "marco-daniels",
-  "version": "1.0.0",
-  "main": "public/index.js",
-  "license": "MIT",
   "description": "Personal website for Marco Daniel Martins",
   "author": "Marco Daniel Martins <marcodanielmartins@gmail.com>",
   "homepage": "https://marcodaniels.com/",
+  "version": "1.0.0",
+  "license": "MIT",
   "scripts": {
-    "postinstall": "elm-tooling install",
-    "start:elm": "elm-pages dev",
-    "build:elm": "elm-pages build",
-    "clean": "rm -rf dist",
+    "start": "elm-pages dev",
+    "build": "elm-pages build",
     "elm-pages": "elm-pages"
   },
-  "dependencies": {
-  },
   "devDependencies": {
-    "elm-optimize-level-2": "0.1.5",
-    "elm-pages": "2.1.9",
-    "elm-review": "2.5.5",
-    "elm-tooling": "1.4.1"
+    "elm-optimize-level-2": "0.2.3",
+    "elm-pages": "2.1.11",
+    "elm-review": "2.7.0"
   }
 }
