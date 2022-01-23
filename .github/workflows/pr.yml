@@ -17,4 +17,4 @@ jobs:
         with:
           name: marco-daniels
           authToken: ${{secrets.CACHIX_AUTH_TOKEN}}
-      - run: nix-shell --run "echo 👾"
+      - run: nix-shell --run "yarn; yarn build;"
