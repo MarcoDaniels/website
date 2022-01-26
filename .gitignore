@@ -5,6 +5,7 @@
 .vscode/
 .cache/
 
+/result
 /.elm-pages
 /elm-stuff
 /gen
