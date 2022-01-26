@@ -1,16 +1,13 @@
 .DS_Store
 .env
 
-.idea/
-.vscode/
-.cache/
+.idea
+.vscode
+.cache
+.terraform
+.elm-pages
 
-/result
-/.elm-pages
-/elm-stuff
-/gen
-/modules
-/content
-
-/node_modules
-/dist
+result
+dist
+elm-stuff
+node_modules
