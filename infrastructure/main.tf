@@ -62,6 +62,39 @@ resource "aws_s3_bucket_policy" "bucket" {
   policy = data.aws_iam_policy_document.bucket-policy.json
 }
 
+resource "aws_iam_user" "bucket-write" {
+  name = "bucket-write-${local.project.name}"
+}
+
+resource "aws_iam_access_key" "bucket-write" {
+  user = aws_iam_user.bucket-write.name
+}
+
+data "aws_iam_policy_document" "bucket-write" {
+  statement {
+    actions   = ["s3:*"]
+    resources = [aws_s3_bucket.bucket.arn, "${aws_s3_bucket.bucket.arn}/*"]
+  }
+  statement {
+    actions   = ["cloudfront:CreateInvalidation"]
+    resources = [aws_cloudfront_distribution.distribution.arn]
+  }
+}
+
+resource "aws_iam_user_policy" "bucket-write" {
+  name   = "bucket-write"
+  policy = data.aws_iam_policy_document.bucket-write.json
+  user   = aws_iam_user.bucket-write.name
+}
+
+output "bucket-keys" {
+  value     = {
+    access_key_id     = aws_iam_access_key.bucket-write.id
+    secret_access_key = aws_iam_access_key.bucket-write.secret
+  }
+  sensitive = true
+}
+
 // CloudFront
 resource "aws_cloudfront_origin_access_identity" "oai" {}
 
