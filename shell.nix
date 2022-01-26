@@ -7,6 +7,7 @@ let
 
 in pkgs.mkShell {
     buildInputs = [
+        pkgs.terraform
         pkgs.nodejs-16_x
         pkgs.yarn
         pkgs.elmPackages.elm

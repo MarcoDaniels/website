@@ -61,7 +61,7 @@ view maybeUrl sharedModel static =
     { title = "Marco Daniels"
     , body =
         [ Html.div [ Html.css [ centerStyle.inline ] ]
-            [ Html.h1 [] [ Html.text "we're cooking something..." ]
+            [ Html.h1 [] [ Html.text "hey there! 👋" ]
             ]
         ]
     }
