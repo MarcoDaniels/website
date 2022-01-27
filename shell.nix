@@ -5,7 +5,7 @@ let
         echo "🚀 make image API dev proxy";
     '';
 
-    buildOriginRequest = pkgs.writeShellScriptBin "buildOriginRequest" ''
+    buildLambda = pkgs.writeShellScriptBin "buildLambda" ''
        elm make infrastructure/lambda/OriginRequest.elm --optimize --output infrastructure/dist/OriginRequest.js
        cp infrastructure/lambda/index.js infrastructure/dist/index.js
     '';
