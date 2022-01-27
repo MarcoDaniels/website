@@ -1,4 +1,4 @@
-module AWS exposing (Event, EventResult(..), Request, Response, decodeEvent, encodeEventResult, Headers, Header)
+module AWS exposing (Event, EventResult(..), Headers, Request, Response, decodeEvent, encodeEventResult)
 
 {-| Types based on:
 <https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-event-structure.html#request-event-fields>
@@ -45,12 +45,10 @@ type alias Response =
     }
 
 
-
--- TODO: depending on event type (Origin Response), can have response (to add headers)
-
-
 type alias CloudFront =
     { config : Config
+
+    -- TODO: depending on event type (Origin Response), can have response (to add headers)
     , request : Request
     }
 
@@ -89,21 +87,19 @@ decodeConfig =
         |> Decode.required "requestId" Decode.string
 
 
-decodeCloudFront : Decoder Record
-decodeCloudFront =
-    Decode.succeed Record
-        |> Decode.required "cf"
-            (Decode.succeed CloudFront
-                |> Decode.required "config" decodeConfig
-                |> Decode.required "request" decodeRequest
-            )
-
-
 decodeEvent : Decoder Event
 decodeEvent =
     Decode.succeed Event
         |> Decode.required "Records"
-            (Decode.list decodeCloudFront)
+            (Decode.list
+                (Decode.succeed Record
+                    |> Decode.required "cf"
+                        (Decode.succeed CloudFront
+                            |> Decode.required "config" decodeConfig
+                            |> Decode.required "request" decodeRequest
+                        )
+                )
+            )
 
 
 type EventResult
