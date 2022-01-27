@@ -87,6 +87,11 @@ resource "aws_iam_user_policy" "bucket-write" {
   user   = aws_iam_user.bucket-write.name
 }
 
+output "bucket" {
+  value     = aws_s3_bucket.bucket.bucket
+  sensitive = true
+}
+
 output "bucket-keys" {
   value     = {
     access_key_id     = aws_iam_access_key.bucket-write.id
