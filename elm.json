@@ -2,11 +2,14 @@
     "type": "application",
     "source-directories": [
         "src",
-        ".elm-pages"
+        ".elm-pages",
+        "cloud-worker",
+        "infrastructure/lambda"
     ],
     "elm-version": "0.19.1",
     "dependencies": {
         "direct": {
+            "NoRedInk/elm-json-decode-pipeline": "1.0.1",
             "dillonkearns/elm-markdown": "7.0.0",
             "dillonkearns/elm-pages": "9.0.0",
             "elm/browser": "1.0.2",
