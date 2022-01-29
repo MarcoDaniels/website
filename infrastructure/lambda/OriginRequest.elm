@@ -1,18 +1,23 @@
 module OriginRequest exposing (main)
 
-import AWS exposing (InputEvent, OutputEvent(..))
-import CloudWorker exposing (originRequest, toCloudWorker, withHeader)
-import Dict
+import CloudWorker exposing (originRequest, toCloudWorker, toRequest, toResponse)
 
 
 main : Program () CloudWorker.Model CloudWorker.Msg
 main =
     originRequest
-        { request =
-            withHeader
-                (Dict.insert "header-name"
-                    [ { key = "key-value", value = "value-value" } ]
-                    Dict.empty
-                )
-        }
+        (\req ->
+            case req.uri of
+                "/" ->
+                    toRequest
+                        { req | clientIp = "hey" }
+
+                _ ->
+                    toResponse
+                        { status = ""
+                        , statusDescription = ""
+                        , headers = req.headers
+                        , body = ""
+                        }
+        )
         |> toCloudWorker

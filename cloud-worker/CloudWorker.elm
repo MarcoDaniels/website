@@ -20,6 +20,34 @@ type Msg
     = Input (Result Error InputEvent)
 
 
+originRequest : (Request -> OutputEvent) -> InputEvent -> OutputEvent
+originRequest requestToOut inEvent =
+    inEvent.records
+        |> List.foldr
+            (\{ cf } _ -> cf.request)
+            { clientIp = ""
+            , headers = Dict.empty
+            , method = ""
+            , querystring = Nothing
+            , uri = ""
+            }
+        |> requestToOut
+
+
+
+-- originResponse: {Request, Response} -> Response
+
+
+toRequest : Request -> OutputEvent
+toRequest request =
+    OutputRequest request
+
+
+toResponse : Response -> OutputEvent
+toResponse response =
+    OutputResponse response
+
+
 toCloudWorker : (InputEvent -> OutputEvent) -> Program () Model Msg
 toCloudWorker eventResult =
     Platform.worker
@@ -44,29 +72,3 @@ toCloudWorker eventResult =
                             Err _ ->
                                 ( model, Cmd.none )
         }
-
-
-
--- originResponse: {Request, Response} -> Response
--- originRequest: Request -> Request | Response
-
-
-originRequest : { request : Request -> Request } -> InputEvent -> OutputEvent
-originRequest { request } event =
-    OutputRequest
-        (event.records
-            |> List.foldr
-                (\{ cf } _ -> cf.request)
-                { clientIp = ""
-                , headers = Dict.empty
-                , method = ""
-                , querystring = Nothing
-                , uri = ""
-                }
-            |> request
-        )
-
-
-withHeader : Headers -> Request -> Request
-withHeader headers request =
-    { request | headers = Dict.union headers request.headers }
