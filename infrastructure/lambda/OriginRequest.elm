@@ -1,6 +1,6 @@
 module OriginRequest exposing (main)
 
-import AWS exposing (Event, EventResult(..))
+import AWS exposing (InputEvent, OutputEvent(..))
 import CloudWorker exposing (originRequest, toCloudWorker, withHeader)
 import Dict
 
