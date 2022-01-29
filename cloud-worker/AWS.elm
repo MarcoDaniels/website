@@ -1,4 +1,4 @@
-module AWS exposing (Event, EventResult(..), Headers, Request, Response, decodeEvent, encodeEventResult)
+module AWS exposing (Headers, InputEvent, OutputEvent(..), Request, Response, decodeInputEvent, encodeOutputEvent)
 
 {-| Types based on:
 <https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-event-structure.html#request-event-fields>
@@ -57,7 +57,7 @@ type alias Record =
     { cf : CloudFront }
 
 
-type alias Event =
+type alias InputEvent =
     { records : List Record }
 
 
@@ -87,9 +87,9 @@ decodeConfig =
         |> Decode.required "requestId" Decode.string
 
 
-decodeEvent : Decoder Event
-decodeEvent =
-    Decode.succeed Event
+decodeInputEvent : Decoder InputEvent
+decodeInputEvent =
+    Decode.succeed InputEvent
         |> Decode.required "Records"
             (Decode.list
                 (Decode.succeed Record
@@ -102,9 +102,9 @@ decodeEvent =
             )
 
 
-type EventResult
-    = ResultResponse Response
-    | ResultRequest Request
+type OutputEvent
+    = OutputResponse Response
+    | OutputRequest Request
 
 
 encodeHeaders : Headers -> Encode.Value
@@ -128,10 +128,10 @@ encodeQuerystring maybeQuerystring =
         |> Maybe.withDefault Encode.null
 
 
-encodeEventResult : EventResult -> Encode.Value
-encodeEventResult result =
+encodeOutputEvent : OutputEvent -> Encode.Value
+encodeOutputEvent result =
     case result of
-        ResultResponse response ->
+        OutputResponse response ->
             Encode.object
                 [ ( "status", Encode.string response.status )
                 , ( "statusDescription", Encode.string response.statusDescription )
@@ -139,7 +139,7 @@ encodeEventResult result =
                 , ( "body", Encode.string response.body )
                 ]
 
-        ResultRequest request ->
+        OutputRequest request ->
             Encode.object
                 [ ( "clientIp", Encode.string request.clientIp )
                 , ( "headers", request.headers |> encodeHeaders )
