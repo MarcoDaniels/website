@@ -1,6 +1,7 @@
 module OriginRequest exposing (main)
 
-import CloudWorker exposing (originRequest, toCloudWorker, toRequest, toResponse)
+import AWS exposing (InputEvent, OutputEvent)
+import CloudWorker exposing (originRequest, toCloudWorker, toRequest)
 
 
 main : Program () CloudWorker.Model CloudWorker.Msg
@@ -10,14 +11,9 @@ main =
             case req.uri of
                 "/" ->
                     toRequest
-                        { req | clientIp = "hey" }
+                        { req | uri = "index.html" }
 
                 _ ->
-                    toResponse
-                        { status = ""
-                        , statusDescription = ""
-                        , headers = req.headers
-                        , body = ""
-                        }
+                    toRequest req
         )
         |> toCloudWorker
