@@ -42,7 +42,7 @@ let
                             },
                             "method": "GET",
                             "querystring": "",
-                            "uri": "/"
+                            "uri": "tempo/index.js"
                         }
                     }
                 }
@@ -62,6 +62,7 @@ in pkgs.mkShell {
         pkgs.yarn
         pkgs.elmPackages.elm
         pkgs.elmPackages.elm-format
+        pkgs.elmPackages.elm-test
         pkgs.elm2nix
         devProxy
         buildLambda
