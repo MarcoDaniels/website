@@ -48,6 +48,11 @@ toResponse response =
     OutputResponse response
 
 
+
+-- TODO: cloudWorker API should be a "regular" worker
+-- client should have access to init, update
+
+
 toCloudWorker : (InputEvent -> OutputEvent) -> Program () Model Msg
 toCloudWorker eventResult =
     Platform.worker
