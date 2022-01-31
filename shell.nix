@@ -6,13 +6,14 @@ let
     '';
 
     buildLambda = pkgs.writeShellScriptBin "buildLambda" ''
-       elm make infrastructure/lambda/OriginRequest.elm --optimize --output infrastructure/dist/OriginRequest.js
-       cp infrastructure/lambda/index.js infrastructure/dist/index.js
+       elm make infrastructure/lambda/OriginRequest.elm --optimize --output infrastructure/dist/originRequestElm.js
+       cp infrastructure/lambda/originRequest.js infrastructure/dist/originRequest.js
     '';
 
     testLambda = pkgs.writeScriptBin "testLambda" ''
         #!/usr/bin/env node
-        const {handler} = require("${toString ./.}/infrastructure/dist")
+        const {handler} = require("${toString ./.}/infrastructure/dist/originRequest")
+        const uri = process.argv[2] ? process.argv[2] : ""
 
         const payload = {
             "Records": [
@@ -42,7 +43,7 @@ let
                             },
                             "method": "GET",
                             "querystring": "",
-                            "uri": "tempo/index.js"
+                            "uri": uri,
                         }
                     }
                 }

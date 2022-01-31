@@ -7,13 +7,19 @@ import CloudWorker exposing (originRequest, toCloudWorker, toRequest)
 main : Program () CloudWorker.Model CloudWorker.Msg
 main =
     originRequest
-        (\req ->
-            case req.uri of
-                "/" ->
+        (\request ->
+            case request.uri of
+                "" ->
                     toRequest
-                        { req | uri = "index.html" }
+                        { request | uri = "/index.html" }
 
-                _ ->
-                    toRequest req
+                uri ->
+                    toRequest
+                        (if String.endsWith "/" uri then
+                            { request | uri = uri ++ "index.html" }
+
+                         else
+                            request
+                        )
         )
         |> toCloudWorker

@@ -1,4 +1,4 @@
-const {Elm} = require('./OriginRequest')
+const {Elm} = require('./originRequestElm')
 const app = Elm.OriginRequest.init()
 
 exports.handler = (event, context, callback) => {
