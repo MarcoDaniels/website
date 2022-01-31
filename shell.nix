@@ -1,72 +1,75 @@
 let
-    pkgs = import (import ./nix/pin.nix).nixpkgs {};
+  pkgs = import (import ./nix/pin.nix).nixpkgs { };
 
-    devProxy = pkgs.writeShellScriptBin "devProxy" ''
-        echo "🚀 make image API dev proxy";
-    '';
+  devProxy = pkgs.writeShellScriptBin "devProxy" ''
+    echo "🚀 make image API dev proxy";
+  '';
 
-    buildLambda = pkgs.writeShellScriptBin "buildLambda" ''
-       elm make infrastructure/lambda/OriginRequest.elm --optimize --output infrastructure/dist/originRequestElm.js
-       cp infrastructure/lambda/originRequest.js infrastructure/dist/originRequest.js
-    '';
+  buildLambda = pkgs.writeShellScriptBin "buildLambda" ''
+    elm make infrastructure/lambda/OriginRequest.elm --optimize --output infrastructure/dist/originRequestElm.js
+    cp infrastructure/lambda/originRequest.js infrastructure/dist/originRequest.js
+  '';
 
-    testLambda = pkgs.writeScriptBin "testLambda" ''
-        #!/usr/bin/env node
-        const {handler} = require("${toString ./.}/infrastructure/dist/originRequest")
-        const uri = process.argv[2] ? process.argv[2] : ""
+  testLambda = pkgs.writeScriptBin "testLambda" ''
+    #!/usr/bin/env node
+    const {handler} = require("${
+      toString ./.
+    }/infrastructure/dist/originRequest")
+    const uri = process.argv[2] ? process.argv[2] : ""
 
-        const payload = {
-            "Records": [
-                {
-                    "cf": {
-                        "config": {
-                            "distributionDomainName": "d111111abcdef8.cloudfront.net",
-                            "distributionId": "EDFDVBD6EXAMPLE",
-                            "eventType": "origin-request",
-                            "requestId": "4TyzHTaYWb1GX1qTfsHhEqV6HUDd_BzoBZnwfnvQc_1oF26ClkoUSEQ=="
+    const payload = {
+        "Records": [
+            {
+                "cf": {
+                    "config": {
+                        "distributionDomainName": "d111111abcdef8.cloudfront.net",
+                        "distributionId": "EDFDVBD6EXAMPLE",
+                        "eventType": "origin-request",
+                        "requestId": "4TyzHTaYWb1GX1qTfsHhEqV6HUDd_BzoBZnwfnvQc_1oF26ClkoUSEQ=="
+                    },
+                    "request": {
+                        "clientIp": "203.0.113.178",
+                        "headers": {
+                            "user-agent": [
+                                {
+                                    "key": "User-Agent",
+                                    "value": "Amazon CloudFront"
+                                }
+                            ],
+                            "cache-control": [
+                                {
+                                    "key": "Cache-Control",
+                                    "value": "no-cache, cf-no-cache"
+                                }
+                            ]
                         },
-                        "request": {
-                            "clientIp": "203.0.113.178",
-                            "headers": {
-                                "user-agent": [
-                                    {
-                                        "key": "User-Agent",
-                                        "value": "Amazon CloudFront"
-                                    }
-                                ],
-                                "cache-control": [
-                                    {
-                                        "key": "Cache-Control",
-                                        "value": "no-cache, cf-no-cache"
-                                    }
-                                ]
-                            },
-                            "method": "GET",
-                            "querystring": "",
-                            "uri": uri,
-                        }
+                        "method": "GET",
+                        "querystring": "",
+                        "uri": uri,
                     }
                 }
-            ]
-        }
+            }
+        ]
+    }
 
-        logJSON = (_, content) =>
-            console.log(JSON.stringify(content, null, 4))
+    logJSON = (_, content) =>
+        console.log(JSON.stringify(content, null, 4))
 
-        handler(payload, "", logJSON)
-    '';
+    handler(payload, "", logJSON)
+  '';
 
 in pkgs.mkShell {
-    buildInputs = [
-        pkgs.terraform
-        pkgs.nodejs-16_x
-        pkgs.yarn
-        pkgs.elmPackages.elm
-        pkgs.elmPackages.elm-format
-        pkgs.elmPackages.elm-test
-        pkgs.elm2nix
-        devProxy
-        buildLambda
-        testLambda
-    ];
+  buildInputs = [
+    pkgs.nixfmt
+    pkgs.terraform
+    pkgs.nodejs-16_x
+    pkgs.yarn
+    pkgs.elmPackages.elm
+    pkgs.elmPackages.elm-format
+    pkgs.elmPackages.elm-test
+    pkgs.elm2nix
+    devProxy
+    buildLambda
+    testLambda
+  ];
 }
