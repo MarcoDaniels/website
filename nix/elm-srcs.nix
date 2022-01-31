@@ -20,6 +20,11 @@
         version = "1.0.0";
       };
 
+      "NoRedInk/elm-json-decode-pipeline" = {
+        sha256 = "1k241pjz1wj5rqv95f1j86msa0s0p6w4v8n0jn26aw6cbadw363b";
+        version = "1.0.1";
+      };
+
       "elm/json" = {
         sha256 = "0kjwrz195z84kwywaxhhlnpl3p251qlbm5iz6byd6jky2crmyqyh";
         version = "1.1.3";
@@ -73,11 +78,6 @@
       "zwilias/json-decode-exploration" = {
         sha256 = "10q2xyazr67w3lnv2dza40cd52r5civg90gcn10pijh09jnmk40h";
         version = "6.0.0";
-      };
-
-      "elm-explorations/test" = {
-        sha256 = "1fsd7bajm7qa93r5pn3mdafqh3blpzya601jbs9l238p0hmvh576";
-        version = "1.2.2";
       };
 
       "avh4/elm-color" = {
@@ -193,5 +193,20 @@
       "elm/time" = {
         sha256 = "0vch7i86vn0x8b850w1p69vplll1bnbkp8s383z7pinyg94cm2z1";
         version = "1.0.0";
+      };
+
+      "elm-explorations/test" = {
+        sha256 = "1fsd7bajm7qa93r5pn3mdafqh3blpzya601jbs9l238p0hmvh576";
+        version = "1.2.2";
+      };
+
+      "avh4/elm-program-test" = {
+        sha256 = "03w5agik9gpa5mai1h0ps8dbc6ai336h6k03w70jihiiw9g8hj76";
+        version = "3.6.1";
+      };
+
+      "avh4/elm-fifo" = {
+        sha256 = "1ka0iz2psr75h4qz7hh5z1prclah1nais9aaycaxapfd7inqmrrc";
+        version = "1.0.4";
       };
 }
