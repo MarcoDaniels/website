@@ -2,7 +2,7 @@ module Site exposing (config)
 
 import DataSource
 import Pages.Manifest as Manifest
-import Route
+import Path
 import SiteConfig exposing (SiteConfig)
 
 
@@ -19,7 +19,7 @@ config =
             Manifest.init
                 { name = "MarcoDaniels"
                 , description = "MarcoDaniels"
-                , startUrl = Route.Index |> Route.toPath
+                , startUrl = "" |> Path.fromString
                 , icons = []
                 }
     , head = \_ -> []
