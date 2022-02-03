@@ -1,6 +1,7 @@
 module Page.SPLAT__ exposing (Data, Model, Msg, page)
 
 import Cockpit exposing (Cockpit(..), fetchData)
+import Content exposing (Content, ContentData(..), contentDecoder)
 import DataSource exposing (DataSource)
 import Head.Seo as Seo
 import Html.Styled as Html
@@ -12,6 +13,7 @@ import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
 import Shared
 import Style.Center exposing (centerStyle)
+import Utilities exposing (toURL)
 import View exposing (View)
 
 
@@ -31,6 +33,7 @@ type alias Data =
     { url : List String
     , title : String
     , description : String
+    , content : Maybe (List Content)
     }
 
 
@@ -59,15 +62,16 @@ page =
         , data =
             \route ->
                 pageData
-                    |> DataSource.map (List.filter (\item -> item.url == route.splat))
                     |> DataSource.map
-                        (\maybeItem ->
-                            case List.head maybeItem of
-                                Just item ->
+                        (List.foldr
+                            (\item next ->
+                                if item.url == route.splat then
                                     item
 
-                                Nothing ->
-                                    { url = [ "" ], title = "", description = "" }
+                                else
+                                    next
+                            )
+                            { url = [], title = "", description = "", content = Nothing }
                         )
         }
         |> Page.buildNoState { view = view }
@@ -80,23 +84,10 @@ pageData =
             Decoder.field "entries" <|
                 Decoder.list
                     (Decoder.succeed Data
-                        |> Decoder.required "url"
-                            (Decoder.string
-                                |> Decoder.map
-                                    (\url ->
-                                        if String.startsWith "/" url then
-                                            if String.dropLeft 1 url == "" then
-                                                []
-
-                                            else
-                                                [ String.dropLeft 1 url ]
-
-                                        else
-                                            [ url ]
-                                    )
-                            )
+                        |> Decoder.required "url" (Decoder.string |> Decoder.map toURL)
                         |> Decoder.required "title" Decoder.string
                         |> Decoder.required "description" Decoder.string
+                        |> Decoder.required "content" (Decoder.list contentDecoder |> Decoder.maybe)
                     )
         )
 
@@ -110,6 +101,21 @@ view maybeUrl sharedModel static =
     { title = "Marco Daniels" ++ " - " ++ static.data.title
     , body =
         [ Html.div [ Html.css [ centerStyle.inline ] ]
-            [ Html.h1 [] [ Html.text "hey there! 👋" ] ]
+            (case static.data.content of
+                Just content ->
+                    content
+                        |> List.map
+                            (\contentData ->
+                                case contentData.value of
+                                    ContentMarkdown string ->
+                                        Html.text string
+
+                                    _ ->
+                                        Html.text ""
+                            )
+
+                Nothing ->
+                    [ Html.text "" ]
+            )
         ]
     }
