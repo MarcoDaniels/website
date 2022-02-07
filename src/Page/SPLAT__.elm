@@ -13,7 +13,7 @@ import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
 import Shared
 import Style.Center exposing (centerStyle)
-import Utilities exposing (toURL)
+import Utilities exposing (toImageAPI, toURL)
 import View exposing (View)
 
 
@@ -110,12 +110,15 @@ view maybeUrl sharedModel static =
                                     ContentMarkdown string ->
                                         Html.text string
 
+                                    ContentAsset asset ->
+                                        Html.img [ Html.src (toImageAPI asset.path 200) ] []
+
                                     _ ->
                                         Html.text ""
                             )
 
                 Nothing ->
-                    [ Html.text "" ]
+                    []
             )
         ]
     }
