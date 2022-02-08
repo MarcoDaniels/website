@@ -45,11 +45,14 @@ page =
             \static ->
                 Seo.summary
                     { canonicalUrlOverride = Nothing
-                    , siteName = static.data.title
+                    , siteName = static.sharedData.site.title
                     , image =
                         case static.data.image of
                             Just image ->
-                                { url = toImageAPI image.path 300 |> Pages.Url.external
+                                { url =
+                                    static.sharedData.site.baseURL
+                                        ++ toImageAPI image.path 300
+                                        |> Pages.Url.external
                                 , alt = image.title
                                 , dimensions = Just { width = image.width, height = image.height }
                                 , mimeType = Just image.mime
@@ -63,7 +66,7 @@ page =
                                 }
                     , description = static.data.description
                     , locale = Nothing
-                    , title = static.data.title
+                    , title = static.sharedData.site.title
                     }
                     |> Seo.website
         , routes =
@@ -109,7 +112,7 @@ view :
     -> StaticPayload Data RouteParams
     -> View Msg
 view maybeUrl sharedModel static =
-    { title = "Marco Daniels" ++ " - " ++ static.data.title
+    { title = static.data.title
     , body =
         [ Html.div [ Html.css [ centerStyle.column ] ]
             (case static.data.content of

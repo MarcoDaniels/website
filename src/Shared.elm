@@ -5,6 +5,7 @@ import DataSource
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
 import Path exposing (Path)
+import Settings exposing (Settings, settingsData)
 import SharedTemplate exposing (SharedTemplate)
 import Style.Center exposing (centerStyle)
 import Style.Theme exposing (useTheme)
@@ -20,7 +21,7 @@ type Msg
 
 
 type alias Data =
-    ()
+    Settings
 
 
 type SharedMsg
@@ -47,7 +48,7 @@ template =
     , subscriptions = \_ _ -> Sub.none
     , view =
         \sharedData _ model toMsg pageView ->
-            { title = pageView.title
+            { title = sharedData.site.title ++ " - " ++ pageView.title
             , body =
                 useTheme
                     [ Html.article
@@ -59,6 +60,6 @@ template =
                         pageView.body
                     ]
             }
-    , data = DataSource.succeed ()
+    , data = settingsData
     , onPageChange = Just OnPageChange
     }
