@@ -1,25 +1,25 @@
 module Site exposing (config)
 
-import DataSource
 import Pages.Manifest as Manifest
 import Path
+import Settings exposing (Settings, settingsData)
 import SiteConfig exposing (SiteConfig)
 
 
 type alias Data =
-    ()
+    Settings
 
 
 config : SiteConfig Data
 config =
-    { data = DataSource.succeed ()
+    { data = settingsData
     , canonicalUrl = "https://marcodaniels.com"
     , manifest =
-        \_ ->
+        \{ site } ->
             Manifest.init
-                { name = "MarcoDaniels"
-                , description = "MarcoDaniels"
-                , startUrl = "" |> Path.fromString
+                { name = site.title
+                , description = site.description
+                , startUrl = site.baseURL |> Path.fromString
                 , icons = []
                 }
     , head = \_ -> []
