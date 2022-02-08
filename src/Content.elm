@@ -1,4 +1,4 @@
-module Content exposing (Content, ContentData(..), contentDecoder)
+module Content exposing (Content, ContentData(..), contentDecoder, Asset, assetDecoder)
 
 import OptimizedDecoder as Decoder exposing (Decoder)
 import OptimizedDecoder.Pipeline as Decoder
@@ -23,6 +23,7 @@ type alias Asset =
     , title : String
     , width : Int
     , height : Int
+    , mime: String
     , colors : Maybe (List String)
     }
 
@@ -41,6 +42,7 @@ assetDecoder =
         |> Decoder.required "title" Decoder.string
         |> Decoder.required "width" Decoder.int
         |> Decoder.required "height" Decoder.int
+        |> Decoder.required "mime" Decoder.string
         |> Decoder.optional "colors" (Decoder.maybe (Decoder.list Decoder.string)) Nothing
 
 

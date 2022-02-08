@@ -16,5 +16,6 @@ centerStyle =
             [ Css.displayFlex
             , Css.justifyContent Css.center
             , Css.flexDirection Css.column
+            , Css.alignItems Css.center
             ]
     }

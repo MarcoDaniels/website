@@ -1,7 +1,7 @@
 module Page.SPLAT__ exposing (Data, Model, Msg, page)
 
 import Cockpit exposing (Cockpit(..), fetchData)
-import Content exposing (Content, ContentData(..), contentDecoder)
+import Content exposing (Asset, Content, ContentData(..), assetDecoder, contentDecoder)
 import DataSource exposing (DataSource)
 import Head.Seo as Seo
 import Html.Styled as Html
@@ -33,6 +33,7 @@ type alias Data =
     { url : List String
     , title : String
     , description : String
+    , image : Maybe Asset
     , content : Maybe (List Content)
     }
 
@@ -41,19 +42,28 @@ page : Page RouteParams Data
 page =
     Page.prerender
         { head =
-            \_ ->
+            \static ->
                 Seo.summary
                     { canonicalUrlOverride = Nothing
-                    , siteName = "MarcoDaniels"
+                    , siteName = static.data.title
                     , image =
-                        { url = Pages.Url.external "TODO"
-                        , alt = "marcodaniels logo"
-                        , dimensions = Nothing
-                        , mimeType = Nothing
-                        }
-                    , description = "TODO"
+                        case static.data.image of
+                            Just image ->
+                                { url = toImageAPI image.path 300 |> Pages.Url.external
+                                , alt = image.title
+                                , dimensions = Just { width = image.width, height = image.height }
+                                , mimeType = Just image.mime
+                                }
+
+                            Nothing ->
+                                { url = Pages.Url.external ""
+                                , alt = ""
+                                , dimensions = Nothing
+                                , mimeType = Nothing
+                                }
+                    , description = static.data.description
                     , locale = Nothing
-                    , title = "Marco Daniels"
+                    , title = static.data.title
                     }
                     |> Seo.website
         , routes =
@@ -71,7 +81,7 @@ page =
                                 else
                                     next
                             )
-                            { url = [], title = "", description = "", content = Nothing }
+                            { url = [], title = "", description = "", image = Nothing, content = Nothing }
                         )
         }
         |> Page.buildNoState { view = view }
@@ -87,6 +97,7 @@ pageData =
                         |> Decoder.required "url" (Decoder.string |> Decoder.map toURL)
                         |> Decoder.required "title" Decoder.string
                         |> Decoder.required "description" Decoder.string
+                        |> Decoder.required "image" (Decoder.maybe assetDecoder)
                         |> Decoder.required "content" (Decoder.list contentDecoder |> Decoder.maybe)
                     )
         )
@@ -100,7 +111,7 @@ view :
 view maybeUrl sharedModel static =
     { title = "Marco Daniels" ++ " - " ++ static.data.title
     , body =
-        [ Html.div [ Html.css [ centerStyle.inline ] ]
+        [ Html.div [ Html.css [ centerStyle.column ] ]
             (case static.data.content of
                 Just content ->
                     content
@@ -108,10 +119,10 @@ view maybeUrl sharedModel static =
                             (\contentData ->
                                 case contentData.value of
                                     ContentMarkdown string ->
-                                        Html.text string
+                                        Html.div [] [ Html.text string ]
 
                                     ContentAsset asset ->
-                                        Html.img [ Html.src (toImageAPI asset.path 200) ] []
+                                        Html.img [ Html.width 200, Html.src (toImageAPI asset.path 300) ] []
 
                                     _ ->
                                         Html.text ""
