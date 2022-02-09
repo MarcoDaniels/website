@@ -26,5 +26,5 @@ jobs:
         with:
           name: marco-daniels
           authToken: ${{secrets.CACHIX_AUTH_TOKEN}}
-      - name: Install Dependencies
+      - name: Build Website
         run: nix-shell --run "ciBuild"
