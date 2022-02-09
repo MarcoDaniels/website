@@ -58,6 +58,11 @@ let
     console.log(`running dev in http://localhost:8000`)
   '';
 
+  ciBuild = pkgs.writeShellScriptBin "ciBuild" ''
+    ${pkgs.yarn}/bin/yarn
+    ${pkgs.yarn}/bin/yarn build
+  '';
+
 in pkgs.mkShell {
   buildInputs = [
     pkgs.nixfmt
@@ -69,5 +74,6 @@ in pkgs.mkShell {
     pkgs.elmPackages.elm-test
     pkgs.elm2nix
     devProxy
+    ciBuild
   ];
 }
