@@ -93,7 +93,7 @@ output "bucket" {
 }
 
 output "bucket-keys" {
-  value     = {
+  value = {
     access_key_id     = aws_iam_access_key.bucket-write.id
     secret_access_key = aws_iam_access_key.bucket-write.secret
   }
@@ -174,7 +174,7 @@ data "aws_iam_policy_document" "lambda-edge" {
 
 data "aws_iam_policy_document" "lambda-logs" {
   statement {
-    actions   = [
+    actions = [
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:PutLogEvents"
@@ -234,6 +234,23 @@ resource "aws_lambda_function" "website-origin-request" {
   depends_on = [
     aws_iam_role_policy_attachment.lambda-logs,
   ]
+}
+
+// route53
+resource "aws_route53_zone" "website-zone" {
+  name = local.project.domain
+}
+
+resource "aws_route53_record" "website-record" {
+  zone_id = aws_route53_zone.website-zone.id
+  name    = local.project.domain
+  type    = "A"
+
+  alias {
+    evaluate_target_health = false
+    name                   = aws_cloudfront_distribution.distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.distribution.hosted_zone_id
+  }
 }
 
 output "cloudfront-domain" {
