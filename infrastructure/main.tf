@@ -110,6 +110,8 @@ resource "aws_cloudfront_distribution" "distribution" {
   comment     = "Distribution for ${local.project.description}"
   price_class = "PriceClass_100"
 
+  aliases = [local.project.domain]
+
   default_cache_behavior {
     target_origin_id = local.origins.website
 
@@ -153,8 +155,14 @@ resource "aws_cloudfront_distribution" "distribution" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = aws_acm_certificate.website-certificate.arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2018"
   }
+}
+
+output "cloudfront-domain" {
+  value = "https://${aws_cloudfront_distribution.distribution.domain_name}"
 }
 
 // lambda@edge
@@ -253,6 +261,26 @@ resource "aws_route53_record" "website-record" {
   }
 }
 
-output "cloudfront-domain" {
-  value = "https://${aws_cloudfront_distribution.distribution.domain_name}"
+resource "aws_route53_record" "website-record-certificate" {
+  name            = tolist(aws_acm_certificate.website-certificate.domain_validation_options)[0].resource_record_name
+  type            = tolist(aws_acm_certificate.website-certificate.domain_validation_options)[0].resource_record_type
+  records         = [tolist(aws_acm_certificate.website-certificate.domain_validation_options)[0].resource_record_value]
+  zone_id         = aws_route53_zone.website-zone.id
+  allow_overwrite = true
+  ttl             = 60
+}
+
+// acm
+resource "aws_acm_certificate" "website-certificate" {
+  domain_name       = local.project.domain
+  validation_method = "DNS"
+}
+
+resource "aws_acm_certificate_validation" "website-certificate-validation" {
+  certificate_arn         = aws_acm_certificate.website-certificate.arn
+  validation_record_fqdns = [aws_route53_record.website-record-certificate.fqdn]
+}
+
+output "website" {
+  value = "https://${local.project.domain}"
 }
