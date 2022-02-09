@@ -1,6 +1,6 @@
 let Project
     : Type
-    = { name : Text, description : Text }
+    = { name : Text, domain : Text, description : Text }
 
 let AWS
     : Type
@@ -8,7 +8,7 @@ let AWS
 
 let projectConfig
     : Project
-    = { name = "marco-daniels-website", description = "Marco Daniels Website" }
+    = { name = "marco-daniels-website", domain = "marcodaniels.com", description = "Marco Daniels Website" }
 
 let awsConfig
     : AWS
