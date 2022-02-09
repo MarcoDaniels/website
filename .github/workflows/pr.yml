@@ -25,6 +25,7 @@ jobs:
       - uses: cachix/cachix-action@v10
         with:
           name: marco-daniels
+          signInKey: ${{secrets.CACHIX_SIGNIN_KEY}}
           authToken: ${{secrets.CACHIX_AUTH_TOKEN}}
       - name: Build Website
         run: nix-shell --run "ciBuild"
