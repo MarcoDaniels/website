@@ -216,16 +216,16 @@ variable "replacements" {
 
 data "archive_file" "zip" {
   type        = "zip"
-  output_path = "${path.module}/result/index.zip"
+  output_path = "${path.module}/result/OriginRequest/index.zip"
 
   source {
-    content  = templatefile("${path.module}/result/index.js", var.replacements)
+    content  = templatefile("${path.module}/result/OriginRequest/index.js", var.replacements)
     filename = "index.js"
   }
 
   source {
-    content  = templatefile("${path.module}/result/OriginRequest.js", var.replacements)
-    filename = "OriginRequest.js"
+    content  = templatefile("${path.module}/result/OriginRequest/elm.js", var.replacements)
+    filename = "elm.js"
   }
 }
 

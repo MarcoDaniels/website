@@ -2,16 +2,15 @@ let
   pkgs = import (import ../nix/pin.nix).nixpkgs { };
 
   jsHandler = pkgs.writeShellScriptBin "jsHandler" ''
-    echo "const {Elm} = require('./$1')
-    const app = Elm.$1.init()
-
+    echo "const {Elm} = require('./elm');
+    const app = Elm.$1.init();
     exports.handler = (event, context, callback) => {
-        app.ports.inputEvent.send(event)
+        app.ports.inputEvent.send(event);
         app.ports.outputEvent.subscribe((output) =>
             callback(null, output)
         )
     }
-    " > $out/index.js
+    " >> $2
   '';
 
   mkLambda = { srcs ? ./elm-srcs.nix, src, name, srcdir, targets, registryDat }:
@@ -34,17 +33,17 @@ let
       in ''
         ${pkgs.lib.concatStrings (map (module: ''
           echo "compiling ${elmfile module}"
-          elm make ${elmfile module} --output $out/${module}.${extension}
+          elm make ${elmfile module} --optimize --output $out/${module}/elm.${extension}
           echo "minifying ${elmfile module}"
-          uglifyjs $out/${module}.${extension} --compress 'pure_funcs="F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9",pure_getters,keep_fargs=false,unsafe_comps,unsafe' \
-            | uglifyjs --mangle --output $out/${module}.${extension}
-          ${jsHandler}/bin/jsHandler ${module}
+          uglifyjs $out/${module}/elm.${extension} --compress 'pure_funcs="F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9",pure_getters,keep_fargs=false,unsafe_comps,unsafe' \
+            | uglifyjs --mangle --output $out/${module}/elm.${extension}
+          ${jsHandler}/bin/jsHandler ${module} $out/${module}/index.${extension}
         '') targets)}
       '';
     };
 
 in mkLambda {
-  name = "website-lambda-0.1.0";
+  name = "website-lambdas-1.0.0";
   srcs = ../nix/elm-srcs.nix;
   src = ../.;
   registryDat = ../nix/registry.dat;
