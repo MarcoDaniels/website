@@ -8,7 +8,7 @@ let
         app.ports.inputEvent.send(event);
         app.ports.outputEvent.subscribe((output) =>
             callback(null, output)
-        )
+        );
     }
     " >> $2
   '';

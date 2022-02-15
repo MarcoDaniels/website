@@ -1,0 +1,75 @@
+{
+  "Records": [
+    {
+      "cf": {
+        "config": {
+          "distributionDomainName": "111222333.cloudfront.net",
+          "distributionId": "ABCDEFG",
+          "eventType": "origin-request",
+          "requestId": "123456"
+        },
+        "request": {
+          "clientIp": "203.0.113.178",
+          "headers": {
+            "x-forwarded-for": [
+              {
+                "key": "X-Forwarded-For",
+                "value": "203.0.113.178"
+              }
+            ],
+            "user-agent": [
+              {
+                "key": "User-Agent",
+                "value": "Amazon CloudFront"
+              }
+            ],
+            "via": [
+              {
+                "key": "Via",
+                "value": "2.0 12345.cloudfront.net (CloudFront)"
+              }
+            ],
+            "host": [
+              {
+                "key": "Host",
+                "value": "example.org"
+              }
+            ],
+            "cache-control": [
+              {
+                "key": "Cache-Control",
+                "value": "no-cache, cf-no-cache"
+              }
+            ]
+          },
+          "method": "GET",
+          "origin": {
+            "custom": {
+              "customHeaders": {},
+              "domainName": "example.org",
+              "keepaliveTimeout": 5,
+              "path": "",
+              "port": 443,
+              "protocol": "https",
+              "readTimeout": 30,
+              "sslProtocols": [
+                "TLSv1",
+                "TLSv1.1",
+                "TLSv1.2"
+              ]
+            },
+            "s3": {
+              "authMethod": "origin-access-identity",
+              "customHeaders": {},
+              "domainName": "111222333.s3.amazonaws.com",
+              "path": "",
+              "region": "us-east-1"
+            }
+          },
+          "querystring": "",
+          "uri": "/"
+        }
+      }
+    }
+  ]
+}
