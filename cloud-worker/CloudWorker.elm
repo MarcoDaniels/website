@@ -1,6 +1,6 @@
 port module CloudWorker exposing (..)
 
-import AWS exposing (Headers, InputEvent, OutputEvent(..), Request, Response, decodeInputEvent, encodeOutputEvent)
+import AWS exposing (Headers, InputEvent, Origin(..), OutputEvent(..), Request, Response, decodeInputEvent, encodeOutputEvent)
 import Dict
 import Json.Decode as Decode exposing (Error)
 import Json.Encode as Encode
@@ -28,6 +28,7 @@ originRequest requestToOut inEvent =
             { clientIp = ""
             , headers = Dict.empty
             , method = ""
+            , origin = OriginS3 { s3 = { authMethod = "", path = "", customHeaders = Dict.empty, domainName = "", region = "" } }
             , querystring = Nothing
             , uri = ""
             }
@@ -66,14 +67,17 @@ toCloudWorker eventResult =
             \msg model ->
                 case msg of
                     Input result ->
-                        case result of
-                            Ok event ->
-                                ( { event = Just event }
-                                , eventResult event
-                                    |> encodeOutputEvent
-                                    |> outputEvent
-                                )
+                        Debug.log
+                            (Debug.toString result)
+                            (case result of
+                                Ok event ->
+                                    ( { event = Just event }
+                                    , eventResult event
+                                        |> encodeOutputEvent
+                                        |> outputEvent
+                                    )
 
-                            Err _ ->
-                                ( model, Cmd.none )
+                                Err _ ->
+                                    ( model, Cmd.none )
+                            )
         }

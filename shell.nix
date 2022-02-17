@@ -74,7 +74,7 @@ let
             callback(null, output)
         );
     }
-    " >> $2
+    " > $2
   '';
 
   buildLambda = pkgs.writeScriptBin "buildLambda" ''

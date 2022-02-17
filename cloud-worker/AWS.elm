@@ -1,4 +1,4 @@
-module AWS exposing (Headers, InputEvent, OutputEvent(..), Request, Response, decodeInputEvent, encodeOutputEvent)
+module AWS exposing (Headers, InputEvent, Origin(..), OutputEvent(..), Request, Response, decodeInputEvent, encodeOutputEvent)
 
 {-| Types based on:
 <https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-event-structure.html#request-event-fields>
@@ -26,12 +26,45 @@ type alias Headers =
     Dict.Dict String (List Header)
 
 
+type alias CustomOriginData =
+    { customHeaders : Headers
+    , domainName : String
+    , keepaliveTimeout : Int
+    , path : String
+    , port_ : Int
+    , protocol : String
+    , readTimeout : Int
+    , sslProtocols : List String
+    }
+
+
+type alias CustomOrigin =
+    { origin : CustomOriginData }
+
+
+type alias S3OriginData =
+    { authMethod : String
+    , customHeaders : Headers
+    , domainName : String
+    , path : String
+    , region : String
+    }
+
+
+type alias S3Origin =
+    { s3 : S3OriginData }
+
+
+type Origin
+    = OriginS3 S3Origin
+    | OriginCustom CustomOrigin
+
+
 type alias Request =
     { clientIp : String
     , headers : Headers
     , method : String
-
-    -- TODO: origin : Dict {customHeaders ...}
+    , origin : Origin
     , querystring : Maybe String
     , uri : String
     }
@@ -68,12 +101,48 @@ decodeHeader =
         |> Decode.required "value" Decode.string
 
 
+decodeCustomOriginData : Decoder CustomOriginData
+decodeCustomOriginData =
+    Decode.succeed CustomOriginData
+        |> Decode.required "customHeaders" (Decode.dict (Decode.list decodeHeader))
+        |> Decode.required "domainName" Decode.string
+        |> Decode.required "keepaliveTimeout" Decode.int
+        |> Decode.required "path" Decode.string
+        |> Decode.required "port" Decode.int
+        |> Decode.required "protocol" Decode.string
+        |> Decode.required "readTimeout" Decode.int
+        |> Decode.required "sslProtocols" (Decode.list Decode.string)
+
+
+decodeS3OriginData : Decoder S3OriginData
+decodeS3OriginData =
+    Decode.succeed S3OriginData
+        |> Decode.required "authMethod" Decode.string
+        |> Decode.required "customHeaders" (Decode.dict (Decode.list decodeHeader))
+        |> Decode.required "domainName" Decode.string
+        |> Decode.required "path" Decode.string
+        |> Decode.required "region" Decode.string
+
+
+decodeOrigin : Decoder Origin
+decodeOrigin =
+    Decode.oneOf
+        [ Decode.succeed S3Origin
+            |> Decode.required "s3" decodeS3OriginData
+            |> Decode.map OriginS3
+        , Decode.succeed CustomOrigin
+            |> Decode.required "custom" decodeCustomOriginData
+            |> Decode.map OriginCustom
+        ]
+
+
 decodeRequest : Decoder Request
 decodeRequest =
     Decode.succeed Request
         |> Decode.required "clientIp" Decode.string
         |> Decode.required "headers" (Decode.dict (Decode.list decodeHeader))
         |> Decode.required "method" Decode.string
+        |> Decode.required "origin" decodeOrigin
         |> Decode.required "querystring" (Decode.maybe Decode.string)
         |> Decode.required "uri" Decode.string
 
