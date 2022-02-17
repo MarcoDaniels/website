@@ -28,7 +28,7 @@ originRequest requestToOut inEvent =
             { clientIp = ""
             , headers = Dict.empty
             , method = ""
-            , origin = OriginS3 { s3 = { authMethod = "", path = "", customHeaders = Dict.empty, domainName = "", region = "" } }
+            , origin = OriginUnknown
             , querystring = Nothing
             , uri = ""
             }
