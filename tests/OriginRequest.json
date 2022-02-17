@@ -44,20 +44,6 @@
           },
           "method": "GET",
           "origin": {
-            "custom": {
-              "customHeaders": {},
-              "domainName": "example.org",
-              "keepaliveTimeout": 5,
-              "path": "",
-              "port": 443,
-              "protocol": "https",
-              "readTimeout": 30,
-              "sslProtocols": [
-                "TLSv1",
-                "TLSv1.1",
-                "TLSv1.2"
-              ]
-            },
             "s3": {
               "authMethod": "origin-access-identity",
               "customHeaders": {},

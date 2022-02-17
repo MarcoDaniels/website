@@ -10,7 +10,7 @@ let
             callback(null, output)
         );
     }
-    " >> $2
+    " > $2
   '';
 
   mkLambda = { srcs ? ./elm-srcs.nix, src, name, srcdir, targets, registryDat }:
