@@ -4,6 +4,8 @@ module AWS exposing (Headers, InputEvent, Origin(..), OutputEvent(..), Request, 
 <https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-event-structure.html#request-event-fields>
 -}
 
+-- TODO: separate into modules
+
 import Dict exposing (Dict)
 import Json.Decode as Decode exposing (Decoder, Error)
 import Json.Decode.Pipeline as Decode
@@ -58,6 +60,7 @@ type alias S3Origin =
 type Origin
     = OriginS3 S3Origin
     | OriginCustom CustomOrigin
+    | OriginUnknown
 
 
 type alias Request =
@@ -197,22 +200,43 @@ encodeQuerystring maybeQuerystring =
         |> Maybe.withDefault Encode.null
 
 
+encodeOrigin : Origin -> Encode.Value
+encodeOrigin origin =
+    case origin of
+        OriginS3 { s3 } ->
+            Encode.object
+                [ ( "s3"
+                  , Encode.object
+                        [ ( "authMethod", s3.authMethod |> Encode.string )
+                        , ( "customHeaders", s3.customHeaders |> encodeHeaders )
+                        , ( "domainName", s3.domainName |> Encode.string )
+                        , ( "path", s3.path |> Encode.string )
+                        , ( "region", s3.region |> Encode.string )
+                        ]
+                  )
+                ]
+
+        _ ->
+            Encode.string ""
+
+
 encodeOutputEvent : OutputEvent -> Encode.Value
 encodeOutputEvent result =
     case result of
         OutputResponse response ->
             Encode.object
-                [ ( "status", Encode.string response.status )
-                , ( "statusDescription", Encode.string response.statusDescription )
+                [ ( "status", response.status |> Encode.string )
+                , ( "statusDescription", response.statusDescription |> Encode.string )
                 , ( "headers", response.headers |> encodeHeaders )
-                , ( "body", Encode.string response.body )
+                , ( "body", response.body |> Encode.string )
                 ]
 
         OutputRequest request ->
             Encode.object
-                [ ( "clientIp", Encode.string request.clientIp )
+                [ ( "clientIp", request.clientIp |> Encode.string )
                 , ( "headers", request.headers |> encodeHeaders )
-                , ( "method", Encode.string request.method )
+                , ( "method", request.method |> Encode.string )
+                , ( "origin", request.origin |> encodeOrigin )
                 , ( "querystring", request.querystring |> encodeQuerystring )
-                , ( "uri", Encode.string request.uri )
+                , ( "uri", request.uri |> Encode.string )
                 ]
