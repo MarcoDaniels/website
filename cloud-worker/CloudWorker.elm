@@ -67,17 +67,14 @@ toCloudWorker eventResult =
             \msg model ->
                 case msg of
                     Input result ->
-                        Debug.log
-                            (Debug.toString result)
-                            (case result of
-                                Ok event ->
-                                    ( { event = Just event }
-                                    , eventResult event
-                                        |> encodeOutputEvent
-                                        |> outputEvent
-                                    )
+                        case result of
+                            Ok event ->
+                                ( { event = Just event }
+                                , eventResult event
+                                    |> encodeOutputEvent
+                                    |> outputEvent
+                                )
 
-                                Err _ ->
-                                    ( model, Cmd.none )
-                            )
+                            Err _ ->
+                                ( model, Cmd.none )
         }

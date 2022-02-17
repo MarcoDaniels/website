@@ -41,7 +41,7 @@ type alias CustomOriginData =
 
 
 type alias CustomOrigin =
-    { origin : CustomOriginData }
+    { custom : CustomOriginData }
 
 
 type alias S3OriginData =
@@ -136,6 +136,7 @@ decodeOrigin =
         , Decode.succeed CustomOrigin
             |> Decode.required "custom" decodeCustomOriginData
             |> Decode.map OriginCustom
+        , Decode.succeed OriginUnknown
         ]
 
 
@@ -216,8 +217,24 @@ encodeOrigin origin =
                   )
                 ]
 
-        _ ->
-            Encode.string ""
+        OriginCustom { custom } ->
+            Encode.object
+                [ ( "custom"
+                  , Encode.object
+                        [ ( "customHeaders", custom.customHeaders |> encodeHeaders )
+                        , ( "domainName", custom.domainName |> Encode.string )
+                        , ( "keepaliveTimout", custom.keepaliveTimeout |> Encode.int )
+                        , ( "path", custom.path |> Encode.string )
+                        , ( "port", custom.port_ |> Encode.int )
+                        , ( "protocol", custom.protocol |> Encode.string )
+                        , ( "readTimeout", custom.readTimeout |> Encode.int )
+                        , ( "sslProtocols", custom.sslProtocols |> Encode.list Encode.string )
+                        ]
+                  )
+                ]
+
+        OriginUnknown ->
+            Encode.null
 
 
 encodeOutputEvent : OutputEvent -> Encode.Value
