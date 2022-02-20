@@ -1,4 +1,4 @@
-module OriginRequest exposing (main)
+module WebsiteRequest exposing (main)
 
 import AWS exposing (InputEvent, OutputEvent)
 import CloudWorker exposing (originRequest, toCloudWorker, toRequest)

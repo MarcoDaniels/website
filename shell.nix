@@ -80,18 +80,19 @@ let
   '';
 
   buildLambda = pkgs.writeScriptBin "buildLambda" ''
-    ${pkgs.elmPackages.elm}/bin/elm make infrastructure/lambda/OriginRequest.elm --output infrastructure/result/OriginRequest/elm.js
-    ${jsHandler}/bin/jsHandler OriginRequest infrastructure/result/OriginRequest/index.js
+    ${pkgs.elmPackages.elm}/bin/elm make infrastructure/lambda/$1.elm --output infrastructure/result/$1/elm.js
+    ${jsHandler}/bin/jsHandler $1 infrastructure/result/$1/index.js
   '';
 
   testLambda = pkgs.writeScriptBin "testLambda" ''
     #!/usr/bin/env node
     const fs = require('fs')
     const lambda = process.argv[2]
+    const testPayload = process.argv[3]
     const {handler} = require("${toString ./.}/infrastructure/result/" + lambda)
     const payload = JSON.parse(fs.readFileSync("${
       toString ./.
-    }/tests/" + lambda + ".json"))
+    }/tests/" + testPayload + ".json"))
 
     logJSON = (_, content) =>
         console.log(JSON.stringify(content, null, 4))
