@@ -49,7 +49,7 @@ in mkLambda {
   srcs = ../nix/elm-srcs.nix;
   src = ../.;
   registryDat = ../nix/registry.dat;
-  targets = [ "OriginRequest" ];
+  targets = [ "WebsiteRequest" "AssetRequest" ];
   srcdir = "./infrastructure/lambda";
 }
 
