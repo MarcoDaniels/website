@@ -5,10 +5,12 @@ let
     echo "const {Elm} = require('./elm');
     const app = Elm.$1.init();
     exports.handler = (event, context, callback) => {
+        const caller = (output) => {
+            callback(null, output);
+            app.ports.outputEvent.unsubscribe(caller);
+        }
+        app.ports.outputEvent.subscribe(caller);
         app.ports.inputEvent.send(event);
-        app.ports.outputEvent.subscribe((output) =>
-            callback(null, output)
-        );
     }
     " > $2
   '';
