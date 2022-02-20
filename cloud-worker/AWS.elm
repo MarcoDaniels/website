@@ -194,13 +194,6 @@ encodeHeaders headers =
             )
 
 
-encodeQuerystring : Maybe String -> Encode.Value
-encodeQuerystring maybeQuerystring =
-    maybeQuerystring
-        |> Maybe.map Encode.string
-        |> Maybe.withDefault Encode.null
-
-
 encodeOrigin : Origin -> Encode.Value
 encodeOrigin origin =
     case origin of
@@ -254,6 +247,10 @@ encodeOutputEvent result =
                 , ( "headers", request.headers |> encodeHeaders )
                 , ( "method", request.method |> Encode.string )
                 , ( "origin", request.origin |> encodeOrigin )
-                , ( "querystring", request.querystring |> encodeQuerystring )
+                , ( "querystring"
+                  , request.querystring
+                        |> Maybe.map Encode.string
+                        |> Maybe.withDefault Encode.null
+                  )
                 , ( "uri", request.uri |> Encode.string )
                 ]

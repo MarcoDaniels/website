@@ -44,19 +44,12 @@
           },
           "method": "GET",
           "origin": {
-            "custom": {
+            "s3": {
+              "authMethod": "origin-access-identity",
               "customHeaders": {},
-              "domainName": "example.org",
-              "keepaliveTimeout": 5,
+              "domainName": "111222333.s3.amazonaws.com",
               "path": "",
-              "port": 443,
-              "protocol": "https",
-              "readTimeout": 30,
-              "sslProtocols": [
-                "TLSv1",
-                "TLSv1.1",
-                "TLSv1.2"
-              ]
+              "region": "us-east-1"
             }
           },
           "querystring": "",
