@@ -1,5 +1,6 @@
 let
-  pkgs = import (import ./nix/pin.nix).nixpkgs { };
+  pkgs = (import ./nix/shared.nix).pkgs;
+  jsHandler = (import ./nix/shared.nix).jsHandler;
 
   devProxy = pkgs.writeScriptBin "devProxy" ''
     #!/usr/bin/env node
@@ -63,20 +64,7 @@ let
     ${pkgs.yarn}/bin/yarn build
   '';
 
-  # TODO: cleanup builds and tests
-
-  jsHandler = pkgs.writeShellScriptBin "jsHandler" ''
-    echo "const {Elm} = require('./elm');
-    const app = Elm.$1.init($3);
-    exports.handler = (event, context, callback) => {
-        const caller = (output) => {
-            callback(null, output);
-            app.ports.outputEvent.unsubscribe(caller);
-        }
-        app.ports.outputEvent.subscribe(caller);
-        app.ports.inputEvent.send(event);
-    } " > $2
-  '';
+  # TODO: separate dev and CI
 
   buildLambda = pkgs.writeScriptBin "buildLambda" ''
     ${pkgs.elmPackages.elm}/bin/elm make infrastructure/lambda/$1.elm --output infrastructure/result/$1/elm.js
