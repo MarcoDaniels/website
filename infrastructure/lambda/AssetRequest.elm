@@ -1,6 +1,6 @@
 module AssetRequest exposing (main)
 
-import CloudWorker exposing (originRequest, toCloudWorker, toRequest)
+import CloudWorker exposing (cloudWorker, originRequest, toRequest)
 
 
 
@@ -11,24 +11,28 @@ access =
     { token = "TODO:TOKEN", assetURL = "TODO:URI" }
 
 
-main : Program () CloudWorker.Model CloudWorker.Msg
+main : Program String CloudWorker.Model CloudWorker.Msg
 main =
-    originRequest
-        (\request ->
-            let
-                queryString =
-                    "token="
-                        ++ access.token
-                        ++ "&src="
-                        ++ access.assetURL
-                        ++ String.replace "image/api" "storage/uploads" request.uri
-                        ++ "&"
-                        ++ Maybe.withDefault "" request.querystring
-            in
-            { request
-                | uri = "/api/cockpit/image"
-                , querystring = Just queryString
-            }
-                |> toRequest
-        )
-        |> toCloudWorker
+    cloudWorker
+        { init = ""
+        , worker =
+            originRequest
+                { origin =
+                    \request ->
+                        let
+                            queryString =
+                                "token="
+                                    ++ access.token
+                                    ++ "&src="
+                                    ++ access.assetURL
+                                    ++ String.replace "image/api" "storage/uploads" request.uri
+                                    ++ "&"
+                                    ++ Maybe.withDefault "" request.querystring
+                        in
+                        { request
+                            | uri = "/api/cockpit/image"
+                            , querystring = Just queryString
+                        }
+                            |> toRequest
+                }
+        }

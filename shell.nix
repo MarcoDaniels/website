@@ -67,7 +67,7 @@ let
 
   jsHandler = pkgs.writeShellScriptBin "jsHandler" ''
     echo "const {Elm} = require('./elm');
-    const app = Elm.$1.init();
+    const app = Elm.$1.init({flags: 'hey'});
     exports.handler = (event, context, callback) => {
         const caller = (output) => {
             callback(null, output);
