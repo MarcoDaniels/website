@@ -1,18 +1,6 @@
 let
-  pkgs = import (import ../nix/pin.nix).nixpkgs { };
-
-  jsHandler = pkgs.writeShellScriptBin "jsHandler" ''
-    echo "const {Elm} = require('./elm');
-    const app = Elm.$1.init($3);
-    exports.handler = (event, context, callback) => {
-        const caller = (output) => {
-            callback(null, output);
-            app.ports.outputEvent.unsubscribe(caller);
-        }
-        app.ports.outputEvent.subscribe(caller);
-        app.ports.inputEvent.send(event);
-    }" > $2
-  '';
+  pkgs = (import ../nix/shared.nix).pkgs;
+  jsHandler = (import ../nix/shared.nix).jsHandler;
 
   mkLambda = { srcs ? ./elm-srcs.nix, src, name, srcdir, targets, registryDat }:
     pkgs.stdenv.mkDerivation {
