@@ -67,7 +67,7 @@ let
 
   jsHandler = pkgs.writeShellScriptBin "jsHandler" ''
     echo "const {Elm} = require('./elm');
-    const app = Elm.$1.init({flags: {token:'TODO:TOKEN', assetURL:'TODO:URI'}});
+    const app = Elm.$1.init($3);
     exports.handler = (event, context, callback) => {
         const caller = (output) => {
             callback(null, output);
@@ -75,13 +75,12 @@ let
         }
         app.ports.outputEvent.subscribe(caller);
         app.ports.inputEvent.send(event);
-    }
-    " > $2
+    } " > $2
   '';
 
   buildLambda = pkgs.writeScriptBin "buildLambda" ''
     ${pkgs.elmPackages.elm}/bin/elm make infrastructure/lambda/$1.elm --output infrastructure/result/$1/elm.js
-    ${jsHandler}/bin/jsHandler $1 infrastructure/result/$1/index.js
+    ${jsHandler}/bin/jsHandler $1 infrastructure/result/$1/index.js $2
   '';
 
   testLambda = pkgs.writeScriptBin "testLambda" ''

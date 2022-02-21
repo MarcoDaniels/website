@@ -3,7 +3,7 @@ let
 
   jsHandler = pkgs.writeShellScriptBin "jsHandler" ''
     echo "const {Elm} = require('./elm');
-    const app = Elm.$1.init();
+    const app = Elm.$1.init($3);
     exports.handler = (event, context, callback) => {
         const caller = (output) => {
             callback(null, output);
@@ -11,8 +11,7 @@ let
         }
         app.ports.outputEvent.subscribe(caller);
         app.ports.inputEvent.send(event);
-    }
-    " > $2
+    }" > $2
   '';
 
   mkLambda = { srcs ? ./elm-srcs.nix, src, name, srcdir, targets, registryDat }:
@@ -33,23 +32,34 @@ let
           "${srcdir}/${builtins.replaceStrings [ "." ] [ "/" ] module}.elm";
         extension = "js";
       in ''
-        ${pkgs.lib.concatStrings (map (module: ''
-          echo "compiling ${elmfile module}"
-          elm make ${elmfile module} --optimize --output $out/${module}/elm.${extension}
-          echo "minifying ${elmfile module}"
-          uglifyjs $out/${module}/elm.${extension} --compress 'pure_funcs="F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9",pure_getters,keep_fargs=false,unsafe_comps,unsafe' \
-            | uglifyjs --mangle --output $out/${module}/elm.${extension}
-          ${jsHandler}/bin/jsHandler ${module} $out/${module}/index.${extension}
+        ${pkgs.lib.concatStrings (map (target: ''
+          echo "compiling ${elmfile target.module}"
+          elm make ${
+            elmfile target.module
+          } --optimize --output $out/${target.module}/elm.${extension}
+          echo "minifying ${elmfile target.module}"
+          uglifyjs $out/${target.module}/elm.${extension} --compress 'pure_funcs="F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9",pure_getters,keep_fargs=false,unsafe_comps,unsafe' \
+            | uglifyjs --mangle --output $out/${target.module}/elm.${extension}
+          ${jsHandler}/bin/jsHandler ${target.module} $out/${target.module}/index.${extension} ${target.flags}
         '') targets)}
       '';
     };
 
 in mkLambda {
-  name = "website-lambdas-1.0.0";
+  name = "lambda-1.0.0";
   srcs = ../nix/elm-srcs.nix;
   src = ../.;
   registryDat = ../nix/registry.dat;
-  targets = [ "WebsiteRequest" "AssetRequest" ];
+  targets = [
+    {
+      module = "WebsiteRequest";
+      flags = "";
+    }
+    {
+      module = "AssetRequest";
+      flags = ''"{flags:{token:'""$"{token}"',assetURL:'""$"{assetURL}"'}}"'';
+    }
+  ];
   srcdir = "./infrastructure/lambda";
 }
 
