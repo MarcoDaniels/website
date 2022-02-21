@@ -3,36 +3,29 @@ module AssetRequest exposing (main)
 import CloudWorker exposing (cloudWorker, originRequest, toRequest)
 
 
-
--- TODO: access -> get it as flags?
-
-
-access =
-    { token = "TODO:TOKEN", assetURL = "TODO:URI" }
+type alias Config =
+    { token : String, assetURL : String }
 
 
-main : Program String CloudWorker.Model CloudWorker.Msg
+main : Program Config (CloudWorker.Model Config) CloudWorker.Msg
 main =
-    cloudWorker
-        { init = ""
-        , worker =
-            originRequest
-                { origin =
-                    \request ->
-                        let
-                            queryString =
-                                "token="
-                                    ++ access.token
-                                    ++ "&src="
-                                    ++ access.assetURL
-                                    ++ String.replace "image/api" "storage/uploads" request.uri
-                                    ++ "&"
-                                    ++ Maybe.withDefault "" request.querystring
-                        in
-                        { request
-                            | uri = "/api/cockpit/image"
-                            , querystring = Just queryString
-                        }
-                            |> toRequest
+    originRequest
+        { origin =
+            \request { token, assetURL } ->
+                let
+                    queryString =
+                        "token="
+                            ++ token
+                            ++ "&src="
+                            ++ assetURL
+                            ++ String.replace "image/api" "storage/uploads" request.uri
+                            ++ "&"
+                            ++ Maybe.withDefault "" request.querystring
+                in
+                { request
+                    | uri = "/api/cockpit/image"
+                    , querystring = Just queryString
                 }
+                    |> toRequest
         }
+        |> cloudWorker

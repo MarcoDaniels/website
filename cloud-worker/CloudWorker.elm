@@ -12,27 +12,29 @@ port inputEvent : (Decode.Value -> msg) -> Sub msg
 port outputEvent : Encode.Value -> Cmd msg
 
 
-type alias Model =
-    { event : Maybe InputEvent }
+type alias Model a =
+    { event : Maybe InputEvent, init : a }
 
 
 type Msg
     = Input (Result Error InputEvent)
 
 
-originRequest : { origin : Request -> OutputEvent } -> InputEvent -> OutputEvent
-originRequest { origin } inEvent =
-    inEvent.records
-        |> List.foldr
-            (\{ cf } _ -> cf.request)
-            { clientIp = ""
-            , headers = Dict.empty
-            , method = ""
-            , origin = OriginUnknown
-            , querystring = Nothing
-            , uri = ""
-            }
-        |> origin
+originRequest : { origin : Request -> init -> OutputEvent } -> init -> InputEvent -> OutputEvent
+originRequest { origin } init inEvent =
+    origin
+        (inEvent.records
+            |> List.foldr
+                (\{ cf } _ -> cf.request)
+                { clientIp = ""
+                , headers = Dict.empty
+                , method = ""
+                , origin = OriginUnknown
+                , querystring = Nothing
+                , uri = ""
+                }
+        )
+        init
 
 
 
@@ -49,10 +51,10 @@ toResponse response =
     OutputResponse response
 
 
-cloudWorker : { init : a, worker : InputEvent -> OutputEvent } -> Program a Model Msg
-cloudWorker { init, worker } =
+cloudWorker : (init -> InputEvent -> OutputEvent) -> Program init (Model init) Msg
+cloudWorker worker =
     Platform.worker
-        { init = \_ -> ( { event = Nothing }, Cmd.none )
+        { init = \init -> ( { event = Nothing, init = init }, Cmd.none )
         , subscriptions =
             \_ ->
                 Decode.decodeValue decodeInputEvent
@@ -64,8 +66,8 @@ cloudWorker { init, worker } =
                     Input result ->
                         case result of
                             Ok event ->
-                                ( { event = Just event }
-                                , worker event
+                                ( { event = Just event, init = model.init }
+                                , worker model.init event
                                     |> encodeOutputEvent
                                     |> outputEvent
                                 )
