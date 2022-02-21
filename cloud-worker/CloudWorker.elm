@@ -20,8 +20,8 @@ type Msg
     = Input (Result Error InputEvent)
 
 
-originRequest : (Request -> OutputEvent) -> InputEvent -> OutputEvent
-originRequest requestToOut inEvent =
+originRequest : { origin : Request -> OutputEvent } -> InputEvent -> OutputEvent
+originRequest { origin } inEvent =
     inEvent.records
         |> List.foldr
             (\{ cf } _ -> cf.request)
@@ -32,7 +32,7 @@ originRequest requestToOut inEvent =
             , querystring = Nothing
             , uri = ""
             }
-        |> requestToOut
+        |> origin
 
 
 
@@ -49,13 +49,8 @@ toResponse response =
     OutputResponse response
 
 
-
--- TODO: cloudWorker API should be a "regular" worker
--- client should have access to init, update
-
-
-toCloudWorker : (InputEvent -> OutputEvent) -> Program () Model Msg
-toCloudWorker eventResult =
+cloudWorker : { init : a, worker : InputEvent -> OutputEvent } -> Program a Model Msg
+cloudWorker { init, worker } =
     Platform.worker
         { init = \_ -> ( { event = Nothing }, Cmd.none )
         , subscriptions =
@@ -70,7 +65,7 @@ toCloudWorker eventResult =
                         case result of
                             Ok event ->
                                 ( { event = Just event }
-                                , eventResult event
+                                , worker event
                                     |> encodeOutputEvent
                                     |> outputEvent
                                 )
