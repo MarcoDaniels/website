@@ -45,6 +45,11 @@ resource "aws_s3_bucket" "bucket" {
   acl           = "private"
 }
 
+resource "aws_s3_bucket" "bucket-logs" {
+  bucket_prefix = "${local.aws.bucketPrefix}-logs"
+  acl           = "private"
+}
+
 data "aws_iam_policy_document" "bucket-policy" {
   statement {
     sid       = "OAIRead"
@@ -111,6 +116,20 @@ resource "aws_cloudfront_distribution" "distribution" {
   price_class = "PriceClass_100"
 
   aliases = [local.project.domain]
+
+  logging_config {
+    include_cookies = false
+    bucket          = aws_s3_bucket.bucket-logs.bucket_domain_name
+    prefix          = ""
+  }
+
+  default_root_object = "index.html"
+
+  custom_error_response {
+    error_code         = 403
+    response_code      = 404
+    response_page_path = "/418"
+  }
 
   default_cache_behavior {
     target_origin_id = local.origins.website
