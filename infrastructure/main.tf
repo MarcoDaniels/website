@@ -131,7 +131,7 @@ resource "aws_cloudfront_distribution" "distribution" {
 
     lambda_function_association {
       event_type = "origin-request"
-      lambda_arn = aws_lambda_function.website-origin-request.qualified_arn
+      lambda_arn = module.website-request.qualified-arn
     }
 
     min_ttl     = 60
@@ -166,83 +166,10 @@ output "cloudfront-domain" {
 }
 
 // lambda@edge
-data "aws_iam_policy_document" "lambda-edge" {
-  statement {
-    actions = ["sts:AssumeRole"]
-
-    principals {
-      type        = "Service"
-      identifiers = [
-        "lambda.amazonaws.com",
-        "edgelambda.amazonaws.com"
-      ]
-    }
-  }
-}
-
-data "aws_iam_policy_document" "lambda-logs" {
-  statement {
-    actions = [
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents"
-    ]
-    resources = [
-      "arn:aws:logs:*:*:*"
-    ]
-  }
-}
-
-resource "aws_iam_role" "lambda-edge" {
-  name_prefix        = "${local.project.name}-lambda-edge"
-  assume_role_policy = data.aws_iam_policy_document.lambda-edge.json
-}
-
-resource "aws_iam_policy" "lambda-logs" {
-  name_prefix = "${local.project.name}-lambda-logs"
-  path        = "/"
-  policy      = data.aws_iam_policy_document.lambda-logs.json
-}
-
-resource "aws_iam_role_policy_attachment" "lambda-logs" {
-  role       = aws_iam_role.lambda-edge.name
-  policy_arn = aws_iam_policy.lambda-logs.arn
-}
-
-variable "replacements" {
-  type    = map(any)
-  default = {}
-}
-
-// TODO use correct results
-data "archive_file" "zip" {
-  type        = "zip"
-  output_path = "${path.module}/result/OriginRequest/index.zip"
-
-  source {
-    content  = templatefile("${path.module}/result/OriginRequest/index.js", var.replacements)
-    filename = "index.js"
-  }
-
-  source {
-    content  = templatefile("${path.module}/result/OriginRequest/elm.js", var.replacements)
-    filename = "elm.js"
-  }
-}
-
-resource "aws_lambda_function" "website-origin-request" {
-  publish = true
-
-  function_name    = "${local.project.name}-origin-request"
-  role             = aws_iam_role.lambda-edge.arn
-  filename         = data.archive_file.zip.output_path
-  source_code_hash = data.archive_file.zip.output_base64sha256
-  handler          = "index.handler"
-  runtime          = "nodejs14.x"
-
-  depends_on = [
-    aws_iam_role_policy_attachment.lambda-logs,
-  ]
+module "website-request" {
+  source       = "./lambda"
+  lambda-name  = "WebsiteRequest"
+  project-name = local.project.name
 }
 
 // route53

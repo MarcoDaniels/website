@@ -4,7 +4,7 @@
         "src",
         ".elm-pages",
         "cloud-worker",
-        "infrastructure/lambda"
+        "infrastructure/lambda/src"
     ],
     "elm-version": "0.19.1",
     "dependencies": {

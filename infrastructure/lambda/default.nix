@@ -1,6 +1,6 @@
 let
-  pkgs = (import ../nix/shared.nix).pkgs;
-  jsHandler = (import ../nix/shared.nix).jsHandler;
+  pkgs = (import ../../nix/shared.nix).pkgs;
+  jsHandler = (import ../../nix/shared.nix).jsHandler;
 
   mkLambda = { srcs ? ./elm-srcs.nix, src, name, srcdir, targets, registryDat }:
     pkgs.stdenv.mkDerivation {
@@ -35,9 +35,9 @@ let
 
 in mkLambda {
   name = "lambda-1.0.0";
-  srcs = ../nix/elm-srcs.nix;
-  src = ../.;
-  registryDat = ../nix/registry.dat;
+  srcs = ../../nix/elm-srcs.nix;
+  src = ../../.;
+  registryDat = ../../nix/registry.dat;
   targets = [
     {
       module = "WebsiteRequest";
@@ -48,6 +48,6 @@ in mkLambda {
       flags = ''"{flags:{token:'""$"{token}"',assetURL:'""$"{assetURL}"'}}"'';
     }
   ];
-  srcdir = "./infrastructure/lambda";
+  srcdir = "./infrastructure/lambda/src";
 }
 
