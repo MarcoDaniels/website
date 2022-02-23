@@ -67,8 +67,8 @@ let
   # TODO: separate dev and CI
 
   buildLambda = pkgs.writeScriptBin "buildLambda" ''
-    ${pkgs.elmPackages.elm}/bin/elm make infrastructure/lambda/$1.elm --output infrastructure/result/$1/elm.js
-    ${jsHandler}/bin/jsHandler $1 infrastructure/result/$1/index.js $2
+    ${pkgs.elmPackages.elm}/bin/elm make infrastructure/lambda/src/$1.elm --output infrastructure/lambda/result/$1/elm.js
+    ${jsHandler}/bin/jsHandler $1 infrastructure/lambda/result/$1/index.js $2
   '';
 
   testLambda = pkgs.writeScriptBin "testLambda" ''
@@ -76,7 +76,7 @@ let
     const fs = require('fs')
     const lambda = process.argv[2]
     const testPayload = process.argv[3]
-    const {handler} = require("${toString ./.}/infrastructure/result/" + lambda)
+    const {handler} = require("${toString ./.}/infrastructure/lambda/result/" + lambda)
     const payload = JSON.parse(fs.readFileSync("${
       toString ./.
     }/tests/" + testPayload + ".json"))
