@@ -216,7 +216,7 @@ encodeOrigin origin =
                   , Encode.object
                         [ ( "customHeaders", custom.customHeaders |> encodeHeaders )
                         , ( "domainName", custom.domainName |> Encode.string )
-                        , ( "keepaliveTimout", custom.keepaliveTimeout |> Encode.int )
+                        , ( "keepaliveTimeout", custom.keepaliveTimeout |> Encode.int )
                         , ( "path", custom.path |> Encode.string )
                         , ( "port", custom.port_ |> Encode.int )
                         , ( "protocol", custom.protocol |> Encode.string )
