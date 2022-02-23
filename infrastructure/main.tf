@@ -25,11 +25,13 @@ data "dhall" "config" {
 }
 
 locals {
-  config  = jsondecode(data.dhall.config.result)
-  aws     = local.config.aws
-  project = local.config.project
-  origins = {
+  config   = jsondecode(data.dhall.config.result)
+  aws      = local.config.aws
+  project  = local.config.project
+  assetAPI = local.config.assetAPI
+  origins  = {
     website = "static-website"
+    assets  = "assets-api"
   }
 }
 
@@ -42,11 +44,6 @@ provider "aws" {
 // S3
 resource "aws_s3_bucket" "bucket" {
   bucket_prefix = local.aws.bucketPrefix
-  acl           = "private"
-}
-
-resource "aws_s3_bucket" "bucket-logs" {
-  bucket_prefix = "${local.aws.bucketPrefix}-logs"
   acl           = "private"
 }
 
@@ -117,12 +114,6 @@ resource "aws_cloudfront_distribution" "distribution" {
 
   aliases = [local.project.domain]
 
-  logging_config {
-    include_cookies = false
-    bucket          = aws_s3_bucket.bucket-logs.bucket_domain_name
-    prefix          = ""
-  }
-
   default_root_object = "index.html"
 
   custom_error_response {
@@ -158,12 +149,52 @@ resource "aws_cloudfront_distribution" "distribution" {
     max_ttl     = 86400
   }
 
+  ordered_cache_behavior {
+    path_pattern     = "image/api/*"
+    target_origin_id = local.origins.assets
+
+    allowed_methods = ["GET", "HEAD", "OPTIONS"]
+    cached_methods  = ["GET", "HEAD", "OPTIONS"]
+
+    viewer_protocol_policy = "redirect-to-https"
+    compress               = true
+
+    forwarded_values {
+      query_string = true
+
+      cookies {
+        forward = "none"
+      }
+    }
+
+    lambda_function_association {
+      event_type = "origin-request"
+      lambda_arn = module.asset-request.qualified-arn
+    }
+
+    min_ttl     = 60
+    default_ttl = 3600
+    max_ttl     = 86400
+  }
+
   origin {
     domain_name = aws_s3_bucket.bucket.bucket_regional_domain_name
     origin_id   = local.origins.website
 
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
+    }
+  }
+
+  origin {
+    domain_name = local.assetAPI.domain
+    origin_id   = local.origins.assets
+
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
     }
   }
 
@@ -189,6 +220,17 @@ module "website-request" {
   source       = "./lambda"
   lambda-name  = "WebsiteRequest"
   project-name = local.project.name
+}
+
+module "asset-request" {
+  source       = "./lambda"
+  lambda-name  = "AssetRequest"
+  project-name = local.project.name
+
+  replacements = {
+    token  = local.assetAPI.token
+    domain = local.assetAPI.domain
+  }
 }
 
 // route53

@@ -6,9 +6,16 @@ let AWS
     : Type
     = { bucketPrefix : Text, region : Text, accessKey : Text, secretKey : Text }
 
+let AssetAPI
+    : Type
+    = { domain : Text, token : Text }
+
 let projectConfig
     : Project
-    = { name = "marco-daniels-website", domain = "marcodaniels.com", description = "Marco Daniels Website" }
+    = { name = "marco-daniels-website"
+      , domain = "marcodaniels.com"
+      , description = "Marco Daniels Website"
+      }
 
 let awsConfig
     : AWS
@@ -18,4 +25,8 @@ let awsConfig
       , secretKey = env:AWS_SECRET_ACCESS_KEY as Text
       }
 
-in  { project = projectConfig, aws = awsConfig }
+let assetAPIConfig
+    : AssetAPI
+    = { domain = env:ASSET_DOMAIN as Text, token = env:ASSET_TOKEN as Text }
+
+in  { project = projectConfig, aws = awsConfig, assetAPI = assetAPIConfig }
