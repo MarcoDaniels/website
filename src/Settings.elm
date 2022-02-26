@@ -1,4 +1,4 @@
-module Settings exposing (settingsData, Settings)
+module Settings exposing (Settings, settingsData)
 
 import Cockpit exposing (Cockpit(..), fetchData)
 import DataSource
@@ -7,14 +7,15 @@ import OptimizedDecoder.Pipeline as Decoder
 
 
 type alias SiteSettings =
-    { title : String
-    , description : String
-    , baseURL : String
-    }
+    { title : String, description : String, baseURL : String }
+
+
+type alias NavigationItem =
+    { title : String, url : String }
 
 
 type alias Settings =
-    { site : SiteSettings }
+    { site : SiteSettings, navigation : List NavigationItem }
 
 
 settingsData : DataSource.DataSource Settings
@@ -30,4 +31,11 @@ settingsDecoder =
                 |> Decoder.required "title" Decoder.string
                 |> Decoder.required "description" Decoder.string
                 |> Decoder.required "baseURL" Decoder.string
+            )
+        |> Decoder.required "navigation"
+            (Decoder.list
+                (Decoder.succeed NavigationItem
+                    |> Decoder.requiredAt [ "value", "title" ] Decoder.string
+                    |> Decoder.requiredAt [ "value", "url" ] Decoder.string
+                )
             )
