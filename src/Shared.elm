@@ -8,6 +8,7 @@ import Path exposing (Path)
 import Settings exposing (Settings, settingsData)
 import SharedTemplate exposing (SharedTemplate)
 import Style.Theme exposing (useTheme)
+import Stylin exposing (Color(..), Size(..), stylin)
 
 
 type Msg
@@ -44,6 +45,7 @@ wrapper nav body =
             ]
         ]
         [ nav
+        , Html.p [ stylin (\default -> { default | color = SecondaryColor }) ] [ Html.text "some" ]
         , Html.article [] body
         ]
     ]
@@ -57,11 +59,7 @@ navigation settings =
             |> List.map
                 (\item ->
                     Html.a
-                        [ Html.css
-                            [ Css.padding <| Css.px 10
-                            , Css.textDecoration Css.none
-                            , Css.color <| Css.hex "000"
-                            ]
+                        [ stylin (\_ -> { color = PrimaryColor, size = MediumSize })
                         , Html.href item.url
                         ]
                         [ Html.text item.title ]
