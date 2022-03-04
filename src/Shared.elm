@@ -7,8 +7,8 @@ import Html.Styled.Attributes as Html
 import Path exposing (Path)
 import Settings exposing (Settings, settingsData)
 import SharedTemplate exposing (SharedTemplate)
+import Style.Box exposing (Color(..), Content(..), box)
 import Style.Theme exposing (useTheme)
-import Stylin exposing (Color(..), Size(..), stylin)
 
 
 type Msg
@@ -45,7 +45,6 @@ wrapper nav body =
             ]
         ]
         [ nav
-        , Html.p [ stylin (\default -> { default | color = SecondaryColor }) ] [ Html.text "some" ]
         , Html.article [] body
         ]
     ]
@@ -54,12 +53,12 @@ wrapper nav body =
 navigation : Settings -> Element msg
 navigation settings =
     Html.nav
-        [ Html.css [ Css.displayFlex ] ]
+        [ box (\default -> { default | content = CenterContent }) ]
         (settings.navigation
             |> List.map
                 (\item ->
                     Html.a
-                        [ stylin (\_ -> { color = PrimaryColor, size = MediumSize })
+                        [ box (\default -> { default | color = PrimaryColor })
                         , Html.href item.url
                         ]
                         [ Html.text item.title ]
