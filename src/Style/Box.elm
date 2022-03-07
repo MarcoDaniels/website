@@ -1,4 +1,4 @@
-module Style.Box exposing (Align(..), Box, Color(..), Content(..), Size(..), Space(..), Wrapper(..), box)
+module Style.Box exposing (Align(..), Box, Color(..), Content(..), Gap(..), Size(..), Space(..), Wrapper(..), box)
 
 import Css
 import Html.Styled as Html
@@ -36,6 +36,12 @@ type Space
     | MediumSpace
 
 
+type Gap
+    = DefaultGap
+    | SmallGapY
+    | MediumGapY
+
+
 type Wrapper
     = WithWrapper
     | WithoutWrapper
@@ -47,6 +53,7 @@ type alias Box =
     , content : Content
     , align : Align
     , space : Space
+    , gap : Gap
     , wrapper : Wrapper
     }
 
@@ -66,10 +73,11 @@ box =
             , content = DefaultContent
             , align = DefaultAlign
             , space = DefaultSpace
+            , gap = DefaultGap
             , wrapper = WithoutWrapper
             }
         , variants =
-            \{ color, size, content, align, space, wrapper } ->
+            \{ color, size, content, align, space, gap, wrapper } ->
                 [ case color of
                     PrimaryColor ->
                         Css.batch
@@ -77,12 +85,15 @@ box =
                             , Css.color <| Css.hex "000000"
                             ]
 
-                    SecondaryColor ->
-                        noProperty
-
-                    DefaultColor ->
+                    _ ->
                         noProperty
                 , case size of
+                    LargeSize ->
+                        Css.batch
+                            [ Css.width <| Css.pct 100
+                            , Css.maxWidth <| Css.px 750
+                            ]
+
                     _ ->
                         noProperty
                 , case content of
@@ -96,6 +107,9 @@ box =
                     _ ->
                         noProperty
                 , case align of
+                    CenterAlign ->
+                        Css.batch [ Css.margin2 (Css.px 0) Css.auto ]
+
                     _ ->
                         noProperty
                 , case space of
@@ -106,6 +120,15 @@ box =
                         Css.padding <| Css.px 40
 
                     DefaultSpace ->
+                        noProperty
+                , case gap of
+                    SmallGapY ->
+                        Css.batch
+                            [ Css.marginTop <| Css.px 10
+                            , Css.marginBottom <| Css.px 10
+                            ]
+
+                    _ ->
                         noProperty
                 , case wrapper of
                     WithWrapper ->
