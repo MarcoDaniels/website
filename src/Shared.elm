@@ -1,13 +1,11 @@
 module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template)
 
-import Css
-import Element exposing (Element)
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
 import Path exposing (Path)
 import Settings exposing (Settings, settingsData)
 import SharedTemplate exposing (SharedTemplate)
-import Style.Box exposing (Color(..), Content(..), box)
+import Style.Box exposing (Color(..), Content(..), Space(..), Wrapper(..), box)
 import Style.Theme exposing (useTheme)
 
 
@@ -32,40 +30,6 @@ type alias Model =
     { menuExpand : Bool }
 
 
-wrapper : Element msg -> List (Element msg) -> List (Element msg)
-wrapper nav body =
-    [ Html.div
-        [ Html.css
-            [ Css.padding <| Css.px 40
-            , Css.borderWidth <| Css.px 0.1
-            , Css.borderStyle Css.solid
-            , Css.borderImageWidth <| Css.px 20
-            , Css.property "border-image-slice" "50%"
-            , Css.property "border-image-source" "url(\"data:image/svg+xml;charset=utf8,%3Csvg xmlns=%22http:%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox=%220 0 40 40%22%3E%3Crect x=%220.5%22 y=%220.5%22 width=%2239%22 height=%2239%22 fill=%22transparent%22 stroke=%22%23000%22 stroke-width=%221%22 %2F%3E%3C%2Fsvg%3E\")"
-            ]
-        ]
-        [ nav
-        , Html.article [] body
-        ]
-    ]
-
-
-navigation : Settings -> Element msg
-navigation settings =
-    Html.nav
-        [ box (\default -> { default | content = CenterContent }) ]
-        (settings.navigation
-            |> List.map
-                (\item ->
-                    Html.a
-                        [ box (\default -> { default | color = PrimaryColor })
-                        , Html.href item.url
-                        ]
-                        [ Html.text item.title ]
-                )
-        )
-
-
 template : SharedTemplate Msg Model Data msg
 template =
     { init =
@@ -83,7 +47,23 @@ template =
     , view =
         \sharedData _ model toMsg pageView ->
             { title = sharedData.site.title ++ " - " ++ pageView.title
-            , body = wrapper (navigation sharedData) pageView.body |> useTheme
+            , body =
+                [ Html.div
+                    [ box (\default -> { default | space = MediumSpace, wrapper = WithWrapper }) ]
+                    [ Html.nav
+                        []
+                        (sharedData.navigation
+                            |> List.map
+                                (\item ->
+                                    Html.a
+                                        [ box (\default -> { default | color = PrimaryColor, space = SmallSpace }), Html.href item.url ]
+                                        [ Html.text item.title ]
+                                )
+                        )
+                    , Html.article [] pageView.body
+                    ]
+                ]
+                    |> useTheme
             }
     , data = settingsData
     , onPageChange = Just OnPageChange

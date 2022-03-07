@@ -1,4 +1,4 @@
-module Style.Box exposing (..)
+module Style.Box exposing (Align(..), Box, Color(..), Content(..), Size(..), Space(..), Wrapper(..), box)
 
 import Css
 import Html.Styled as Html
@@ -6,32 +6,54 @@ import Style.Recipe exposing (recipe)
 
 
 type Color
-    = PrimaryColor
+    = DefaultColor
+    | PrimaryColor
     | SecondaryColor
-    | DefaultColor
 
 
 type Size
-    = SmallSize
+    = DefaultSize
+    | SmallSize
     | MediumSize
     | LargeSize
-    | DefaultSize
 
 
 type Content
-    = CenterContent
+    = DefaultContent
+    | CenterContent
     | LeftContent
     | RightContent
-    | DefaultContent
 
 
 type Align
-    = CenterAlign
-    | DefaultAlign
+    = DefaultAlign
+    | CenterAlign
+
+
+type Space
+    = DefaultSpace
+    | SmallSpace
+    | MediumSpace
+
+
+type Wrapper
+    = WithWrapper
+    | WithoutWrapper
 
 
 type alias Box =
-    { color : Color, size : Size, content : Content, align : Align }
+    { color : Color
+    , size : Size
+    , content : Content
+    , align : Align
+    , space : Space
+    , wrapper : Wrapper
+    }
+
+
+noProperty : Css.Style
+noProperty =
+    Css.batch []
 
 
 box : (Box -> Box) -> Html.Attribute msg
@@ -43,9 +65,11 @@ box =
             , size = DefaultSize
             , content = DefaultContent
             , align = DefaultAlign
+            , space = DefaultSpace
+            , wrapper = WithoutWrapper
             }
         , variants =
-            \{ color, size, content, align } ->
+            \{ color, size, content, align, space, wrapper } ->
                 [ case color of
                     PrimaryColor ->
                         Css.batch
@@ -54,13 +78,13 @@ box =
                             ]
 
                     SecondaryColor ->
-                        Css.batch []
+                        noProperty
 
                     DefaultColor ->
-                        Css.batch []
+                        noProperty
                 , case size of
                     _ ->
-                        Css.batch []
+                        noProperty
                 , case content of
                     CenterContent ->
                         Css.batch
@@ -70,9 +94,30 @@ box =
                             ]
 
                     _ ->
-                        Css.batch []
+                        noProperty
                 , case align of
                     _ ->
-                        Css.batch []
+                        noProperty
+                , case space of
+                    SmallSpace ->
+                        Css.padding <| Css.px 10
+
+                    MediumSpace ->
+                        Css.padding <| Css.px 40
+
+                    DefaultSpace ->
+                        noProperty
+                , case wrapper of
+                    WithWrapper ->
+                        Css.batch
+                            [ Css.borderWidth <| Css.px 0.1
+                            , Css.borderStyle Css.solid
+                            , Css.borderImageWidth <| Css.px 20
+                            , Css.property "border-image-slice" "50%"
+                            , Css.property "border-image-source" "url(\"data:image/svg+xml;charset=utf8,%3Csvg xmlns=%22http:%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox=%220 0 40 40%22%3E%3Crect x=%220.5%22 y=%220.5%22 width=%2239%22 height=%2239%22 fill=%22transparent%22 stroke=%22%23000%22 stroke-width=%221%22 %2F%3E%3C%2Fsvg%3E\")"
+                            ]
+
+                    WithoutWrapper ->
+                        noProperty
                 ]
         }
