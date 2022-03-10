@@ -1,60 +1,49 @@
-module Style.Box exposing (Align(..), Box, Color(..), Content(..), Gap(..), Size(..), Space(..), Wrapper(..), box)
+module Style.Box exposing (Box, Font(..), Category(..), IO(..), Position(..), Size(..), box)
 
 import Css
-import Html.Styled as Html
 import Style.Recipe exposing (recipe)
 
 
-type Color
-    = DefaultColor
-    | PrimaryColor
-    | SecondaryColor
+type Category
+    = NoCategory
+    | Primary
+    | Secondary
+
+
+type Position
+    = NoPosition
+    | Center
+    | Left
+    | Right
 
 
 type Size
-    = DefaultSize
-    | SmallSize
-    | MediumSize
-    | LargeSize
+    = NoSize
+    | None
+    | Small
+    | Medium
+    | Large
 
 
-type Content
-    = DefaultContent
-    | CenterContent
-    | LeftContent
-    | RightContent
+type Font
+    = NoFont
+    | Mono
 
 
-type Align
-    = DefaultAlign
-    | CenterAlign
-
-
-type Space
-    = DefaultSpace
-    | SmallSpace
-    | MediumSpace
-
-
-type Gap
-    = DefaultGap
-    | SmallGapY
-    | MediumGapY
-
-
-type Wrapper
-    = WithWrapper
-    | WithoutWrapper
+type IO
+    = On
+    | Off
 
 
 type alias Box =
-    { color : Color
-    , size : Size
-    , content : Content
-    , align : Align
-    , space : Space
-    , gap : Gap
-    , wrapper : Wrapper
+    { color : Category
+    , wide : Size
+    , content : Position
+    , align : Position
+    , space : Size
+    , gap : Size
+    , wrapper : IO
+    , font : Font
     }
 
 
@@ -63,23 +52,24 @@ noProperty =
     Css.batch []
 
 
-box : (Box -> Box) -> Html.Attribute msg
+box : (Box -> Box) -> List Css.Style
 box =
     recipe
         { base = Css.batch []
         , default =
-            { color = DefaultColor
-            , size = DefaultSize
-            , content = DefaultContent
-            , align = DefaultAlign
-            , space = DefaultSpace
-            , gap = DefaultGap
-            , wrapper = WithoutWrapper
+            { color = NoCategory
+            , wide = NoSize
+            , content = NoPosition
+            , align = NoPosition
+            , space = NoSize
+            , gap = NoSize
+            , wrapper = Off
+            , font = NoFont
             }
         , variants =
-            \{ color, size, content, align, space, gap, wrapper } ->
+            \{ color, wide, content, align, space, gap, wrapper, font } ->
                 [ case color of
-                    PrimaryColor ->
+                    Primary ->
                         Css.batch
                             [ Css.backgroundColor <| Css.hex "e7e7e7"
                             , Css.color <| Css.hex "000000"
@@ -87,8 +77,8 @@ box =
 
                     _ ->
                         noProperty
-                , case size of
-                    LargeSize ->
+                , case wide of
+                    Large ->
                         Css.batch
                             [ Css.width <| Css.pct 100
                             , Css.maxWidth <| Css.px 750
@@ -97,7 +87,7 @@ box =
                     _ ->
                         noProperty
                 , case content of
-                    CenterContent ->
+                    Center ->
                         Css.batch
                             [ Css.displayFlex
                             , Css.justifyContent Css.center
@@ -107,22 +97,28 @@ box =
                     _ ->
                         noProperty
                 , case align of
-                    CenterAlign ->
+                    Center ->
                         Css.batch [ Css.margin2 (Css.px 0) Css.auto ]
 
                     _ ->
                         noProperty
                 , case space of
-                    SmallSpace ->
+                    None ->
+                        Css.padding <| Css.px 0
+
+                    Small ->
                         Css.padding <| Css.px 10
 
-                    MediumSpace ->
+                    Medium ->
                         Css.padding <| Css.px 40
 
-                    DefaultSpace ->
+                    _ ->
                         noProperty
                 , case gap of
-                    SmallGapY ->
+                    None ->
+                        Css.margin <| Css.px 0
+
+                    Small ->
                         Css.batch
                             [ Css.marginTop <| Css.px 10
                             , Css.marginBottom <| Css.px 10
@@ -131,7 +127,7 @@ box =
                     _ ->
                         noProperty
                 , case wrapper of
-                    WithWrapper ->
+                    On ->
                         Css.batch
                             [ Css.borderWidth <| Css.px 0.1
                             , Css.borderStyle Css.solid
@@ -140,7 +136,13 @@ box =
                             , Css.property "border-image-source" "url(\"data:image/svg+xml;charset=utf8,%3Csvg xmlns=%22http:%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox=%220 0 40 40%22%3E%3Crect x=%220.5%22 y=%220.5%22 width=%2239%22 height=%2239%22 fill=%22transparent%22 stroke=%22%23000%22 stroke-width=%221%22 %2F%3E%3C%2Fsvg%3E\")"
                             ]
 
-                    WithoutWrapper ->
+                    Off ->
+                        noProperty
+                , case font of
+                    Mono ->
+                        Css.fontFamilies [ "monospace" ]
+
+                    NoFont ->
                         noProperty
                 ]
         }

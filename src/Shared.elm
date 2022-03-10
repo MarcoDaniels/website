@@ -1,6 +1,5 @@
 module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template)
 
-import Css
 import Css.Global
 import Element exposing (Element, ElmElement)
 import Html.Styled as Html
@@ -9,7 +8,7 @@ import Path exposing (Path)
 import Route exposing (Route)
 import Settings exposing (Settings, settingsData)
 import SharedTemplate exposing (SharedTemplate)
-import Style.Box exposing (Align(..), Color(..), Content(..), Gap(..), Size(..), Space(..), Wrapper(..), box)
+import Style.Box exposing (Category(..), Font(..), IO(..), Position(..), Size(..), box)
 import View exposing (View)
 
 
@@ -44,27 +43,45 @@ view :
 view sharedData _ model toMsg pageView =
     { title = sharedData.site.title ++ " - " ++ pageView.title
     , body =
-        Html.div [ box (\default -> { default | size = LargeSize, align = CenterAlign }) ]
+        Html.div [ Html.css (box (\default -> { default | wide = Large, align = Center })) ]
             [ Css.Global.global
-                -- TODO: move styles to box
                 [ Css.Global.body
-                    [ Css.margin <| Css.px 0
-                    , Css.padding <| Css.px 0
-                    , Css.fontFamilies [ "monospace" ]
-                    , Css.backgroundColor <| Css.hex "e7e7e7"
-                    ]
+                    (box
+                        (\default ->
+                            { default | space = None, gap = None, font = Mono, color = Primary }
+                        )
+                    )
                 ]
             , Html.nav
-                [ box (\default -> { default | space = SmallSpace, wrapper = WithWrapper, gap = SmallGapY }) ]
+                [ Html.css
+                    (box
+                        (\default ->
+                            { default | space = Small, wrapper = On, gap = Small }
+                        )
+                    )
+                ]
                 (sharedData.navigation
                     |> List.map
                         (\item ->
                             Html.a
-                                [ box (\default -> { default | color = PrimaryColor, space = SmallSpace }), Html.href item.url ]
+                                [ Html.css
+                                    (box
+                                        (\default -> { default | color = Primary, space = Small })
+                                    )
+                                , Html.href item.url
+                                ]
                                 [ Html.text item.title ]
                         )
                 )
-            , Html.article [ box (\default -> { default | space = MediumSpace, wrapper = WithWrapper, gap = SmallGapY }) ] pageView.body
+            , Html.article
+                [ Html.css
+                    (box
+                        (\default ->
+                            { default | space = Medium, wrapper = On, gap = Small }
+                        )
+                    )
+                ]
+                pageView.body
             ]
             |> Html.toUnstyled
     }
