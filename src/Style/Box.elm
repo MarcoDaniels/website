@@ -1,4 +1,4 @@
-module Style.Box exposing (Box, Font(..), Category(..), IO(..), Position(..), Size(..), box)
+module Style.Box exposing (Box, Category(..), Font(..), IO(..), Position(..), Size(..), box)
 
 import Css
 import Style.Recipe exposing (recipe)
@@ -21,7 +21,10 @@ type Size
     = NoSize
     | None
     | Small
+    | SmallY
     | Medium
+    | MediumX
+    | MediumY
     | Large
 
 
@@ -119,9 +122,27 @@ box =
                         Css.margin <| Css.px 0
 
                     Small ->
+                        Css.margin <| Css.px 10
+
+                    SmallY ->
                         Css.batch
                             [ Css.marginTop <| Css.px 10
                             , Css.marginBottom <| Css.px 10
+                            ]
+
+                    Medium ->
+                        Css.margin <| Css.px 40
+
+                    MediumX ->
+                        Css.batch
+                            [ Css.marginLeft <| Css.px 40
+                            , Css.marginRight <| Css.px 40
+                            ]
+
+                    MediumY ->
+                        Css.batch
+                            [ Css.marginTop <| Css.px 40
+                            , Css.marginBottom <| Css.px 40
                             ]
 
                     _ ->

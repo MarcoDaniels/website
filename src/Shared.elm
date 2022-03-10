@@ -56,7 +56,7 @@ view sharedData _ model toMsg pageView =
                 [ Html.css
                     (box
                         (\default ->
-                            { default | space = Small, wrapper = On, gap = Small }
+                            { default | space = Small, wrapper = On, gap = SmallY, content = Center }
                         )
                     )
                 ]
@@ -66,7 +66,7 @@ view sharedData _ model toMsg pageView =
                             Html.a
                                 [ Html.css
                                     (box
-                                        (\default -> { default | color = Primary, space = Small })
+                                        (\default -> { default | color = Primary, gap = MediumX })
                                     )
                                 , Html.href item.url
                                 ]
@@ -77,7 +77,7 @@ view sharedData _ model toMsg pageView =
                 [ Html.css
                     (box
                         (\default ->
-                            { default | space = Medium, wrapper = On, gap = Small }
+                            { default | space = Medium, wrapper = On, gap = MediumY }
                         )
                     )
                 ]
