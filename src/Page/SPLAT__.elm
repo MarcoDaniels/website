@@ -12,7 +12,7 @@ import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
 import Shared
-import Style.Box exposing (Position(..), Size(..), box)
+import Style
 import Utilities exposing (toImageAPI, toURL)
 import View exposing (View)
 
@@ -115,7 +115,7 @@ view maybeUrl sharedModel static =
     { title = static.data.title
     , body =
         [ Html.div
-            [ Html.css (box (\default -> { default | content = Center })) ]
+            [ Html.css [ Style.content.center ] ]
             (case static.data.content of
                 Just content ->
                     content
@@ -123,7 +123,7 @@ view maybeUrl sharedModel static =
                             (\contentData ->
                                 case contentData.value of
                                     ContentMarkdown string ->
-                                        Html.div [ Html.css (box (\default -> { default | gap = Medium })) ] [ Html.text string ]
+                                        Html.div [ Html.css [ Style.gap.medium ] ] [ Html.text string ]
 
                                     ContentAsset asset ->
                                         Html.img [ Html.width 200, Html.src (toImageAPI asset.path 300) ] []
