@@ -8,7 +8,7 @@ import Path exposing (Path)
 import Route exposing (Route)
 import Settings exposing (Settings, settingsData)
 import SharedTemplate exposing (SharedTemplate)
-import Style.Box exposing (Category(..), Font(..), IO(..), Position(..), Size(..), box)
+import Style
 import View exposing (View)
 
 
@@ -43,44 +43,31 @@ view :
 view sharedData _ model toMsg pageView =
     { title = sharedData.site.title ++ " - " ++ pageView.title
     , body =
-        Html.div [ Html.css (box (\default -> { default | wide = Large, align = Center })) ]
+        Html.div [ Html.css [ Style.container.fit, Style.wide.large, Style.align.center, Style.screen.small [ Style.space.small ] ] ]
             [ Css.Global.global
-                [ Css.Global.body
-                    (box
-                        (\default ->
-                            { default | space = None, gap = None, font = Mono, color = Primary }
-                        )
-                    )
-                ]
+                [ Css.Global.body [ Style.space.none, Style.gap.none, Style.font.mono, Style.color.primary ] ]
             , Html.nav
                 [ Html.css
-                    (box
-                        (\default ->
-                            { default | space = Small, wrapper = On, gap = SmallY, content = Center }
-                        )
-                    )
+                    [ Style.space.small, Style.container.wrapper, Style.gap.smallY, Style.content.left ]
                 ]
                 (sharedData.navigation
                     |> List.map
                         (\item ->
                             Html.a
                                 [ Html.css
-                                    (box
-                                        (\default -> { default | color = Primary, gap = MediumX })
-                                    )
+                                    [ Style.color.primary
+                                    , Style.gap.mediumX
+                                    , Style.font.upperCase
+                                    , Style.font.medium
+                                    , Style.screen.small [ Style.gap.smallX ]
+                                    ]
                                 , Html.href item.url
                                 ]
                                 [ Html.text item.title ]
                         )
                 )
             , Html.article
-                [ Html.css
-                    (box
-                        (\default ->
-                            { default | space = Medium, wrapper = On, gap = MediumY }
-                        )
-                    )
-                ]
+                [ Html.css [ Style.space.medium, Style.gap.mediumY, Style.container.wrapper ] ]
                 pageView.body
             ]
             |> Html.toUnstyled
