@@ -48,7 +48,7 @@ view sharedData _ model toMsg pageView =
                 [ Css.Global.body [ Style.space.none, Style.gap.none, Style.font.mono, Style.color.primary ] ]
             , Html.nav
                 [ Html.css
-                    [ Style.space.small, Style.gap.smallY, Style.content.left, Style.content.spaceBetween ]
+                    [ Style.space.smallY, Style.gap.smallY, Style.content.left, Style.content.spaceBetween ]
                 ]
                 [ Html.a
                     [ Html.css
