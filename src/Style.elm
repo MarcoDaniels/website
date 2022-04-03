@@ -24,6 +24,10 @@ type alias Font size =
     { size | mono : Css.Style, upperCase : Css.Style }
 
 
+type alias Content position =
+    { position | spaceBetween : Css.Style }
+
+
 type alias Screen =
     { small : List Css.Style -> Css.Style, large : List Css.Style -> Css.Style }
 
@@ -102,7 +106,7 @@ gap =
     }
 
 
-content : Position
+content : Content Position
 content =
     { left =
         Css.batch
@@ -116,6 +120,8 @@ content =
             , Css.justifyContent Css.center
             , Css.alignItems Css.center
             ]
+    , spaceBetween =
+        Css.justifyContent Css.spaceBetween
     }
 
 
