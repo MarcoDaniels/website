@@ -68,11 +68,19 @@ wide =
     }
 
 
-space : Size
+space : SizeAxis Size
 space =
     { none = Css.padding <| Css.px 0
     , small = Css.padding <| Css.px 10
+    , smallX = empty
+    , smallY =
+        Css.batch
+            [ Css.paddingTop <| Css.px 10
+            , Css.paddingBottom <| Css.px 10
+            ]
     , medium = Css.padding <| Css.px 40
+    , mediumX = empty
+    , mediumY = empty
     , large = empty
     }
 
