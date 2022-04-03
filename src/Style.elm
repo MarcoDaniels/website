@@ -25,7 +25,7 @@ type alias Font size =
 
 
 type alias Content position =
-    { position | spaceBetween : Css.Style }
+    { position | spaceBetween : Css.Style, column : Css.Style }
 
 
 type alias Screen =
@@ -122,6 +122,7 @@ content =
             ]
     , spaceBetween =
         Css.justifyContent Css.spaceBetween
+    , column = Css.flexDirection Css.column
     }
 
 

@@ -115,7 +115,7 @@ view maybeUrl sharedModel static =
     { title = static.data.title
     , body =
         [ Html.div
-            [ Html.css [ Style.content.center ] ]
+            [ Html.css [ Style.content.center, Style.screen.small [ Style.content.column ] ] ]
             (case static.data.content of
                 Just content ->
                     content
