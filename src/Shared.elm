@@ -48,9 +48,21 @@ view sharedData _ model toMsg pageView =
                 [ Css.Global.body [ Style.space.none, Style.gap.none, Style.font.mono, Style.color.primary ] ]
             , Html.nav
                 [ Html.css
-                    [ Style.space.small, Style.container.wrapper, Style.gap.smallY, Style.content.left ]
+                    [ Style.space.small, Style.gap.smallY, Style.content.left ]
                 ]
-                (sharedData.navigation
+                ([ List.singleton
+                    (Html.a
+                        [ Html.css
+                            [ Style.color.primary
+                            , Style.gap.mediumX
+                            , Style.font.medium
+                            , Style.screen.small [ Style.gap.smallX ]
+                            ]
+                        , Html.href sharedData.navigation.brand.url
+                        ]
+                        [ Html.text sharedData.navigation.brand.title ]
+                    )
+                 , sharedData.navigation.menu
                     |> List.map
                         (\item ->
                             Html.a
@@ -65,6 +77,8 @@ view sharedData _ model toMsg pageView =
                                 ]
                                 [ Html.text item.title ]
                         )
+                 ]
+                    |> List.concat
                 )
             , Html.article
                 [ Html.css [ Style.space.medium, Style.gap.mediumY, Style.container.wrapper ] ]
