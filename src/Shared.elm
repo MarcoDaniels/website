@@ -48,38 +48,36 @@ view sharedData _ model toMsg pageView =
                 [ Css.Global.body [ Style.space.none, Style.gap.none, Style.font.mono, Style.color.primary ] ]
             , Html.nav
                 [ Html.css
-                    [ Style.space.small, Style.gap.smallY, Style.content.left ]
+                    [ Style.space.small, Style.gap.smallY, Style.content.left, Style.content.spaceBetween ]
                 ]
-                ([ List.singleton
-                    (Html.a
-                        [ Html.css
-                            [ Style.color.primary
-                            , Style.gap.mediumX
-                            , Style.font.medium
-                            , Style.screen.small [ Style.gap.smallX ]
-                            ]
-                        , Html.href sharedData.navigation.brand.url
+                [ Html.a
+                    [ Html.css
+                        [ Style.color.primary
+                        , Style.gap.mediumX
+                        , Style.font.medium
+                        , Style.screen.small [ Style.gap.smallX ]
                         ]
-                        [ Html.text sharedData.navigation.brand.title ]
-                    )
-                 , sharedData.navigation.menu
-                    |> List.map
-                        (\item ->
-                            Html.a
-                                [ Html.css
-                                    [ Style.color.primary
-                                    , Style.gap.mediumX
-                                    , Style.font.upperCase
-                                    , Style.font.medium
-                                    , Style.screen.small [ Style.gap.smallX ]
+                    , Html.href sharedData.navigation.brand.url
+                    ]
+                    [ Html.text sharedData.navigation.brand.title ]
+                , Html.div []
+                    (sharedData.navigation.menu
+                        |> List.map
+                            (\item ->
+                                Html.a
+                                    [ Html.css
+                                        [ Style.color.primary
+                                        , Style.gap.mediumX
+                                        , Style.font.upperCase
+                                        , Style.font.medium
+                                        , Style.screen.small [ Style.gap.smallX ]
+                                        ]
+                                    , Html.href item.url
                                     ]
-                                , Html.href item.url
-                                ]
-                                [ Html.text item.title ]
-                        )
-                 ]
-                    |> List.concat
-                )
+                                    [ Html.text item.title ]
+                            )
+                    )
+                ]
             , Html.article
                 [ Html.css [ Style.space.medium, Style.gap.mediumY, Style.container.wrapper ] ]
                 pageView.body
