@@ -4,8 +4,6 @@ module AWS exposing (Headers, InputEvent, Origin(..), OutputEvent(..), Request, 
 <https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-event-structure.html#request-event-fields>
 -}
 
--- TODO: separate into modules
-
 import Dict exposing (Dict)
 import Json.Decode as Decode exposing (Decoder, Error)
 import Json.Decode.Pipeline as Decode
@@ -77,16 +75,21 @@ type alias Response =
     { status : String
     , statusDescription : String
     , headers : Headers
-    , body : String
+    , body : Maybe String
     }
 
 
-type alias CloudFront =
-    { config : Config
+type alias OriginRequest =
+    { config : Config, request : Request }
 
-    -- TODO: depending on event type (Origin Response), can have response (to add headers)
-    , request : Request
-    }
+
+type alias OriginResponse =
+    { config : Config, request : Request, response : Response }
+
+
+type CloudFront
+    = InputResponse OriginResponse
+    | InputRequest OriginRequest
 
 
 type alias Record =
@@ -95,6 +98,11 @@ type alias Record =
 
 type alias InputEvent =
     { records : List Record }
+
+
+type OutputEvent
+    = OutputResponse Response
+    | OutputRequest Request
 
 
 decodeHeader : Decoder Header
@@ -175,11 +183,6 @@ decodeInputEvent =
             )
 
 
-type OutputEvent
-    = OutputResponse Response
-    | OutputRequest Request
-
-
 encodeHeaders : Headers -> Encode.Value
 encodeHeaders headers =
     headers
@@ -238,7 +241,11 @@ encodeOutputEvent result =
                 [ ( "status", response.status |> Encode.string )
                 , ( "statusDescription", response.statusDescription |> Encode.string )
                 , ( "headers", response.headers |> encodeHeaders )
-                , ( "body", response.body |> Encode.string )
+                , ( "body"
+                  , response.body
+                        |> Maybe.map Encode.string
+                        |> Maybe.withDefault Encode.null
+                  )
                 ]
 
         OutputRequest request ->
