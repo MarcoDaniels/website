@@ -66,6 +66,7 @@ let
 
   # TODO: separate dev and CI
 
+  # to include flags: buildLambda AssetRequest "{flags:{token:'123',domain:'abc'}}"
   buildLambda = pkgs.writeScriptBin "buildLambda" ''
     ${pkgs.elmPackages.elm}/bin/elm make infrastructure/lambda/src/$1.elm --output infrastructure/lambda/result/$1/elm.js
     ${jsHandler}/bin/jsHandler $1 infrastructure/lambda/result/$1/index.js $2

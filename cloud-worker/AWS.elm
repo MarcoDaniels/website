@@ -1,4 +1,4 @@
-module AWS exposing (Headers, InputEvent, Origin(..), OutputEvent(..), Request, Response, decodeInputEvent, encodeOutputEvent)
+module AWS exposing (Headers, InputEvent, Origin(..), OutputEvent(..), CloudFront(..), Request, Response, decodeInputEvent, encodeOutputEvent, OriginRequest, OriginResponse)
 
 {-| Types based on:
 <https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-event-structure.html#request-event-fields>
@@ -159,6 +159,15 @@ decodeRequest =
         |> Decode.required "uri" Decode.string
 
 
+decodeResponse : Decoder Response
+decodeResponse =
+    Decode.succeed Response
+        |> Decode.required "status" Decode.string
+        |> Decode.required "statusDescription" Decode.string
+        |> Decode.required "headers" (Decode.dict (Decode.list decodeHeader))
+        |> Decode.required "body" (Decode.maybe Decode.string)
+
+
 decodeConfig : Decoder Config
 decodeConfig =
     Decode.succeed Config
@@ -175,9 +184,19 @@ decodeInputEvent =
             (Decode.list
                 (Decode.succeed Record
                     |> Decode.required "cf"
-                        (Decode.succeed CloudFront
-                            |> Decode.required "config" decodeConfig
-                            |> Decode.required "request" decodeRequest
+                        (Decode.oneOf
+                            [ (Decode.succeed OriginRequest
+                                |> Decode.required "config" decodeConfig
+                                |> Decode.required "request" decodeRequest
+                              )
+                                |> Decode.map InputRequest
+                            , (Decode.succeed OriginResponse
+                                |> Decode.required "config" decodeConfig
+                                |> Decode.required "request" decodeRequest
+                                |> Decode.required "response" decodeResponse
+                              )
+                                |> Decode.map InputResponse
+                            ]
                         )
                 )
             )
