@@ -1,4 +1,4 @@
-module AWS exposing (Headers, InputEvent, Origin(..), OutputEvent(..), CloudFront(..), Request, Response, decodeInputEvent, encodeOutputEvent, OriginRequest, OriginResponse)
+module AWS exposing (CloudFront(..), Headers, InputEvent, Origin(..), OriginRequest, OriginResponse, OutputEvent(..), Request, Response, decodeInputEvent, defaultOriginRequest, encodeOutputEvent)
 
 {-| Types based on:
 <https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-event-structure.html#request-event-fields>
@@ -8,6 +8,10 @@ import Dict exposing (Dict)
 import Json.Decode as Decode exposing (Decoder, Error)
 import Json.Decode.Pipeline as Decode
 import Json.Encode as Encode
+
+
+
+{---- Types ----}
 
 
 type alias Config =
@@ -105,6 +109,39 @@ type OutputEvent
     | OutputRequest Request
 
 
+
+{---- Defaults ----}
+
+
+defaultConfig : Config
+defaultConfig =
+    { distributionDomainName = ""
+    , distributionId = ""
+    , eventType = ""
+    , requestId = ""
+    }
+
+
+defaultRequest : Request
+defaultRequest =
+    { clientIp = ""
+    , headers = Dict.empty
+    , method = ""
+    , origin = OriginUnknown
+    , querystring = Nothing
+    , uri = ""
+    }
+
+
+defaultOriginRequest : OriginRequest
+defaultOriginRequest =
+    { request = defaultRequest, config = defaultConfig }
+
+
+
+{---- Decoders ----}
+
+
 decodeHeader : Decoder Header
 decodeHeader =
     Decode.succeed Header
@@ -200,6 +237,10 @@ decodeInputEvent =
                         )
                 )
             )
+
+
+
+{---- Encoders -----}
 
 
 encodeHeaders : Headers -> Encode.Value
