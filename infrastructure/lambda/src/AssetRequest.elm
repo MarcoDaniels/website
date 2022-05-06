@@ -11,7 +11,7 @@ main : Program Config (CloudWorker.Model Config) CloudWorker.Msg
 main =
     originRequest
         { origin =
-            \request { token, domain } ->
+            \{ request } { token, domain } ->
                 let
                     queryString =
                         "token="

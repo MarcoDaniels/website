@@ -8,7 +8,7 @@ main : Program () (CloudWorker.Model ()) CloudWorker.Msg
 main =
     originRequest
         { origin =
-            \request _ ->
+            \{ request } _ ->
                 case request.uri of
                     "" ->
                         toRequest
