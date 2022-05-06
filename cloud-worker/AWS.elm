@@ -1,4 +1,18 @@
-module AWS exposing (CloudFront(..), Headers, InputEvent, Origin(..), OriginRequest, OriginResponse, OutputEvent(..), Request, Response, decodeInputEvent, defaultOriginRequest, encodeOutputEvent)
+module AWS exposing
+    ( CloudFront(..)
+    , Headers
+    , InputEvent
+    , Origin(..)
+    , OriginRequest
+    , OriginResponse
+    , OutputEvent(..)
+    , Request
+    , Response
+    , decodeInputEvent
+    , defaultOriginRequest
+    , defaultOriginResponse
+    , encodeOutputEvent
+    )
 
 {-| Types based on:
 <https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-event-structure.html#request-event-fields>
@@ -136,6 +150,20 @@ defaultRequest =
 defaultOriginRequest : OriginRequest
 defaultOriginRequest =
     { request = defaultRequest, config = defaultConfig }
+
+
+defaultResponse : Response
+defaultResponse =
+    { status = ""
+    , statusDescription = ""
+    , headers = Dict.empty
+    , body = Nothing
+    }
+
+
+defaultOriginResponse : OriginResponse
+defaultOriginResponse =
+    { request = defaultRequest, response = defaultResponse, config = defaultConfig }
 
 
 

@@ -1,7 +1,6 @@
 port module CloudWorker exposing (..)
 
-import AWS exposing (CloudFront(..), Headers, InputEvent, Origin(..), OriginRequest, OriginResponse, OutputEvent(..), Request, Response, decodeInputEvent, defaultOriginRequest, encodeOutputEvent)
-import Dict
+import AWS exposing (CloudFront(..), Headers, InputEvent, Origin(..), OriginRequest, OriginResponse, OutputEvent(..), Request, Response, decodeInputEvent, defaultOriginRequest, defaultOriginResponse, encodeOutputEvent)
 import Json.Decode as Decode exposing (Error)
 import Json.Encode as Encode
 
@@ -20,19 +19,42 @@ type Msg
     = Input (Result Error InputEvent)
 
 
-originRequest : { origin : OriginRequest -> init -> OutputEvent } -> init -> Maybe CloudFront -> OutputEvent
+originRequest :
+    { origin : OriginRequest -> init -> OutputEvent }
+    -> init
+    -> Maybe CloudFront
+    -> OutputEvent
 originRequest { origin } init maybeCloudFront =
     case maybeCloudFront of
         Just cloudFront ->
             case cloudFront of
-                InputRequest originReq ->
-                    origin originReq init
+                InputRequest inputRequest ->
+                    origin inputRequest init
 
                 _ ->
                     origin defaultOriginRequest init
 
         _ ->
             origin defaultOriginRequest init
+
+
+originResponse :
+    { origin : OriginResponse -> init -> OutputEvent }
+    -> init
+    -> Maybe CloudFront
+    -> OutputEvent
+originResponse { origin } init maybeCloudFront =
+    case maybeCloudFront of
+        Just cloudFront ->
+            case cloudFront of
+                InputResponse inputResponse ->
+                    origin inputResponse init
+
+                _ ->
+                    origin defaultOriginResponse init
+
+        _ ->
+            origin defaultOriginResponse init
 
 
 toRequest : Request -> OutputEvent
