@@ -1,6 +1,6 @@
 module WebsiteResponse exposing (main)
 
-import CloudWorker exposing (cloudWorker, originResponse, toResponse, withHeader)
+import CloudWorker exposing (cloudWorker, originResponse, toResponse, withHeader, withHeaders)
 
 
 main : Program () (CloudWorker.Model ()) CloudWorker.Msg
@@ -9,8 +9,12 @@ main =
         { origin =
             \{ response } _ ->
                 response
-                    |> withHeader { key = "strict-transport-security", value = "max-age=31536000; includeSubDomains" }
-                    |> withHeader { key = "x-frame-options", value = "DENY" }
+                    |> withHeaders
+                        [ { key = "strict-transport-security"
+                          , value = "max-age=31536000; includeSubDomains"
+                          }
+                        , { key = "x-frame-options", value = "DENY" }
+                        ]
                     |> toResponse
         }
         |> cloudWorker
