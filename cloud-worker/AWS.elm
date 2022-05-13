@@ -12,7 +12,7 @@ module AWS exposing
     , defaultOriginRequest
     , defaultOriginResponse
     , encodeOutputEvent
-    )
+    , Header)
 
 {-| Types based on:
 <https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-event-structure.html#request-event-fields>
