@@ -93,7 +93,6 @@ type alias Response =
     { status : String
     , statusDescription : String
     , headers : Headers
-    , body : Maybe String
     }
 
 
@@ -157,7 +156,6 @@ defaultResponse =
     { status = ""
     , statusDescription = ""
     , headers = Dict.empty
-    , body = Nothing
     }
 
 
@@ -230,7 +228,6 @@ decodeResponse =
         |> Decode.required "status" Decode.string
         |> Decode.required "statusDescription" Decode.string
         |> Decode.required "headers" (Decode.dict (Decode.list decodeHeader))
-        |> Decode.required "body" (Decode.maybe Decode.string)
 
 
 decodeConfig : Decoder Config
@@ -250,17 +247,17 @@ decodeInputEvent =
                 (Decode.succeed Record
                     |> Decode.required "cf"
                         (Decode.oneOf
-                            [ (Decode.succeed OriginRequest
-                                |> Decode.required "config" decodeConfig
-                                |> Decode.required "request" decodeRequest
-                              )
-                                |> Decode.map InputRequest
-                            , (Decode.succeed OriginResponse
+                            [ (Decode.succeed OriginResponse
                                 |> Decode.required "config" decodeConfig
                                 |> Decode.required "request" decodeRequest
                                 |> Decode.required "response" decodeResponse
                               )
                                 |> Decode.map InputResponse
+                            , (Decode.succeed OriginRequest
+                                |> Decode.required "config" decodeConfig
+                                |> Decode.required "request" decodeRequest
+                              )
+                                |> Decode.map InputRequest
                             ]
                         )
                 )
@@ -329,11 +326,6 @@ encodeOutputEvent result =
                 [ ( "status", response.status |> Encode.string )
                 , ( "statusDescription", response.statusDescription |> Encode.string )
                 , ( "headers", response.headers |> encodeHeaders )
-                , ( "body"
-                  , response.body
-                        |> Maybe.map Encode.string
-                        |> Maybe.withDefault Encode.null
-                  )
                 ]
 
         OutputRequest request ->
