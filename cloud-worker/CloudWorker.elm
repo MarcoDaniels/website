@@ -1,5 +1,7 @@
 port module CloudWorker exposing (..)
 
+-- TODO: expose only necessary
+
 import AWS exposing (CloudFront(..), Header, Headers, InputEvent, Origin(..), OriginRequest, OriginResponse, OutputEvent(..), Request, Response, decodeInputEvent, defaultOriginRequest, defaultOriginResponse, encodeOutputEvent)
 import Dict
 import Json.Decode as Decode exposing (Error)
@@ -68,26 +70,43 @@ toResponse response =
     OutputResponse response
 
 
+caseSensitiveHeader : String -> String
+caseSensitiveHeader key =
+    String.split "-" key
+        |> List.map
+            (\word ->
+                String.uncons word
+                    |> Maybe.map (\( first, rest ) -> String.cons (Char.toUpper first) rest)
+                    |> Maybe.withDefault ""
+            )
+        |> String.join "-"
+
+
 withHeader : Header -> { event | headers : Headers } -> { event | headers : Headers }
 withHeader header event =
-    let
-        caseSensitive : String -> String
-        caseSensitive key =
-            String.split "-" key
-                |> List.map
-                    (\word ->
-                        String.uncons word
-                            |> Maybe.map (\( first, rest ) -> String.cons (Char.toUpper first) rest)
-                            |> Maybe.withDefault ""
-                    )
-                |> String.join "-"
-    in
     { event
         | headers =
             Dict.union
                 (Dict.insert header.key
-                    [ { key = caseSensitive header.key, value = header.value } ]
+                    [ { key = caseSensitiveHeader header.key, value = header.value } ]
                     Dict.empty
+                )
+                event.headers
+    }
+
+
+withHeaders : List Header -> { event | headers : Headers } -> { event | headers : Headers }
+withHeaders headers event =
+    { event
+        | headers =
+            Dict.union
+                (headers
+                    |> List.foldr
+                        (\header ->
+                            Dict.insert header.key
+                                [ { key = caseSensitiveHeader header.key, value = header.value } ]
+                        )
+                        Dict.empty
                 )
                 event.headers
     }
