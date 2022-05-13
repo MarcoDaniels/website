@@ -144,6 +144,11 @@ resource "aws_cloudfront_distribution" "distribution" {
       lambda_arn = module.website-request.qualified-arn
     }
 
+    lambda_function_association {
+      event_type = "origin-response"
+      lambda_arn = module.website-response.qualified-arn
+    }
+
     min_ttl     = 60
     default_ttl = 3600
     max_ttl     = 86400
@@ -219,6 +224,12 @@ output "cloudfront-domain" {
 module "website-request" {
   source       = "./lambda"
   lambda-name  = "WebsiteRequest"
+  project-name = local.project.name
+}
+
+module "website-response" {
+  source       = "./lambda"
+  lambda-name  = "WebsiteResponse"
   project-name = local.project.name
 }
 
