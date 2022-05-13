@@ -44,6 +44,10 @@ in mkLambda {
       flags = "";
     }
     {
+      module = "WebsiteResponse";
+      flags = "";
+    }
+    {
       module = "AssetRequest";
       flags = ''"{flags:{token:'""$"{token}"',domain:'""$"{domain}"'}}"'';
     }
