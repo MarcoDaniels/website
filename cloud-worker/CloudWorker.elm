@@ -1,6 +1,7 @@
 port module CloudWorker exposing (..)
 
-import AWS exposing (CloudFront(..), Headers, InputEvent, Origin(..), OriginRequest, OriginResponse, OutputEvent(..), Request, Response, decodeInputEvent, defaultOriginRequest, defaultOriginResponse, encodeOutputEvent)
+import AWS exposing (CloudFront(..), Header, Headers, InputEvent, Origin(..), OriginRequest, OriginResponse, OutputEvent(..), Request, Response, decodeInputEvent, defaultOriginRequest, defaultOriginResponse, encodeOutputEvent)
+import Dict
 import Json.Decode as Decode exposing (Error)
 import Json.Encode as Encode
 
@@ -65,6 +66,31 @@ toRequest request =
 toResponse : Response -> OutputEvent
 toResponse response =
     OutputResponse response
+
+
+withHeader : Header -> { event | headers : Headers } -> { event | headers : Headers }
+withHeader header event =
+    let
+        caseSensitive : String -> String
+        caseSensitive key =
+            String.split "-" key
+                |> List.map
+                    (\word ->
+                        String.uncons word
+                            |> Maybe.map (\( first, rest ) -> String.cons (Char.toUpper first) rest)
+                            |> Maybe.withDefault ""
+                    )
+                |> String.join "-"
+    in
+    { event
+        | headers =
+            Dict.union
+                (Dict.insert header.key
+                    [ { key = caseSensitive header.key, value = header.value } ]
+                    Dict.empty
+                )
+                event.headers
+    }
 
 
 cloudWorker : (init -> Maybe CloudFront -> OutputEvent) -> Program init (Model init) Msg
