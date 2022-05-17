@@ -1,6 +1,14 @@
-port module CloudWorker exposing (..)
-
--- TODO: expose only necessary
+port module CloudWorker exposing
+    ( Model
+    , Msg
+    , cloudWorker
+    , originRequest
+    , originResponse
+    , toRequest
+    , toResponse
+    , withHeader
+    , withHeaders
+    )
 
 import AWS
     exposing
@@ -104,12 +112,18 @@ headerBuilder header =
         [ { key = caseSensitive header.key, value = header.value } ]
 
 
-withHeader : Header -> { event | headers : Headers } -> { event | headers : Headers }
+withHeader :
+    Header
+    -> { event | headers : Headers }
+    -> { event | headers : Headers }
 withHeader header event =
     { event | headers = Dict.union (headerBuilder header Dict.empty) event.headers }
 
 
-withHeaders : List Header -> { event | headers : Headers } -> { event | headers : Headers }
+withHeaders :
+    List Header
+    -> { event | headers : Headers }
+    -> { event | headers : Headers }
 withHeaders headers event =
     { event | headers = Dict.union (headers |> List.foldr headerBuilder Dict.empty) event.headers }
 
