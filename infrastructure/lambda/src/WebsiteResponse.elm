@@ -1,6 +1,6 @@
 module WebsiteResponse exposing (main)
 
-import CloudWorker exposing (cloudWorker, originResponse, toResponse, withHeader, withHeaders)
+import CloudWorker exposing (cloudWorker, originResponse, toResponse, withHeaders)
 
 
 main : Program () (CloudWorker.Model ()) CloudWorker.Msg
