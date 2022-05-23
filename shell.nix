@@ -88,11 +88,15 @@ let
     handler(payload, "", logJSON)
   '';
 
+  # dev server with:
+  # concurrently "yarn start" "devProxy"
+
 in pkgs.mkShell {
   buildInputs = [
     pkgs.nixfmt
     pkgs.terraform
     pkgs.nodejs-16_x
+    pkgs.concurrently
     pkgs.yarn
     pkgs.elmPackages.elm
     pkgs.elmPackages.elm-format
