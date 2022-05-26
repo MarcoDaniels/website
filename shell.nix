@@ -7,6 +7,8 @@ let
     const http = require('http')
     const url = require('url')
     const https = require('https')
+    const {Elm} = require('${toString ./.}/dist/proxy')
+    const app = Elm.Proxy.init()
 
     const proxy = http.createServer((req, res) => {
         const request = url.parse(req.url)
@@ -36,27 +38,30 @@ let
             }
 
             const backend_req = http.request(options, (backend_res) => {
-                res.writeHead(backend_res.statusCode, backend_res.headers)
-                backend_res.on('data', (chunk) => {
-                    res.write(chunk)
-                })
-                backend_res.on('end', () => {
-                    res.end()
-                })
+                const caller = (data) => {
+                    res.writeHead(backend_res.statusCode, data.headers)
+                    app.ports.writeOutput.unsubscribe(caller)
+                }
+                app.ports.writeOutput.subscribe(caller)
+                app.ports.readInput.send({headers: backend_res.headers})
+
+                backend_res.on('data', (chunk) => res.write(chunk))
+                backend_res.on('end', () => res.end())
             })
 
-            req.on('data', (chunk) => {
-                backend_req.write(chunk)
-            })
-
-            req.on('end', () => {
-                backend_req.end()
-            })
+            req.on('data', (chunk) => backend_req.write(chunk))
+            req.on('end', () => backend_req.end())
         }
     })
 
     proxy.listen(8000)
     console.log(`running dev in http://localhost:8000`)
+  '';
+
+  # concurrently dev server with ElmProxy
+  start = pkgs.writeShellScriptBin "start" ''
+      elm make --optimize src/Proxy.elm --output=dist/proxy.js
+      ${pkgs.concurrently}/bin/concurrently "yarn start" "devProxy"
   '';
 
   ciBuild = pkgs.writeShellScriptBin "ciBuild" ''
@@ -88,9 +93,6 @@ let
     handler(payload, "", logJSON)
   '';
 
-  # dev server with:
-  # concurrently "yarn start" "devProxy"
-
 in pkgs.mkShell {
   buildInputs = [
     pkgs.nixfmt
@@ -107,5 +109,6 @@ in pkgs.mkShell {
     testLambda
     jsHandler
     buildLambda
+    start
   ];
 }
