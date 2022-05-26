@@ -4,6 +4,7 @@ import Dict
 import Json.Decode as Decode exposing (Decoder, Error)
 import Json.Decode.Pipeline as Decode
 import Json.Encode as Encode exposing (Value)
+import WebsiteResponse exposing (websiteResponseHeaders)
 
 
 port readInput : (Decode.Value -> msg) -> Sub msg
@@ -39,11 +40,24 @@ main =
                     Input result ->
                         case result of
                             Ok input ->
-                                ( model, input |> encodeModel |> writeOutput )
+                                ( model, responseBuilder input |> encodeModel |> writeOutput )
 
                             Err _ ->
                                 ( model, Cmd.none )
         }
+
+
+responseBuilder : Model -> Model
+responseBuilder { headers } =
+    { headers =
+        Dict.union
+            (websiteResponseHeaders
+                |> List.foldr
+                    (\{ key, value } -> Dict.insert key value)
+                    Dict.empty
+            )
+            headers
+    }
 
 
 decodeModel : Decoder Model
