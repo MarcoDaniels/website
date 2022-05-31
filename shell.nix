@@ -10,51 +10,56 @@ let
     const {Elm} = require('${toString ./.}/dist/proxy')
     const app = Elm.Proxy.init()
 
-    const proxy = http.createServer((req, res) => {
-        const request = url.parse(req.url)
+    const proxyCallback = (clientRes) => (proxyRes) => {
+        const proxyCaller = (data) => {
+            clientRes.writeHead(proxyRes.statusCode, data.headers)
+            proxyRes.pipe(clientRes, {end: true})
+
+            app.ports.proxyOutput.unsubscribe(proxyCaller)
+        }
+        app.ports.proxyOutput.subscribe(proxyCaller)
+        app.ports.proxyInput.send({headers: proxyRes.headers})
+    }
+
+    http.createServer((clientReq, clientRes) => {
+        const request = url.parse(clientReq.url)
 
         if (request.path.startsWith('/image/api/')) {
             const path = request.pathname.replace('/image/api', "")
-            const host = (process.env.COCKPIT_BASE_URL).replace("https://", "")
+            const host = (process.env.COCKPIT_BASE_URL).replace('https://', "")
 
             const options = {
                 host: host,
-                path: "/api/cockpit/image?token=" + process.env.COCKPIT_API_TOKEN + "&src=" + process.env.COCKPIT_BASE_URL + "/storage/uploads" + path + "&" + request.query,
-                method: req.method,
-                headers: {...req.headers, host: host},
+                path: '/api/cockpit/image?token=' + process.env.COCKPIT_API_TOKEN + '&src=' + process.env.COCKPIT_BASE_URL + '/storage/uploads' + path + '&' + request.query,
+                method: clientReq.method,
+                headers: {...clientReq.headers, host: host},
             }
 
-            https.get(options, (backend_res) => {
-                res.writeHead(backend_res.statusCode, backend_res.headers)
-                backend_res.pipe(res, {end: true})
-            })
+            https.get(options, proxyCallback(clientRes))
+
         } else {
-            const options = {
-                host: request.hostname,
-                port: 1234,
-                path: request.path,
-                method: req.method,
-                headers: req.headers,
-            }
+            const serverCaller = (data) => {
+                console.log('serverCaller', data)
 
-            const backend_req = http.request(options, (backend_res) => {
-                const caller = (data) => {
-                    res.writeHead(backend_res.statusCode, data.headers)
-                    app.ports.writeOutput.unsubscribe(caller)
+                const options = {
+                    host: request.hostname,
+                    port: 1234,
+                    path: request.path,
+                    method: clientRes.method,
+                    headers: clientReq.headers,
                 }
-                app.ports.writeOutput.subscribe(caller)
-                app.ports.readInput.send({headers: backend_res.headers})
 
-                backend_res.on('data', (chunk) => res.write(chunk))
-                backend_res.on('end', () => res.end())
-            })
+                const proxy = http.request(options, proxyCallback(clientRes))
+                clientReq.pipe(proxy, {end: true})
 
-            req.on('data', (chunk) => backend_req.write(chunk))
-            req.on('end', () => backend_req.end())
+                app.ports.serverOutput.unsubscribe(serverCaller)
+            }
+            app.ports.serverOutput.subscribe(serverCaller)
+            app.ports.serverInput.send({clientRequest: clientReq.url})
+
         }
-    })
+    }).listen(8000)
 
-    proxy.listen(8000)
     console.log(`running dev in http://localhost:8000`)
   '';
 
