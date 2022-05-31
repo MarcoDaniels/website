@@ -26,8 +26,8 @@ websiteResponseHeaders =
     , { key = "strict-transport-security", value = "max-age=31536000; includeSubDomains" }
     , { key = "content-security-policy"
       , value =
-            [ "default-src none; "
-            , "style-src 'self' 'unsafe-inline'; "
+            [ "style-src 'self' 'unsafe-inline';"
+            -- , "default-src none; "
             , "object-src 'none'"
             ]
                 |> String.concat
