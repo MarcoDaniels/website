@@ -5,59 +5,30 @@ let
   devProxy = pkgs.writeScriptBin "devProxy" ''
     #!/usr/bin/env node
     const http = require('http')
-    const url = require('url')
     const https = require('https')
-    const {Elm} = require('${toString ./.}/dist/proxy')
-    const app = Elm.Proxy.init()
+    const {Elm} = require('${toString ./.}/dist/server')
+    const app = Elm.Server.init()
 
-    const proxyCallback = (clientRes) => (proxyRes) => {
-        const proxyCaller = (data) => {
-            clientRes.writeHead(proxyRes.statusCode, data.headers)
-            proxyRes.pipe(clientRes, {end: true})
+    const responseCallback = (clientRes) => (serverResponse) => {
+        const responseCaller = (data) => {
+            clientRes.writeHead(serverResponse.statusCode, data.headers)
+            serverResponse.pipe(clientRes, {end: true})
 
-            app.ports.proxyOutput.unsubscribe(proxyCaller)
+            app.ports.responseOutput.unsubscribe(responseCaller)
         }
-        app.ports.proxyOutput.subscribe(proxyCaller)
-        app.ports.proxyInput.send({headers: proxyRes.headers})
+        app.ports.responseOutput.subscribe(responseCaller)
+        app.ports.responseInput.send({headers: serverResponse.headers})
     }
 
-    http.createServer((clientReq, clientRes) => {
-        const request = url.parse(clientReq.url)
+    http.createServer((incomingMessage, serverResponse) => {
+        const serverCaller = (options) => {
+            const proxy = (Boolean(options.secure) ? https : http).request(options, responseCallback(serverResponse))
+            incomingMessage.pipe(proxy, {end: true})
 
-        if (request.path.startsWith('/image/api/')) {
-            const path = request.pathname.replace('/image/api', "")
-            const host = (process.env.COCKPIT_BASE_URL).replace('https://', "")
-
-            const options = {
-                host: host,
-                path: '/api/cockpit/image?token=' + process.env.COCKPIT_API_TOKEN + '&src=' + process.env.COCKPIT_BASE_URL + '/storage/uploads' + path + '&' + request.query,
-                method: clientReq.method,
-                headers: {...clientReq.headers, host: host},
-            }
-
-            https.get(options, proxyCallback(clientRes))
-
-        } else {
-            const serverCaller = (data) => {
-                console.log('serverCaller', data)
-
-                const options = {
-                    host: request.hostname,
-                    port: 1234,
-                    path: request.path,
-                    method: clientRes.method,
-                    headers: clientReq.headers,
-                }
-
-                const proxy = http.request(options, proxyCallback(clientRes))
-                clientReq.pipe(proxy, {end: true})
-
-                app.ports.serverOutput.unsubscribe(serverCaller)
-            }
-            app.ports.serverOutput.subscribe(serverCaller)
-            app.ports.serverInput.send({clientRequest: clientReq.url})
-
+            app.ports.serverOutput.unsubscribe(serverCaller)
         }
+        app.ports.serverOutput.subscribe(serverCaller)
+        app.ports.serverInput.send(incomingMessage)
     }).listen(8000)
 
     console.log(`running dev in http://localhost:8000`)
@@ -65,7 +36,7 @@ let
 
   # concurrently dev server with ElmProxy
   start = pkgs.writeShellScriptBin "start" ''
-      elm make --optimize src/Proxy.elm --output=dist/proxy.js
+      elm make --optimize src/Server.elm --output=dist/server.js
       ${pkgs.concurrently}/bin/concurrently "yarn start" "devProxy"
   '';
 
