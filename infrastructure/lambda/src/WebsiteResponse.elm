@@ -27,8 +27,9 @@ websiteResponseHeaders =
     , { key = "content-security-policy"
       , value =
             [ "style-src 'self' 'unsafe-inline';"
-            -- , "default-src none; "
-            , "object-src 'none'"
+            , "script-src 'self' 'unsafe-inline';"
+            , "img-src 'self' data:;"
+            , "default-src 'self';"
             ]
                 |> String.concat
       }
