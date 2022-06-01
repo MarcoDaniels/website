@@ -7,7 +7,7 @@ let
     const http = require('http')
     const https = require('https')
     const {Elm} = require('${toString ./.}/dist/server')
-    const app = Elm.Server.init()
+    const app = Elm.Server.init({flags:{baseUrl:process.env.COCKPIT_BASE_URL,token:process.env.COCKPIT_API_TOKEN}})
 
     const responseCallback = (clientRes) => (serverResponse) => {
         const responseCaller = (data) => {

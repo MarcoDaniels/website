@@ -54,19 +54,19 @@ type Output
     | RequestOutput RequestOutgoing
 
 
-type alias Model =
-    Maybe Output
-
-
 type Msg
     = ResponseInput (Result Error ResponseIncoming)
     | RequestInput (Result Error RequestIncoming)
 
 
-main : Program () Model Msg
+type alias Env =
+    { baseUrl : String, token : String }
+
+
+main : Program Env Env Msg
 main =
     Platform.worker
-        { init = \_ -> ( Nothing, Cmd.none )
+        { init = \flags -> ( flags, Cmd.none )
         , subscriptions =
             \_ ->
                 Sub.batch
@@ -87,15 +87,15 @@ main =
                     RequestInput requestResult ->
                         case requestResult of
                             Ok request ->
-                                ( model, requestBuilder request |> RequestOutput |> encodeModel |> serverOutput )
+                                ( model, requestBuilder model request |> RequestOutput |> encodeModel |> serverOutput )
 
                             Err _ ->
                                 ( model, Cmd.none )
         }
 
 
-requestBuilder : RequestIncoming -> RequestOutgoing
-requestBuilder request =
+requestBuilder : Env -> RequestIncoming -> RequestOutgoing
+requestBuilder env request =
     let
         url : { host : String, path : String, query : Maybe String }
         url =
@@ -112,19 +112,14 @@ requestBuilder request =
         let
             host : String
             host =
-                -- TODO: COCKPIT_BASE_URL env flag
-                String.replace "https://" "" ""
+                String.replace "https://" "" env.baseUrl
 
             path : String
             path =
                 [ "/api/cockpit/image?token="
-
-                -- TODO: COCKPIT_API_TOKEN env flag
-                , ""
+                , env.token
                 , "&src="
-
-                -- TODO: COCKPIT_BASE_URL env flag
-                , ""
+                , env.baseUrl
                 , "/storage/uploads"
                 , String.replace "/image/api" "" url.path
                 , "&"
