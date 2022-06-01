@@ -126,7 +126,7 @@ view maybeUrl sharedModel static =
                                         Html.div [ Html.css [ Style.gap.medium ] ] [ Html.text string ]
 
                                     ContentAsset asset ->
-                                        Html.img [ Html.width 200, Html.src (toImageAPI asset.path 300) ] []
+                                        Html.img [ Html.alt asset.title, Html.width 200, Html.src (toImageAPI asset.path 300) ] []
 
                                     _ ->
                                         Html.text ""
