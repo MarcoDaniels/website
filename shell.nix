@@ -31,13 +31,39 @@ let
         app.ports.serverInput.send(incomingMessage)
     }).listen(8000)
 
-    console.log(`running dev in http://localhost:8000`)
+    console.log(`running devProxy in http://localhost:8000`)
+  '';
+
+  devPreview = pkgs.writeScriptBin "devPreview" ''
+    #!/usr/bin/env node
+    const http = require('http')
+    const fs = require('fs')
+
+    http.createServer((incomingMessage, serverResponse) => {
+        if (incomingMessage.url.endsWith(`.js`)) {
+            serverResponse.writeHead(200, {'content-type': 'text/javascript'})
+            fs.createReadStream('preview/preview.js').pipe(res)
+        } else {
+            serverResponse.writeHead(200, {'content-type': 'text/html'})
+            fs.createReadStream('preview/index.html').pipe(serverResponse)
+        }
+    }).listen(8000)
+
+    console.log(`running devPreview in http://localhost:8000`)
+  '';
+
+  ## TODO: build preview -> deploy to github pages
+
+  startPreview = pkgs.writeShellScriptBin "startPreview" ''
+    elm make --optimize cockpit/Preview.elm --output=preview/preview.js
+    cp cockpit/Preview.html preview/index.html
+    devPreview
   '';
 
   # concurrently dev server with ElmProxy
   start = pkgs.writeShellScriptBin "start" ''
-      elm make --optimize cockpit/Server.elm --output=dist/server.js
-      ${pkgs.concurrently}/bin/concurrently "yarn start" "devProxy"
+    elm make --optimize cockpit/Server.elm --output=dist/server.js
+    ${pkgs.concurrently}/bin/concurrently "yarn start" "devProxy"
   '';
 
   ciBuild = pkgs.writeShellScriptBin "ciBuild" ''
@@ -58,7 +84,9 @@ let
     const fs = require('fs')
     const lambda = process.argv[2]
     const testPayload = process.argv[3]
-    const {handler} = require("${toString ./.}/infrastructure/lambda/result/" + lambda)
+    const {handler} = require("${
+      toString ./.
+    }/infrastructure/lambda/result/" + lambda)
     const payload = JSON.parse(fs.readFileSync("${
       toString ./.
     }/tests/" + testPayload + ".json"))
@@ -86,5 +114,7 @@ in pkgs.mkShell {
     jsHandler
     buildLambda
     start
+    devPreview
+    startPreview
   ];
 }
