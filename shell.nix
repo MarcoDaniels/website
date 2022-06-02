@@ -36,7 +36,7 @@ let
 
   # concurrently dev server with ElmProxy
   start = pkgs.writeShellScriptBin "start" ''
-      elm make --optimize src/Server.elm --output=dist/server.js
+      elm make --optimize cockpit/Server.elm --output=dist/server.js
       ${pkgs.concurrently}/bin/concurrently "yarn start" "devProxy"
   '';
 
