@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href=".">
+    <meta charset="utf-8"/>
+    <title>MarcoDaniel's Preview</title>
+    <meta name="robots" content="noindex,nofollow"/>
+</head>
+<body>
+<div id="preview"></div>
+<script src="./preview.js"></script>
+<script type="text/javascript">
+    const app = Elm.Preview.init({
+        node: document.getElementById('preview')
+    })
+
+    window.addEventListener('message', (event) => {
+        // console.log(event.data.entry)
+        // app.ports.updatePayload.send(JSON.stringify(event.data.entry.content))
+    })
+</script>
+</body>
+</html>
