@@ -15,8 +15,7 @@
     })
 
     window.addEventListener('message', (event) => {
-        // console.log(event.data.entry)
-        // app.ports.updatePayload.send(JSON.stringify(event.data.entry.content))
+        app.ports.updatePayload.send(JSON.stringify(event.data.entry.content))
     })
 </script>
 </body>
