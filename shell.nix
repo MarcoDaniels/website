@@ -40,11 +40,7 @@ let
     const fs = require('fs')
 
     http.createServer((incomingMessage, serverResponse) => {
-        const fileExts = [
-            '.js', '.css', '.json', '.woff', '.woff2', '.ttf', '.otf',
-            '.eot', '.jpg', '.jpeg', '.png', '.gif', '.svg', '.ico'
-        ]
-        if (fileExts.findIndex((fileExt) => incomingMessage.url.endsWith(fileExt)) >= 0) {
+        if (['.js', '.css', '.json', '.ico'].findIndex((fileExt) => incomingMessage.url.endsWith(fileExt)) >= 0) {
             serverResponse.writeHead(200, {'content-type': 'text/javascript'})
             fs.createReadStream('preview' + incomingMessage.url).pipe(serverResponse)
         } else {
