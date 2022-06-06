@@ -1,7 +1,7 @@
 module Page.SPLAT__ exposing (Data, Model, Msg, page)
 
 import Cockpit exposing (Cockpit(..), fetchData)
-import Content exposing (Asset, Content, ContentData(..), assetDecoder, contentDecoder)
+import Content exposing (Asset, Content, ContentData(..), assetDecoder, contentDecoder, contentView)
 import DataSource exposing (DataSource)
 import Head.Seo as Seo
 import Html.Styled as Html
@@ -118,19 +118,7 @@ view maybeUrl sharedModel static =
             [ Html.css [ Style.content.center, Style.content.column ] ]
             (case static.data.content of
                 Just content ->
-                    content
-                        |> List.map
-                            (\contentData ->
-                                case contentData.value of
-                                    ContentMarkdown string ->
-                                        Html.div [ Html.css [ Style.gap.medium ] ] [ Html.text string ]
-
-                                    ContentAsset asset ->
-                                        Html.img [ Html.alt asset.title, Html.width 200, Html.src (toImageAPI asset.path 300) ] []
-
-                                    _ ->
-                                        Html.text ""
-                            )
+                    contentView content
 
                 Nothing ->
                     []

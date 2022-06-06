@@ -1,7 +1,11 @@
-module Content exposing (Content, ContentData(..), contentDecoder, Asset, assetDecoder)
+module Content exposing (Asset, Content, ContentData(..), assetDecoder, contentDecoder, contentView)
 
+import Html.Styled as Html
+import Html.Styled.Attributes as Html
 import OptimizedDecoder as Decoder exposing (Decoder)
 import OptimizedDecoder.Pipeline as Decoder
+import Style
+import Utilities exposing (toImageAPI)
 
 
 type alias Content =
@@ -23,7 +27,7 @@ type alias Asset =
     , title : String
     , width : Int
     , height : Int
-    , mime: String
+    , mime : String
     , colors : Maybe (List String)
     }
 
@@ -67,3 +71,19 @@ contentDecoder =
                                 Decoder.succeed ContentUnknown
                     )
             )
+
+
+contentView : List Content -> List (Html.Html msg)
+contentView =
+    List.map
+        (\contentData ->
+            case contentData.value of
+                ContentMarkdown string ->
+                    Html.div [ Html.css [ Style.gap.medium ] ] [ Html.text string ]
+
+                ContentAsset asset ->
+                    Html.img [ Html.alt asset.title, Html.width 200, Html.src (toImageAPI asset.path 300) ] []
+
+                _ ->
+                    Html.text ""
+        )
