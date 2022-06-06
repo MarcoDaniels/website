@@ -4,6 +4,7 @@ import Css.Global
 import Element exposing (Element, ElmElement)
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
+import Navigation exposing (Navigation, navigation)
 import Path exposing (Path)
 import Route exposing (Route)
 import Settings exposing (Settings, settingsData)
@@ -13,12 +14,7 @@ import View exposing (View)
 
 
 type Msg
-    = OnPageChange
-        { path : Path
-        , query : Maybe String
-        , fragment : Maybe String
-        }
-    | SharedMsg SharedMsg
+    = SharedMsg SharedMsg
 
 
 type alias Data =
@@ -30,7 +26,7 @@ type SharedMsg
 
 
 type alias Model =
-    { menuExpand : Bool }
+    ()
 
 
 view :
@@ -46,38 +42,7 @@ view sharedData _ model toMsg pageView =
         Html.div [ Html.css [ Style.container.fit, Style.wide.large, Style.align.center, Style.screen.small [ Style.space.small ] ] ]
             [ Css.Global.global
                 [ Css.Global.body [ Style.space.none, Style.gap.none, Style.font.mono, Style.color.primary ] ]
-            , Html.nav
-                [ Html.css
-                    [ Style.space.smallY, Style.gap.smallY, Style.content.left, Style.content.spaceBetween ]
-                ]
-                [ Html.a
-                    [ Html.css
-                        [ Style.color.primary
-                        , Style.gap.mediumX
-                        , Style.font.medium
-                        , Style.screen.small [ Style.gap.smallX ]
-                        ]
-                    , Html.href sharedData.navigation.brand.url
-                    ]
-                    [ Html.text sharedData.navigation.brand.title ]
-                , Html.div []
-                    (sharedData.navigation.menu
-                        |> List.map
-                            (\item ->
-                                Html.a
-                                    [ Html.css
-                                        [ Style.color.primary
-                                        , Style.gap.mediumX
-                                        , Style.font.upperCase
-                                        , Style.font.medium
-                                        , Style.screen.small [ Style.gap.smallX ]
-                                        ]
-                                    , Html.href item.url
-                                    ]
-                                    [ Html.text item.title ]
-                            )
-                    )
-                ]
+            , navigation sharedData.navigation
             , Html.article
                 [ Html.css [ Style.space.medium, Style.gap.mediumY, Style.container.wrapper ] ]
                 pageView.body
@@ -88,19 +53,10 @@ view sharedData _ model toMsg pageView =
 
 template : SharedTemplate Msg Model Data msg
 template =
-    { init =
-        \_ _ _ ->
-            ( { menuExpand = False }, Cmd.none )
-    , update =
-        \msg model ->
-            case msg of
-                OnPageChange _ ->
-                    ( { model | menuExpand = False }, Cmd.none )
-
-                SharedMsg _ ->
-                    ( model, Cmd.none )
+    { init = \_ _ _ -> ( (), Cmd.none )
+    , update = \msg model -> ( model, Cmd.none )
     , subscriptions = \_ _ -> Sub.none
     , view = view
     , data = settingsData
-    , onPageChange = Just OnPageChange
+    , onPageChange = Nothing
     }
