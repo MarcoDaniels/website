@@ -46,6 +46,7 @@ type alias RequestOutgoing =
     , path : String
     , method : String
     , secure : Bool
+    , fileSystem : Bool
     }
 
 
@@ -79,7 +80,7 @@ main =
                     ResponseInput responseResult ->
                         case responseResult of
                             Ok response ->
-                                ( model, responseBuilder response |> ResponseOutput |> encodeModel |> responseOutput )
+                                ( model, responseBuilder response |> ResponseOutput |> encodeOutput |> responseOutput )
 
                             Err _ ->
                                 ( model, Cmd.none )
@@ -87,11 +88,29 @@ main =
                     RequestInput requestResult ->
                         case requestResult of
                             Ok request ->
-                                ( model, requestBuilder model request |> RequestOutput |> encodeModel |> serverOutput )
+                                ( model, requestBuilder model request |> RequestOutput |> encodeOutput |> serverOutput )
 
                             Err _ ->
                                 ( model, Cmd.none )
         }
+
+
+type Route
+    = ImageAPI
+    | Preview
+    | Page
+
+
+checkRoute : String -> Route
+checkRoute url =
+    if String.startsWith "/image/api/" url then
+        ImageAPI
+
+    else if String.startsWith "/preview" url then
+        Preview
+
+    else
+        Page
 
 
 requestBuilder : Env -> RequestIncoming -> RequestOutgoing
@@ -108,14 +127,19 @@ requestBuilder env request =
                 |> Maybe.map (\{ host, path, query } -> { host = host, path = path, query = query })
                 |> Maybe.withDefault { host = "", path = "", query = Nothing }
     in
-    if String.startsWith "/image/api/" request.url then
-        let
-            host : String
-            host =
-                String.replace "https://" "" env.baseUrl
-
-            path : String
-            path =
+    case checkRoute request.url of
+        ImageAPI ->
+            let
+                host : String
+                host =
+                    String.replace "https://" "" env.baseUrl
+            in
+            { headers = Dict.union (Dict.insert "host" host Dict.empty) request.headers
+            , port_ = Nothing
+            , method = request.method
+            , secure = True
+            , host = host
+            , path =
                 [ "/api/cockpit/image?token="
                 , env.token
                 , "&src="
@@ -126,23 +150,40 @@ requestBuilder env request =
                 , url.query |> Maybe.withDefault ""
                 ]
                     |> String.concat
-        in
-        { headers = Dict.union (Dict.insert "host" host Dict.empty) request.headers
-        , port_ = Nothing
-        , method = request.method
-        , secure = True
-        , host = host
-        , path = path
-        }
+            , fileSystem = False
+            }
 
-    else
-        { headers = request.headers
-        , port_ = Just 1234
-        , method = request.method
-        , secure = False
-        , host = url.host
-        , path = url.path
-        }
+        Preview ->
+            let
+                extensions : List String
+                extensions =
+                    [ ".js", ".css", ".json", ".ico" ]
+                        |> List.filter (\ext -> String.endsWith ext url.path)
+            in
+            { headers = request.headers
+            , port_ = Nothing
+            , method = request.method
+            , secure = False
+            , host = url.host
+            , path =
+                case extensions of
+                    [] ->
+                        String.dropLeft 1 url.path ++ "/index.html"
+
+                    _ ->
+                        "preview" ++ url.path
+            , fileSystem = True
+            }
+
+        Page ->
+            { headers = request.headers
+            , port_ = Just 1234
+            , method = request.method
+            , secure = False
+            , host = url.host
+            , path = url.path
+            , fileSystem = False
+            }
 
 
 responseBuilder : ResponseIncoming -> ResponseIncoming
@@ -172,8 +213,8 @@ decodeRequestIncoming =
         |> Decode.required "url" Decode.string
 
 
-encodeModel : Output -> Encode.Value
-encodeModel data =
+encodeOutput : Output -> Encode.Value
+encodeOutput data =
     case data of
         ResponseOutput { headers } ->
             Encode.object
@@ -187,4 +228,5 @@ encodeModel data =
                 , ( "path", Encode.string request.path )
                 , ( "method", Encode.string request.method )
                 , ( "secure", Encode.bool request.secure )
+                , ( "fileSystem", Encode.bool request.fileSystem )
                 ]

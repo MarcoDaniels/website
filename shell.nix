@@ -6,6 +6,7 @@ let
     #!/usr/bin/env node
     const http = require('http')
     const https = require('https')
+    const fs = require('fs')
     const {Elm} = require('${toString ./.}/dist/server')
     const app = Elm.Server.init({flags:{baseUrl:process.env.COCKPIT_BASE_URL,token:process.env.COCKPIT_API_TOKEN}})
 
@@ -22,8 +23,12 @@ let
 
     http.createServer((incomingMessage, serverResponse) => {
         const serverCaller = (options) => {
-            const proxy = (Boolean(options.secure) ? https : http).request(options, responseCallback(serverResponse))
-            incomingMessage.pipe(proxy, {end: true})
+            if (Boolean(options.fileSystem)) {
+                fs.createReadStream(options.path).pipe(serverResponse)
+            } else {
+                const proxy = (Boolean(options.secure) ? https : http).request(options, responseCallback(serverResponse))
+                incomingMessage.pipe(proxy, {end: true})
+            }
 
             app.ports.serverOutput.unsubscribe(serverCaller)
         }
@@ -34,35 +39,11 @@ let
     console.log(`running devProxy in http://localhost:8000`)
   '';
 
-  devPreview = pkgs.writeScriptBin "devPreview" ''
-    #!/usr/bin/env node
-    const http = require('http')
-    const fs = require('fs')
-
-    http.createServer((incomingMessage, serverResponse) => {
-        if (['.js', '.css', '.json', '.ico'].findIndex((fileExt) => incomingMessage.url.endsWith(fileExt)) >= 0) {
-            serverResponse.writeHead(200, {'content-type': 'text/javascript'})
-            fs.createReadStream('preview' + incomingMessage.url).pipe(serverResponse)
-        } else {
-            serverResponse.writeHead(200, {'content-type': 'text/html'})
-            fs.createReadStream('preview' + incomingMessage.url + 'index.html').pipe(serverResponse)
-        }
-    }).listen(8000)
-
-    console.log(`running devPreview in http://localhost:8000`)
-  '';
-
-  ## TODO: build preview -> deploy to github pages
-
-  startPreview = pkgs.writeShellScriptBin "startPreview" ''
-    elm make --optimize cockpit/Preview.elm --output=preview/preview.js
-    cp cockpit/Preview.html preview/index.html
-    devPreview
-  '';
-
   # concurrently dev server with ElmProxy
   start = pkgs.writeShellScriptBin "start" ''
     elm make --optimize cockpit/Server.elm --output=dist/server.js
+    elm make --optimize cockpit/Preview.elm --output=preview/preview.js
+    cp cockpit/Preview.html preview/index.html
     ${pkgs.concurrently}/bin/concurrently "yarn start" "devProxy"
   '';
 
@@ -114,7 +95,5 @@ in pkgs.mkShell {
     jsHandler
     buildLambda
     start
-    devPreview
-    startPreview
   ];
 }
