@@ -39,7 +39,7 @@ let
     console.log(`running devProxy in http://localhost:8000`)
   '';
 
-  # concurrently dev server with ElmProxy
+  # concurrently Pages with Proxy & Preview
   start = pkgs.writeShellScriptBin "start" ''
     elm make --optimize cockpit/Server.elm --output=dist/server.js
     elm make --optimize cockpit/Preview.elm --output=preview/preview.js
@@ -51,8 +51,6 @@ let
     ${pkgs.yarn}/bin/yarn
     ${pkgs.yarn}/bin/yarn build
   '';
-
-  # TODO: separate dev and CI
 
   # to include flags: buildLambda AssetRequest "{flags:{token:'123',domain:'abc'}}"
   buildLambda = pkgs.writeScriptBin "buildLambda" ''
