@@ -9,18 +9,15 @@ main =
     originRequest
         { origin =
             \{ request } _ ->
-                case request.uri of
-                    "" ->
-                        toRequest
-                            { request | uri = "/index.html" }
+                toRequest
+                    (if String.contains "." request.uri then
+                        request
 
-                    uri ->
-                        toRequest
-                            (if String.endsWith "/" uri then
-                                { request | uri = uri ++ "index.html" }
+                     else if String.endsWith "/" request.uri then
+                        { request | uri = request.uri ++ "index.html" }
 
-                             else
-                                request
-                            )
+                     else
+                        { request | uri = request.uri ++ "/index.html" }
+                    )
         }
         |> cloudWorker
