@@ -1,4 +1,4 @@
-module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template)
+module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template, wrapper)
 
 import Css.Global
 import Element exposing (Element, ElmElement)
@@ -39,16 +39,26 @@ view :
 view sharedData _ model toMsg pageView =
     { title = sharedData.site.title ++ " - " ++ pageView.title
     , body =
-        Html.div [ Html.css [ Style.container.fit, Style.wide.large, Style.align.center, Style.screen.small [ Style.space.small ] ] ]
-            [ Css.Global.global
-                [ Css.Global.body [ Style.space.none, Style.gap.none, Style.font.mono, Style.color.primary ] ]
-            , navigation sharedData.navigation
-            , Html.article
-                [ Html.css [ Style.space.medium, Style.gap.mediumY, Style.container.wrapper ] ]
-                pageView.body
-            ]
-            |> Html.toUnstyled
+        [ navigation sharedData.navigation
+        , Html.article
+            [ Html.css [ Style.space.medium, Style.gap.mediumY, Style.container.wrapper ] ]
+            pageView.body
+        ]
+            |> wrapper
     }
+
+
+wrapper : List (Html.Html msg) -> ElmElement msg
+wrapper children =
+    Html.div [ Html.css [ Style.container.fit, Style.wide.large, Style.align.center, Style.screen.small [ Style.space.small ] ] ]
+        ([ Css.Global.global
+            [ Css.Global.body [ Style.space.none, Style.gap.none, Style.font.mono, Style.color.primary ] ]
+            |> List.singleton
+         , children
+         ]
+            |> List.concat
+        )
+        |> Html.toUnstyled
 
 
 template : SharedTemplate Msg Model Data msg
