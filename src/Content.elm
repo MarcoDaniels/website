@@ -1,6 +1,5 @@
 module Content exposing (Asset, Content, ContentData(..), assetDecoder, contentDecoder, contentView)
 
-import Element exposing (Element)
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
 import Markdown.Block as Block
@@ -78,7 +77,7 @@ contentDecoder =
             )
 
 
-markdownToHTML : String -> List (Element msg)
+markdownToHTML : String -> List (Html.Html msg)
 markdownToHTML raw =
     raw
         |> Parser.parse

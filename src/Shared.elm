@@ -1,7 +1,7 @@
 module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template, wrapper)
 
 import Css.Global
-import Element exposing (Element, ElmElement)
+import Html as ElmHtml
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
 import Navigation exposing (Navigation, navigation)
@@ -35,7 +35,7 @@ view :
     -> Model
     -> (Msg -> msg)
     -> View msg
-    -> { title : String, body : ElmElement msg }
+    -> { title : String, body : ElmHtml.Html msg }
 view sharedData _ model toMsg pageView =
     { title = sharedData.site.title ++ " - " ++ pageView.title
     , body =
@@ -48,7 +48,7 @@ view sharedData _ model toMsg pageView =
     }
 
 
-wrapper : List (Html.Html msg) -> ElmElement msg
+wrapper : List (Html.Html msg) -> ElmHtml.Html msg
 wrapper children =
     Html.div [ Html.css [ Style.container.fit, Style.wide.large, Style.align.center, Style.screen.small [ Style.space.small ] ] ]
         ([ Css.Global.global
