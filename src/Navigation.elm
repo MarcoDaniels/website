@@ -1,6 +1,5 @@
 module Navigation exposing (Navigation, navigation, navigationDecoder)
 
-import Element exposing (Element)
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
 import OptimizedDecoder as Decoder exposing (Decoder)
@@ -34,7 +33,7 @@ navigationDecoder =
         |> Decoder.required "menu" (Decoder.list linkValueDecoder)
 
 
-navigation : Navigation -> Element msg
+navigation : Navigation -> Html.Html msg
 navigation nav =
     Html.nav
         [ Html.css
