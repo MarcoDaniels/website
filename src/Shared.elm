@@ -41,7 +41,13 @@ view sharedData _ model toMsg pageView =
     , body =
         [ navigation sharedData.navigation
         , Html.article
-            [ Html.css [ Style.space.medium, Style.gap.mediumY, Style.container.wrapper ] ]
+            [ Html.css
+                [ Style.container.wrapper
+                , Style.gap.mediumY
+                , Style.space.medium
+                , Style.screen.small [ Style.space.small ]
+                ]
+            ]
             pageView.body
         ]
             |> wrapper
@@ -50,7 +56,14 @@ view sharedData _ model toMsg pageView =
 
 wrapper : List (Html.Html msg) -> ElmHtml.Html msg
 wrapper children =
-    Html.div [ Html.css [ Style.container.fit, Style.wide.large, Style.align.center, Style.screen.small [ Style.space.small ] ] ]
+    Html.div
+        [ Html.css
+            [ Style.container.fit
+            , Style.wide.large
+            , Style.align.center
+            , Style.screen.small [ Style.space.small ]
+            ]
+        ]
         ([ Css.Global.global
             [ Css.Global.body [ Style.space.none, Style.gap.none, Style.font.mono, Style.color.primary ] ]
             |> List.singleton

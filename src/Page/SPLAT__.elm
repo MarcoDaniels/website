@@ -5,14 +5,12 @@ import Content exposing (Asset, Content, ContentData(..), assetDecoder, contentD
 import DataSource exposing (DataSource)
 import Head.Seo as Seo
 import Html.Styled as Html
-import Html.Styled.Attributes as Html
 import OptimizedDecoder as Decoder
 import OptimizedDecoder.Pipeline as Decoder
 import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
 import Shared
-import Style
 import Utilities exposing (toImageAPI, toURL)
 import View exposing (View)
 
@@ -114,8 +112,7 @@ view :
 view maybeUrl sharedModel static =
     { title = static.data.title
     , body =
-        [ Html.div
-            [ Html.css [ Style.content.center, Style.content.column ] ]
+        [ Html.div []
             (case static.data.content of
                 Just content ->
                     contentView content
