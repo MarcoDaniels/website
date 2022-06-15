@@ -120,8 +120,21 @@ markdownToHTML raw =
             , codeSpan = \content -> Html.code [] [ Html.text content ]
             , image = \_ -> Html.div [] []
             , text = Html.text
-            , orderedList = \_ _ -> Html.div [] []
-            , unorderedList = \_ -> Html.div [] []
+            , orderedList =
+                \index items ->
+                    Html.ol [ Html.start index ]
+                        (items |> List.map (\li -> Html.li [] li))
+            , unorderedList =
+                \items ->
+                    Html.ul []
+                        (items
+                            |> List.map
+                                (\li ->
+                                    case li of
+                                        Block.ListItem _ children ->
+                                            Html.li [] children
+                                )
+                        )
             , html = Markdown.Html.oneOf []
             , codeBlock = \_ -> Html.div [] []
             , thematicBreak = Html.hr [] []
@@ -141,7 +154,7 @@ contentView =
         (\contentData ->
             case contentData.value of
                 ContentMarkdown markdown ->
-                    Html.div [ Html.css [ Style.gap.medium ] ] (markdownToHTML markdown)
+                    Html.div [] (markdownToHTML markdown)
 
                 ContentAsset asset ->
                     Html.img [ Html.alt asset.title, Html.width 200, Html.src (toImageAPI asset.path 300) ] []
