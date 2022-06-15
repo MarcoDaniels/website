@@ -184,13 +184,15 @@ requestBuilder env request =
 responseBuilder : ResponseIncoming -> ResponseIncoming
 responseBuilder { headers } =
     { headers =
+        {--| overwrite headers for local development
         Dict.union
             (websiteResponseHeaders
                 |> List.foldr
                     (\{ key, value } -> Dict.insert key value)
                     Dict.empty
             )
-            headers
+        --}
+        headers
     }
 
 

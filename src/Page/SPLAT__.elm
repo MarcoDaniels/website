@@ -1,7 +1,8 @@
 module Page.SPLAT__ exposing (Data, Model, Msg, page)
 
+import Asset exposing (Asset, assetDecoder)
 import Cockpit exposing (Cockpit(..), fetchData)
-import Content exposing (Asset, Content, ContentData(..), assetDecoder, contentDecoder, contentView)
+import Content exposing (Content, ContentData(..), contentDecoder, contentView)
 import DataSource exposing (DataSource)
 import Head.Seo as Seo
 import Html.Styled as Html
