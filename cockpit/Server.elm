@@ -4,6 +4,7 @@ import Dict
 import Json.Decode as Decode exposing (Decoder, Error)
 import Json.Decode.Pipeline as Decode
 import Json.Encode as Encode exposing (Value)
+import StaticRoute exposing (staticRoute)
 import Url
 import WebsiteResponse exposing (websiteResponseHeaders)
 
@@ -154,24 +155,18 @@ requestBuilder env request =
             }
 
         Preview ->
-            let
-                extensions : List String
-                extensions =
-                    [ ".js", ".css", ".json", ".ico" ]
-                        |> List.filter (\ext -> String.endsWith ext url.path)
-            in
             { headers = request.headers
             , port_ = Nothing
             , method = request.method
             , secure = False
             , host = url.host
             , path =
-                case extensions of
-                    [] ->
-                        String.dropLeft 1 url.path ++ "/index.html"
+                case staticRoute url.path of
+                    StaticRoute.HTML uri ->
+                        String.dropLeft 1 uri
 
-                    _ ->
-                        "preview" ++ url.path
+                    StaticRoute.Other uri ->
+                        "preview" ++ uri
             , fileSystem = True
             }
 
