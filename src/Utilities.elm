@@ -1,4 +1,4 @@
-module Utilities exposing (toURL, toImageAPI)
+module Utilities exposing (toImageAPI, toURL)
 
 
 toURL : String -> List String
@@ -17,6 +17,10 @@ toURL url =
 
         rest ->
             [ rest ]
+
+
+
+-- TODO: delete
 
 
 toImageAPI : String -> Int -> String
