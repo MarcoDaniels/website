@@ -2,6 +2,7 @@ module WebsiteRequest exposing (main)
 
 import AWS exposing (InputEvent, OutputEvent)
 import CloudWorker exposing (cloudWorker, originRequest, toRequest)
+import StaticRoute exposing (staticRoute)
 
 
 main : Program () (CloudWorker.Model ()) CloudWorker.Msg
@@ -9,15 +10,13 @@ main =
     originRequest
         { origin =
             \{ request } _ ->
-                toRequest
-                    (if String.contains "." request.uri then
+                (case staticRoute request.uri of
+                    StaticRoute.HTML uri ->
+                        { request | uri = uri }
+
+                    StaticRoute.Other _ ->
                         request
-
-                     else if String.endsWith "/" request.uri then
-                        { request | uri = request.uri ++ "index.html" }
-
-                     else
-                        { request | uri = request.uri ++ "/index.html" }
-                    )
+                )
+                    |> toRequest
         }
         |> cloudWorker
