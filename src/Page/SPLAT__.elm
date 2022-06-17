@@ -1,6 +1,6 @@
 module Page.SPLAT__ exposing (Data, Model, Msg, page)
 
-import Asset exposing (Asset, assetDecoder)
+import Asset exposing (Asset, assetAPI, assetDecoder)
 import Cockpit exposing (Cockpit(..), fetchData)
 import Content exposing (Content, ContentData(..), contentDecoder, contentView)
 import DataSource exposing (DataSource)
@@ -12,7 +12,7 @@ import Page exposing (Page, StaticPayload)
 import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
 import Shared
-import Utilities exposing (toImageAPI, toURL)
+import Utilities exposing (toURL)
 import View exposing (View)
 
 
@@ -50,7 +50,7 @@ page =
                             Just image ->
                                 { url =
                                     static.sharedData.site.baseURL
-                                        ++ toImageAPI image.path 300
+                                        ++ assetAPI image.path 300
                                         |> Pages.Url.external
                                 , alt = image.title
                                 , dimensions = Just { width = image.width, height = image.height }

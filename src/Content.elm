@@ -9,8 +9,6 @@ import Markdown.Parser as Parser
 import Markdown.Renderer as Render
 import OptimizedDecoder as Decoder exposing (Decoder)
 import OptimizedDecoder.Pipeline as Decoder
-import Style
-import Utilities exposing (toImageAPI)
 
 
 type alias Content =
@@ -137,7 +135,7 @@ contentView =
                     Html.div [] (markdownToHTML markdown)
 
                 ContentAsset asset ->
-                    assetToHTML asset
+                    assetToHTML asset Asset.Large
 
                 ContentUnknown ->
                     Html.text ""

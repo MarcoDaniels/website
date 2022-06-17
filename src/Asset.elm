@@ -1,14 +1,10 @@
-module Asset exposing (Asset, assetDecoder, assetToHTML)
+module Asset exposing (Asset, AssetSize(..), assetAPI, assetDecoder, assetToHTML)
 
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
 import OptimizedDecoder as Decoder exposing (Decoder)
 import OptimizedDecoder.Pipeline as Decoder
 import Style
-
-
-
--- TODO: cleanup asset
 
 
 type alias Asset =
@@ -32,13 +28,27 @@ assetDecoder =
         |> Decoder.optional "colors" (Decoder.maybe (Decoder.list Decoder.string)) Nothing
 
 
-assetToHTML : Asset -> Html.Html msg
-assetToHTML data =
+type AssetSize
+    = Small
+    | Large
+
+
+assetToHTML : Asset -> AssetSize -> Html.Html msg
+assetToHTML data assetSize =
+    let
+        size =
+            case assetSize of
+                Small ->
+                    300
+
+                Large ->
+                    800
+    in
     Html.img
         [ Html.css
             [ Style.content.center, Style.align.center, Style.wide.large ]
         , Html.alt data.title
-        , Html.src (assetAPI data.path 800)
+        , Html.src (assetAPI data.path size)
         ]
         []
 
