@@ -2,15 +2,13 @@ module Page.SPLAT__ exposing (Data, Model, Msg, page)
 
 import Asset exposing (Asset, assetAPI, assetDecoder)
 import Cockpit exposing (Cockpit(..), fetchData)
-import Content exposing (Content, ContentData(..), contentDecoder, contentView)
+import Content exposing (Content, contentDecoder, contentView)
 import DataSource exposing (DataSource)
 import Head.Seo as Seo
 import OptimizedDecoder as Decoder
 import OptimizedDecoder.Pipeline as Decoder
 import Page exposing (Page, StaticPayload)
-import Pages.PageUrl exposing (PageUrl)
 import Pages.Url
-import Shared
 import Utilities exposing (toURL)
 import View exposing (View)
 
@@ -92,7 +90,11 @@ page =
                                     { url = [], title = "", description = "", image = Nothing, content = [] }
                         )
         }
-        |> Page.buildNoState { view = view }
+        |> Page.buildNoState
+            { view =
+                \maybeUrl sharedModel static ->
+                    { title = static.data.title, body = contentView static.data.content }
+            }
 
 
 pageData : DataSource Entries
@@ -110,12 +112,3 @@ pageData =
                     )
                 )
         )
-
-
-view :
-    Maybe PageUrl
-    -> Shared.Model
-    -> StaticPayload Data RouteParams
-    -> View Msg
-view maybeUrl sharedModel static =
-    { title = static.data.title, body = contentView static.data.content }

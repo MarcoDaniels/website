@@ -1,4 +1,4 @@
-module Content exposing (Content, ContentData(..), contentDecoder, contentView)
+module Content exposing (Content, contentDecoder, contentView)
 
 import Asset exposing (Asset, assetDecoder, assetToHTML)
 import Html.Styled as Html
@@ -12,28 +12,28 @@ import OptimizedDecoder.Pipeline as Decoder
 
 
 type alias Content =
-    { value : ContentData }
+    { value : ContentValue }
 
 
 type alias Field =
     { fieldType : String, label : String }
 
 
-type ContentData
+type ContentValue
     = ContentMarkdown String
     | ContentAsset Asset
-    | ContentGrid (List GridContent)
+    | ContentGrid (List Grid)
     | ContentUnknown
 
 
-type alias GridContent =
-    { value : GridData }
+type alias Grid =
+    { value : GridValue }
 
 
-type GridData
+type GridValue
     = GridMarkdown String
     | GridAsset Asset
-    | GridColumn (List GridContent)
+    | GridColumn (List Grid)
     | GridUnknown
 
 
@@ -44,46 +44,50 @@ fieldDecoder =
         |> Decoder.required "label" Decoder.string
 
 
+fieldGridDecoder : ( String, String ) -> Decoder GridValue
+fieldGridDecoder ( fieldType, label ) =
+    case ( fieldType, label ) of
+        ( "markdown", _ ) ->
+            Decoder.succeed GridMarkdown
+                |> Decoder.required "value" Decoder.string
+
+        ( "asset", _ ) ->
+            Decoder.succeed GridAsset
+                |> Decoder.required "value" assetDecoder
+
+        _ ->
+            Decoder.succeed GridUnknown
+
+
+fieldCase : (( String, String ) -> Decoder b) -> Decoder (b -> a) -> Decoder a
+fieldCase caseFn =
+    Decoder.andMap
+        (Decoder.field "field" fieldDecoder
+            |> Decoder.andThen (\field -> caseFn ( field.fieldType, field.label ))
+        )
+
+
 contentDecoder : Decoder Content
 contentDecoder =
     Decoder.succeed Content
-        |> Decoder.andMap
-            (Decoder.field "field" fieldDecoder
-                |> Decoder.andThen
-                    (\field ->
-                        case ( field.fieldType, field.label ) of
-                            ( "markdown", _ ) ->
-                                Decoder.succeed ContentMarkdown
-                                    |> Decoder.required "value" Decoder.string
+        |> fieldCase
+            (\( fieldType, label ) ->
+                case ( fieldType, label ) of
+                    ( "markdown", _ ) ->
+                        Decoder.succeed ContentMarkdown
+                            |> Decoder.required "value" Decoder.string
 
-                            ( "asset", _ ) ->
-                                Decoder.succeed ContentAsset
-                                    |> Decoder.required "value" assetDecoder
+                    ( "asset", _ ) ->
+                        Decoder.succeed ContentAsset
+                            |> Decoder.required "value" assetDecoder
 
-                            ( "repeater", "Grid" ) ->
-                                Decoder.succeed ContentGrid
-                                    |> Decoder.required "value"
-                                        (Decoder.list
-                                            (Decoder.succeed GridContent
-                                                |> Decoder.andMap
-                                                    (Decoder.field "field" fieldDecoder
-                                                        |> Decoder.andThen
-                                                            (\fieldG ->
-                                                                case ( fieldG.fieldType, fieldG.label ) of
-                                                                    ( "markdown", _ ) ->
-                                                                        Decoder.succeed GridMarkdown
-                                                                            |> Decoder.required "value" Decoder.string
+                    ( "repeater", "Grid" ) ->
+                        Decoder.succeed ContentGrid
+                            |> Decoder.required "value"
+                                (Decoder.list (Decoder.succeed Grid |> fieldCase fieldGridDecoder))
 
-                                                                    _ ->
-                                                                        Decoder.succeed GridUnknown
-                                                            )
-                                                    )
-                                            )
-                                        )
-
-                            _ ->
-                                Decoder.succeed ContentUnknown
-                    )
+                    _ ->
+                        Decoder.succeed ContentUnknown
             )
 
 
@@ -177,6 +181,9 @@ contentView =
                                     case value of
                                         GridMarkdown markdown ->
                                             Html.div [] (markdownToHTML markdown)
+
+                                        GridAsset asset ->
+                                            assetToHTML asset Asset.Large
 
                                         _ ->
                                             Html.div [] [ Html.text "unknown content grid" ]
