@@ -5,7 +5,6 @@ import Cockpit exposing (Cockpit(..), fetchData)
 import Content exposing (Content, ContentData(..), contentDecoder, contentView)
 import DataSource exposing (DataSource)
 import Head.Seo as Seo
-import Html.Styled as Html
 import OptimizedDecoder as Decoder
 import OptimizedDecoder.Pipeline as Decoder
 import Page exposing (Page, StaticPayload)
@@ -28,12 +27,16 @@ type alias RouteParams =
     { splat : List String }
 
 
+type alias Entries =
+    { entries : List Data }
+
+
 type alias Data =
     { url : List String
     , title : String
     , description : String
     , image : Maybe Asset
-    , content : Maybe (List Content)
+    , content : List Content
     }
 
 
@@ -70,38 +73,42 @@ page =
                     |> Seo.website
         , routes =
             pageData
-                |> DataSource.map (List.map (\item -> { splat = item.url }))
+                |> DataSource.map
+                    (\{ entries } -> entries |> List.map (\item -> { splat = item.url }))
         , data =
             \route ->
                 pageData
                     |> DataSource.map
-                        (List.foldr
-                            (\item next ->
-                                if item.url == route.splat then
-                                    item
+                        (\{ entries } ->
+                            entries
+                                |> List.foldr
+                                    (\item next ->
+                                        if item.url == route.splat then
+                                            item
 
-                                else
-                                    next
-                            )
-                            { url = [], title = "", description = "", image = Nothing, content = Nothing }
+                                        else
+                                            next
+                                    )
+                                    { url = [], title = "", description = "", image = Nothing, content = [] }
                         )
         }
         |> Page.buildNoState { view = view }
 
 
-pageData : DataSource (List Data)
+pageData : DataSource Entries
 pageData =
     fetchData (Collection "marcoDanielsPage")
-        (Decoder.map identity <|
-            Decoder.field "entries" <|
-                Decoder.list
+        (Decoder.succeed Entries
+            |> Decoder.required "entries"
+                (Decoder.list
                     (Decoder.succeed Data
                         |> Decoder.required "url" (Decoder.string |> Decoder.map toURL)
                         |> Decoder.required "title" Decoder.string
                         |> Decoder.required "description" Decoder.string
                         |> Decoder.required "image" (Decoder.maybe assetDecoder)
-                        |> Decoder.required "content" (Decoder.list contentDecoder |> Decoder.maybe)
+                        |> Decoder.required "content" (Decoder.list contentDecoder)
                     )
+                )
         )
 
 
@@ -111,15 +118,4 @@ view :
     -> StaticPayload Data RouteParams
     -> View Msg
 view maybeUrl sharedModel static =
-    { title = static.data.title
-    , body =
-        [ Html.div []
-            (case static.data.content of
-                Just content ->
-                    contentView content
-
-                Nothing ->
-                    []
-            )
-        ]
-    }
+    { title = static.data.title, body = contentView static.data.content }

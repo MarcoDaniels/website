@@ -13,7 +13,6 @@ type alias Asset =
     , width : Int
     , height : Int
     , mime : String
-    , colors : Maybe (List String)
     }
 
 
@@ -25,7 +24,6 @@ assetDecoder =
         |> Decoder.required "width" Decoder.int
         |> Decoder.required "height" Decoder.int
         |> Decoder.required "mime" Decoder.string
-        |> Decoder.optional "colors" (Decoder.maybe (Decoder.list Decoder.string)) Nothing
 
 
 type AssetSize
