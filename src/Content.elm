@@ -12,7 +12,7 @@ import OptimizedDecoder.Pipeline as Decoder
 
 
 type alias Content =
-    { field : Field, value : ContentData }
+    { value : ContentData }
 
 
 type alias Field =
@@ -22,7 +22,19 @@ type alias Field =
 type ContentData
     = ContentMarkdown String
     | ContentAsset Asset
+    | ContentGrid (List GridContent)
     | ContentUnknown
+
+
+type alias GridContent =
+    { value : GridData }
+
+
+type GridData
+    = GridMarkdown String
+    | GridAsset Asset
+    | GridColumn (List GridContent)
+    | GridUnknown
 
 
 fieldDecoder : Decoder Field
@@ -35,8 +47,7 @@ fieldDecoder =
 contentDecoder : Decoder Content
 contentDecoder =
     Decoder.succeed Content
-        |> Decoder.required "field" fieldDecoder
-        |> Decoder.custom
+        |> Decoder.andMap
             (Decoder.field "field" fieldDecoder
                 |> Decoder.andThen
                     (\field ->
@@ -48,6 +59,27 @@ contentDecoder =
                             ( "asset", _ ) ->
                                 Decoder.succeed ContentAsset
                                     |> Decoder.required "value" assetDecoder
+
+                            ( "repeater", "Grid" ) ->
+                                Decoder.succeed ContentGrid
+                                    |> Decoder.required "value"
+                                        (Decoder.list
+                                            (Decoder.succeed GridContent
+                                                |> Decoder.andMap
+                                                    (Decoder.field "field" fieldDecoder
+                                                        |> Decoder.andThen
+                                                            (\fieldG ->
+                                                                case ( fieldG.fieldType, fieldG.label ) of
+                                                                    ( "markdown", _ ) ->
+                                                                        Decoder.succeed GridMarkdown
+                                                                            |> Decoder.required "value" Decoder.string
+
+                                                                    _ ->
+                                                                        Decoder.succeed GridUnknown
+                                                            )
+                                                    )
+                                            )
+                                        )
 
                             _ ->
                                 Decoder.succeed ContentUnknown
@@ -136,6 +168,20 @@ contentView =
 
                 ContentAsset asset ->
                     assetToHTML asset Asset.Large
+
+                ContentGrid gridContent ->
+                    Html.div []
+                        (gridContent
+                            |> List.map
+                                (\{ value } ->
+                                    case value of
+                                        GridMarkdown markdown ->
+                                            Html.div [] (markdownToHTML markdown)
+
+                                        _ ->
+                                            Html.div [] [ Html.text "unknown content grid" ]
+                                )
+                        )
 
                 ContentUnknown ->
                     Html.text ""
