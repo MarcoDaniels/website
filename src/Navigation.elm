@@ -37,7 +37,7 @@ navigation : Navigation -> Html.Html msg
 navigation nav =
     Html.nav
         [ Html.css
-            [ Style.space.smallY, Style.gap.smallY, Style.content.left, Style.content.spaceBetween ]
+            [ Style.space.smallY, Style.gap.smallY, Style.content.navigation ]
         ]
         [ Html.a
             [ Html.css

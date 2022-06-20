@@ -9,7 +9,7 @@ type alias Category =
 
 
 type alias Position =
-    { center : Css.Style, left : Css.Style }
+    { center : Css.Style }
 
 
 type alias Size =
@@ -25,7 +25,7 @@ type alias Font size =
 
 
 type alias Content position =
-    { position | spaceBetween : Css.Style, column : Css.Style }
+    { position | navigation : Css.Style, grid : Css.Style }
 
 
 type alias Screen =
@@ -116,29 +116,31 @@ gap =
 
 content : Content Position
 content =
-    { left =
-        Css.batch
-            [ Css.displayFlex
-            , Css.justifyContent Css.start
-            , Css.alignItems Css.center
-            ]
-    , center =
+    { center =
         Css.batch
             [ Css.displayFlex
             , Css.justifyContent Css.center
             , Css.alignItems Css.center
             ]
-    , spaceBetween =
-        Css.justifyContent Css.spaceBetween
-    , column = Css.flexDirection Css.column
+    , navigation =
+        Css.batch
+            [ Css.displayFlex
+            , Css.justifyContent Css.spaceBetween
+            ]
+    , grid =
+        Css.batch
+            [ Css.displayFlex
+            , Css.justifyContent Css.spaceBetween
+            , Css.alignItems Css.center
+            , screen.small
+                [ Css.flexDirection Css.column, Css.alignItems Css.start ]
+            ]
     }
 
 
 align : Position
 align =
-    { left = empty
-    , center = Css.batch [ Css.margin2 (Css.px 0) Css.auto ]
-    }
+    { center = Css.batch [ Css.margin2 (Css.px 0) Css.auto ] }
 
 
 container : { fit : Css.Style, wrapper : Css.Style }
