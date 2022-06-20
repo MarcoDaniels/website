@@ -28,6 +28,7 @@ assetDecoder =
 
 type AssetSize
     = Small
+    | Medium
     | Large
 
 
@@ -38,6 +39,9 @@ assetToHTML data assetSize =
             case assetSize of
                 Small ->
                     300
+
+                Medium ->
+                    500
 
                 Large ->
                     800
