@@ -49,6 +49,7 @@ view sharedData _ model toMsg pageView =
                 ]
             ]
             pageView.body
+        , Html.footer [] [ Html.text sharedData.footer ]
         ]
             |> wrapper
     }
