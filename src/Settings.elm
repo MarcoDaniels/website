@@ -11,8 +11,12 @@ type alias SiteSettings =
     { title : String, description : String, baseURL : String }
 
 
+type alias Social =
+    { title : String, url : String, media : String }
+
+
 type alias Settings =
-    { site : SiteSettings, navigation : Navigation }
+    { site : SiteSettings, navigation : Navigation, footer : String, social : List Social }
 
 
 settingsData : DataSource.DataSource Settings
@@ -30,3 +34,12 @@ settingsDecoder =
                 |> Decoder.required "baseURL" Decoder.string
             )
         |> Decoder.required "navigation" navigationDecoder
+        |> Decoder.required "footer" Decoder.string
+        |> Decoder.requiredAt [ "social", "links" ]
+            (Decoder.list
+                (Decoder.succeed Social
+                    |> Decoder.requiredAt [ "value", "title" ] Decoder.string
+                    |> Decoder.requiredAt [ "value", "url" ] Decoder.string
+                    |> Decoder.requiredAt [ "value", "social" ] Decoder.string
+                )
+            )
