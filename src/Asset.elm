@@ -27,9 +27,8 @@ assetDecoder =
 
 
 type AssetSize
-    = Small
-    | Medium
-    | Large
+    = Regular
+    | Grid Int
 
 
 assetToHTML : Asset -> AssetSize -> Html.Html msg
@@ -37,14 +36,12 @@ assetToHTML data assetSize =
     let
         size =
             case assetSize of
-                Small ->
-                    300
-
-                Medium ->
-                    500
-
-                Large ->
+                Regular ->
                     800
+
+                -- TODO: use grid length to calculate srcsets
+                Grid _ ->
+                    500
     in
     Html.img
         [ Html.css

@@ -169,7 +169,7 @@ contentView =
                     Html.div [] (markdownToHTML markdown)
 
                 ContentAsset asset ->
-                    assetToHTML asset Asset.Large
+                    assetToHTML asset Asset.Regular
 
                 ContentGrid gridContent ->
                     Html.div [ Html.css [ Style.content.grid ] ]
@@ -178,16 +178,22 @@ contentView =
                                 (\{ value } ->
                                     case value of
                                         GridMarkdown markdown ->
-                                            Html.div [] (markdownToHTML markdown)
+                                            Html.div
+                                                [ Html.css
+                                                    [ Style.content.gridItem
+                                                    , Style.content.gridItemText
+                                                    ]
+                                                ]
+                                                (markdownToHTML markdown)
 
                                         GridAsset asset ->
-                                            assetToHTML asset Asset.Medium
+                                            Html.div [ Html.css [ Style.content.gridItem ] ] [ assetToHTML asset (Asset.Grid (gridContent |> List.length)) ]
 
                                         GridUnknown ->
-                                            Html.text "TODO: cleanup grid"
+                                            Html.text ""
                                 )
                         )
 
                 ContentUnknown ->
-                    Html.text "TODO: cleanup content"
+                    Html.text ""
         )

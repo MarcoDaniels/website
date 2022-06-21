@@ -17,7 +17,14 @@ type alias Size =
 
 
 type alias SizeAxis size =
-    { size | smallX : Css.Style, smallY : Css.Style, mediumX : Css.Style, mediumY : Css.Style }
+    { size
+        | smallX : Css.Style
+        , smallY : Css.Style
+        , smallR : Css.Style
+        , smallL : Css.Style
+        , mediumX : Css.Style
+        , mediumY : Css.Style
+    }
 
 
 type alias Font size =
@@ -25,7 +32,7 @@ type alias Font size =
 
 
 type alias Content position =
-    { position | navigation : Css.Style, grid : Css.Style }
+    { position | navigation : Css.Style, grid : Css.Style, gridItem : Css.Style, gridItemText : Css.Style }
 
 
 type alias Screen =
@@ -41,8 +48,7 @@ screen =
 
 empty : Css.Style
 empty =
-    Css.batch
-        []
+    Css.batch []
 
 
 color : Category
@@ -72,12 +78,18 @@ space : SizeAxis Size
 space =
     { none = Css.padding <| Css.px 0
     , small = Css.padding <| Css.px 10
-    , smallX = empty
+    , smallX =
+        Css.batch
+            [ Css.paddingLeft <| Css.px 10
+            , Css.paddingRight <| Css.px 10
+            ]
     , smallY =
         Css.batch
             [ Css.paddingTop <| Css.px 10
             , Css.paddingBottom <| Css.px 10
             ]
+    , smallL = Css.paddingLeft <| Css.px 10
+    , smallR = Css.paddingRight <| Css.px 10
     , medium = Css.padding <| Css.px 40
     , mediumX = empty
     , mediumY = empty
@@ -99,6 +111,8 @@ gap =
             [ Css.marginTop <| Css.px 10
             , Css.marginBottom <| Css.px 10
             ]
+    , smallL = empty
+    , smallR = empty
     , medium = Css.margin <| Css.px 40
     , mediumX =
         Css.batch
@@ -116,6 +130,17 @@ gap =
 
 content : Content Position
 content =
+    let
+        gridItemBase =
+            Css.batch
+                [ Css.displayFlex
+                , Css.justifyContent Css.center
+                , Css.flexDirection Css.column
+                , Css.width <| Css.pct 50
+                , screen.small
+                    [ Css.width <| Css.pct 100 ]
+                ]
+    in
     { center =
         Css.batch
             [ Css.displayFlex
@@ -134,6 +159,23 @@ content =
             , Css.alignItems Css.center
             , screen.small
                 [ Css.flexDirection Css.column, Css.alignItems Css.start ]
+            ]
+    , gridItem = gridItemBase
+    , gridItemText =
+        Css.batch
+            [ gridItemBase
+            , space.smallX
+            , Css.firstChild
+                [ space.none
+                , space.smallR
+                , screen.small [ space.none ]
+                ]
+            , Css.lastChild
+                [ space.none
+                , space.smallL
+                , screen.small [ space.none ]
+                ]
+            , screen.small [ space.none ]
             ]
     }
 
