@@ -80,19 +80,17 @@ space =
     , small = Css.padding <| Css.px 10
     , smallX =
         Css.batch
-            [ Css.paddingLeft <| Css.px 10
-            , Css.paddingRight <| Css.px 10
-            ]
+            [ Css.paddingLeft <| Css.px 10, Css.paddingRight <| Css.px 10 ]
     , smallY =
         Css.batch
-            [ Css.paddingTop <| Css.px 10
-            , Css.paddingBottom <| Css.px 10
-            ]
+            [ Css.paddingTop <| Css.px 10, Css.paddingBottom <| Css.px 10 ]
     , smallL = Css.paddingLeft <| Css.px 10
     , smallR = Css.paddingRight <| Css.px 10
     , medium = Css.padding <| Css.px 40
     , mediumX = empty
-    , mediumY = empty
+    , mediumY =
+        Css.batch
+            [ Css.paddingTop <| Css.px 40, Css.paddingBottom <| Css.px 40 ]
     , large = empty
     }
 
