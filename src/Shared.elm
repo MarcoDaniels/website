@@ -1,6 +1,7 @@
 module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template, wrapper)
 
 import Css.Global
+import Footer exposing (footer)
 import Html as ElmHtml
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
@@ -43,13 +44,12 @@ view sharedData _ model toMsg pageView =
         , Html.article
             [ Html.css
                 [ Style.container.wrapper
-                , Style.gap.mediumY
                 , Style.space.medium
                 , Style.screen.small [ Style.space.small ]
                 ]
             ]
             pageView.body
-        , Html.footer [] [ Html.text sharedData.footer ]
+        , footer { line = sharedData.footer, social = sharedData.social }
         ]
             |> wrapper
     }

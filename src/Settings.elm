@@ -1,4 +1,4 @@
-module Settings exposing (Settings, settingsData)
+module Settings exposing (Settings, settingsData, Social)
 
 import Cockpit exposing (Cockpit(..), fetchData)
 import DataSource
