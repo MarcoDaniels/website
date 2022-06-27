@@ -1,5 +1,6 @@
 module Footer exposing (Footer, footer)
 
+import Content exposing (link, markdownToHTML)
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
 import Icon exposing (icon)
@@ -17,21 +18,18 @@ footer { line, social } =
         [ Html.css
             [ Style.space.mediumY, Style.gap.smallY, Style.content.navigation ]
         ]
-        [ Html.div [] [ Html.text line ]
-
-        -- TODO: new window
+        [ Html.div [] (markdownToHTML line)
         , Html.div []
             (social
                 |> List.map
                     (\media ->
-                        Html.a
-                            [ Html.css [ Style.gap.smallX ]
-                            , Html.href media.url
-                            , Html.title media.title
-                            , Html.target "_blank"
-                            , Html.rel "noopener noreferrer"
-                            ]
-                            [ icon media.icon ]
+                        link
+                            { to = media.url
+                            , attributes =
+                                [ Html.css [ Style.gap.smallX ], Html.title media.title ]
+                            , content =
+                                [ icon media.icon ]
+                            }
                     )
             )
         ]

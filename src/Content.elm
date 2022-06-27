@@ -1,4 +1,4 @@
-module Content exposing (Content, contentDecoder, contentView)
+module Content exposing (Content, contentDecoder, contentView, link, markdownToHTML)
 
 import Asset exposing (Asset, assetDecoder, assetToHTML)
 import Html.Styled as Html
@@ -96,33 +96,45 @@ markdownToHTML raw =
         |> Result.withDefault []
         |> Render.render
             { heading =
-                \{ level, children } ->
+                \{ level, rawText, children } ->
+                    let
+                        textToID =
+                            String.words rawText |> String.join "-" |> String.toLower
+                    in
                     case level of
                         Block.H1 ->
-                            Html.h1 [] children
+                            Html.h1 [ Html.id textToID ] children
 
                         Block.H2 ->
-                            Html.h2 [] children
+                            Html.h2 [ Html.id textToID ] children
 
                         Block.H3 ->
-                            Html.h3 [] children
+                            Html.h3 [ Html.id textToID ] children
 
                         Block.H4 ->
-                            Html.h4 [] children
+                            Html.h4 [ Html.id textToID ] children
 
                         Block.H5 ->
-                            Html.h5 [] children
+                            Html.h5 [ Html.id textToID ] children
 
                         Block.H6 ->
-                            Html.h6 [] children
+                            Html.h6 [ Html.id textToID ] children
             , link =
-                \link content ->
-                    case link.title of
-                        Just title ->
-                            Html.a [ Html.href link.destination, Html.title title ] content
+                \{ title, destination } content ->
+                    case title of
+                        Just linkTitle ->
+                            link
+                                { to = destination
+                                , attributes = [ Html.href destination, Html.title linkTitle ]
+                                , content = content
+                                }
 
                         Nothing ->
-                            Html.a [ Html.href link.destination ] content
+                            link
+                                { to = destination
+                                , attributes = [ Html.href destination ]
+                                , content = content
+                                }
             , paragraph = Html.p []
             , hardLineBreak = Html.br [] []
             , blockQuote = Html.blockquote []
@@ -158,6 +170,32 @@ markdownToHTML raw =
             , tableCell = \_ _ -> Html.div [] []
             }
         |> Result.withDefault []
+
+
+type alias Link msg =
+    { to : String
+    , attributes : List (Html.Attribute msg)
+    , content : List (Html.Html msg)
+    }
+
+
+link : Link msg -> Html.Html msg
+link { to, attributes, content } =
+    Html.a
+        (if String.startsWith "https://" to || String.startsWith "http://" to then
+            [ attributes
+            , [ Html.css [ Style.color.primary ]
+              , Html.target "_blank"
+              , Html.rel "noopener noreferrer"
+              , Html.href to
+              ]
+            ]
+                |> List.concat
+
+         else
+            [ attributes, [ Html.css [ Style.color.primary ], Html.href to ] ] |> List.concat
+        )
+        content
 
 
 contentView : List Content -> List (Html.Html msg)
