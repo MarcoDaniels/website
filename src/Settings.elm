@@ -1,7 +1,8 @@
-module Settings exposing (Settings, settingsData, Social)
+module Settings exposing (Settings, Social, settingsData)
 
 import Cockpit exposing (Cockpit(..), fetchData)
 import DataSource
+import Icon
 import Navigation exposing (Navigation, navigationDecoder)
 import OptimizedDecoder as Decoder exposing (Decoder)
 import OptimizedDecoder.Pipeline as Decoder
@@ -12,7 +13,7 @@ type alias SiteSettings =
 
 
 type alias Social =
-    { title : String, url : String, media : String }
+    { title : String, url : String, icon : Icon.Icons }
 
 
 type alias Settings =
@@ -40,6 +41,23 @@ settingsDecoder =
                 (Decoder.succeed Social
                     |> Decoder.requiredAt [ "value", "title" ] Decoder.string
                     |> Decoder.requiredAt [ "value", "url" ] Decoder.string
-                    |> Decoder.requiredAt [ "value", "social" ] Decoder.string
+                    |> Decoder.requiredAt [ "value", "social" ]
+                        (Decoder.string
+                            |> Decoder.map
+                                (\media ->
+                                    case media of
+                                        "github" ->
+                                            Icon.GitHub
+
+                                        "linkedin" ->
+                                            Icon.LinkedIn
+
+                                        "instagram" ->
+                                            Icon.Instagram
+
+                                        _ ->
+                                            Icon.StackOverflow
+                                )
+                        )
                 )
             )

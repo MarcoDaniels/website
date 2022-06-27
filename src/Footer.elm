@@ -2,6 +2,7 @@ module Footer exposing (Footer, footer)
 
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
+import Icon exposing (icon)
 import Settings exposing (Social)
 import Style
 
@@ -17,5 +18,20 @@ footer { line, social } =
             [ Style.space.mediumY, Style.gap.smallY, Style.content.navigation ]
         ]
         [ Html.div [] [ Html.text line ]
-        , Html.div [] (social |> List.map (\media -> Html.a [] [ Html.text media.media ]))
+
+        -- TODO: new window
+        , Html.div []
+            (social
+                |> List.map
+                    (\media ->
+                        Html.a
+                            [ Html.css [ Style.gap.smallX ]
+                            , Html.href media.url
+                            , Html.title media.title
+                            , Html.target "_blank"
+                            , Html.rel "noopener noreferrer"
+                            ]
+                            [ icon media.icon ]
+                    )
+            )
         ]
