@@ -52,6 +52,9 @@ settingsDecoder =
                                         "linkedin" ->
                                             Icon.LinkedIn
 
+                                        "twitter" ->
+                                            Icon.Twitter
+
                                         "instagram" ->
                                             Icon.Instagram
 

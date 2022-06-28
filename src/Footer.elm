@@ -16,7 +16,7 @@ footer : Footer -> Html.Html msg
 footer { line, social } =
     Html.footer
         [ Html.css
-            [ Style.space.mediumY, Style.gap.smallY, Style.content.navigation ]
+            [ Style.space.mediumY, Style.gap.smallY, Style.content.navigation, Style.screen.small [Style.content.gridItem] ]
         ]
         [ Html.div [] (markdownToHTML line)
         , Html.div []
