@@ -103,22 +103,22 @@ markdownToHTML raw =
                     in
                     case level of
                         Block.H1 ->
-                            Html.h1 [ Html.id textToID ] children
+                            Html.h1 [ Html.id textToID, Html.css [ Style.font.large, Style.font.title ] ] children
 
                         Block.H2 ->
-                            Html.h2 [ Html.id textToID ] children
+                            Html.h2 [ Html.id textToID, Html.css [ Style.font.medium ] ] children
 
                         Block.H3 ->
-                            Html.h3 [ Html.id textToID ] children
+                            Html.h3 [ Html.id textToID, Html.css [ Style.font.medium ] ] children
 
                         Block.H4 ->
-                            Html.h4 [ Html.id textToID ] children
+                            Html.h4 [ Html.id textToID, Html.css [ Style.font.medium ] ] children
 
                         Block.H5 ->
-                            Html.h5 [ Html.id textToID ] children
+                            Html.h5 [ Html.id textToID, Html.css [ Style.font.medium ] ] children
 
                         Block.H6 ->
-                            Html.h6 [ Html.id textToID ] children
+                            Html.h6 [ Html.id textToID, Html.css [ Style.font.medium ] ] children
             , link =
                 \{ title, destination } content ->
                     case title of
@@ -135,9 +135,9 @@ markdownToHTML raw =
                                 , attributes = [ Html.href destination ]
                                 , content = content
                                 }
-            , paragraph = Html.p []
+            , paragraph = Html.p [ Html.css [ Style.font.small ] ]
             , hardLineBreak = Html.br [] []
-            , blockQuote = Html.blockquote []
+            , blockQuote = Html.blockquote [ Html.css [ Style.gap.none, Style.space.small, Style.container.wrapper ] ]
             , strong = \children -> Html.strong [] children
             , emphasis = \children -> Html.em [] children
             , strikethrough = \children -> Html.del [] children
@@ -146,11 +146,11 @@ markdownToHTML raw =
             , text = Html.text
             , orderedList =
                 \index items ->
-                    Html.ol [ Html.start index ]
+                    Html.ol [ Html.start index, Html.css [ Style.font.small ] ]
                         (items |> List.map (\li -> Html.li [] li))
             , unorderedList =
                 \items ->
-                    Html.ul []
+                    Html.ul [ Html.css [ Style.font.small ] ]
                         (items
                             |> List.map
                                 (\li ->

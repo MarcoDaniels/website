@@ -5,7 +5,7 @@ import Css.Media
 
 
 type alias Category =
-    { primary : Css.Style }
+    { primary : Css.Style, secondary : Css.Style }
 
 
 type alias Position =
@@ -28,7 +28,7 @@ type alias SizeAxis size =
 
 
 type alias Font size =
-    { size | mono : Css.Style, upperCase : Css.Style }
+    { size | mono : Css.Style, upperCase : Css.Style, title : Css.Style }
 
 
 type alias Content position =
@@ -58,6 +58,11 @@ color =
             [ Css.backgroundColor <| Css.hex "FEFEFA"
             , Css.color <| Css.hex "000000"
             ]
+    , secondary =
+        Css.batch
+            [ Css.backgroundColor <| Css.hex "E1E1E1"
+            , Css.color <| Css.hex "000000"
+            ]
     }
 
 
@@ -84,8 +89,8 @@ space =
     , smallY =
         Css.batch
             [ Css.paddingTop <| Css.px 10, Css.paddingBottom <| Css.px 10 ]
-    , smallL = Css.paddingLeft <| Css.px 10
-    , smallR = Css.paddingRight <| Css.px 10
+    , smallL = Css.paddingLeft <| Css.px 20
+    , smallR = Css.paddingRight <| Css.px 20
     , medium = Css.padding <| Css.px 40
     , mediumX = empty
     , mediumY =
@@ -149,6 +154,7 @@ content =
         Css.batch
             [ Css.displayFlex
             , Css.justifyContent Css.spaceBetween
+            , Css.alignItems Css.center
             ]
     , grid =
         Css.batch
@@ -200,9 +206,10 @@ container =
 font : Font Size
 font =
     { none = empty
-    , small = Css.fontSize <| Css.px 14
-    , medium = Css.fontSize <| Css.px 17
-    , large = Css.fontSize <| Css.px 21
-    , mono = Css.fontFamilies [ "monospace" ]
+    , small = Css.fontSize <| Css.rem 1.05
+    , medium = Css.fontSize <| Css.rem 1.25
+    , large = Css.fontSize <| Css.rem 2.15
+    , mono = Css.batch [ Css.fontFamilies [ "Verdana, sans-serif" ], Css.lineHeight <| Css.rem 1.5 ]
     , upperCase = Css.textTransform Css.uppercase
+    , title = Css.fontWeight <| Css.int 100
     }
