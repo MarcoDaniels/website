@@ -1,6 +1,7 @@
 module Content exposing (Content, contentDecoder, contentView, link, markdownToHTML)
 
 import Asset exposing (Asset, assetDecoder, assetToHTML)
+import Comic
 import Css
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
@@ -10,7 +11,6 @@ import Markdown.Parser as Parser
 import Markdown.Renderer as Render
 import OptimizedDecoder as Decoder exposing (Decoder)
 import OptimizedDecoder.Pipeline as Decoder
-import Style
 
 
 type alias Content =
@@ -104,22 +104,22 @@ markdownToHTML raw =
                     in
                     case level of
                         Block.H1 ->
-                            Html.h1 [ Html.id textToID, Html.css [ Style.font.large, Style.font.title ] ] children
+                            Html.h1 [ Html.id textToID, Html.css [ Comic.font.large, Comic.font.mainTitle ] ] children
 
                         Block.H2 ->
-                            Html.h2 [ Html.id textToID, Html.css [ Style.font.medium ] ] children
+                            Html.h2 [ Html.id textToID, Html.css [ Comic.font.medium ] ] children
 
                         Block.H3 ->
-                            Html.h3 [ Html.id textToID, Html.css [ Style.font.medium ] ] children
+                            Html.h3 [ Html.id textToID, Html.css [ Comic.font.medium ] ] children
 
                         Block.H4 ->
-                            Html.h4 [ Html.id textToID, Html.css [ Style.font.medium ] ] children
+                            Html.h4 [ Html.id textToID, Html.css [ Comic.font.medium ] ] children
 
                         Block.H5 ->
-                            Html.h5 [ Html.id textToID, Html.css [ Style.font.medium ] ] children
+                            Html.h5 [ Html.id textToID, Html.css [ Comic.font.medium ] ] children
 
                         Block.H6 ->
-                            Html.h6 [ Html.id textToID, Html.css [ Style.font.medium ] ] children
+                            Html.h6 [ Html.id textToID, Html.css [ Comic.font.medium ] ] children
             , link =
                 \{ title, destination } content ->
                     case title of
@@ -136,17 +136,10 @@ markdownToHTML raw =
                                 , attributes = [ Html.href destination ]
                                 , content = content
                                 }
-            , paragraph = Html.p [ Html.css [ Style.font.small ] ]
+            , paragraph = Html.p [ Html.css [ Comic.font.small ] ]
             , hardLineBreak = Html.br [] []
             , blockQuote =
-                Html.blockquote
-                    [ Html.css
-                        [ Style.gap.none
-                        , Style.space.small
-                        , Css.border2 (Css.px 2) Css.solid
-                        , Css.boxShadow5 (Css.px 0) (Css.px 6) (Css.px 6) (Css.px -6) (Css.hex "000")
-                        ]
-                    ]
+                Html.blockquote [ Html.css [ Comic.panel, Comic.gutter.inner ] ]
             , strong = \children -> Html.strong [] children
             , emphasis = \children -> Html.em [] children
             , strikethrough = \children -> Html.del [] children
@@ -155,11 +148,11 @@ markdownToHTML raw =
             , text = Html.text
             , orderedList =
                 \index items ->
-                    Html.ol [ Html.start index, Html.css [ Style.font.small ] ]
+                    Html.ol [ Html.start index, Html.css [ Comic.font.small ] ]
                         (items |> List.map (\li -> Html.li [] li))
             , unorderedList =
                 \items ->
-                    Html.ul [ Html.css [ Style.font.small ] ]
+                    Html.ul [ Html.css [ Comic.font.small ] ]
                         (items
                             |> List.map
                                 (\li ->
@@ -193,7 +186,7 @@ link { to, attributes, content } =
     Html.a
         (if String.startsWith "https://" to || String.startsWith "http://" to then
             [ attributes
-            , [ Html.css [ Style.color.primary ]
+            , [ Html.css [ Css.color Comic.color.ink ]
               , Html.target "_blank"
               , Html.rel "noopener noreferrer"
               , Html.href to
@@ -202,7 +195,7 @@ link { to, attributes, content } =
                 |> List.concat
 
          else
-            [ attributes, [ Html.css [ Style.color.primary ], Html.href to ] ] |> List.concat
+            [ attributes, [ Html.css [ Css.color Comic.color.ink ], Html.href to ] ] |> List.concat
         )
         content
 
@@ -214,55 +207,28 @@ contentView =
             case contentData.value of
                 ContentMarkdown markdown ->
                     Html.div
-                        [ Html.css
-                            [ Style.color.primary
-                            , Css.margin2 (Css.px 15) (Css.px 0)
-                            , Css.border2 (Css.px 2) Css.solid
-                            , Css.padding (Css.px 10)
-                            , Css.boxShadow5 (Css.px 0) (Css.px 6) (Css.px 6) (Css.px -6) (Css.hex "000")
-                            ]
-                        ]
+                        [ Html.css [ Comic.panel, Comic.gutter.y, Comic.gutter.inner ] ]
                         (markdownToHTML markdown)
 
                 ContentAsset asset ->
                     Html.div
-                        [ Html.css
-                            [ Css.margin2 (Css.px 15) (Css.px 0)
-                            , Css.border2 (Css.px 2) Css.solid
-                            , Css.boxShadow5 (Css.px 0) (Css.px 6) (Css.px 6) (Css.px -6) (Css.hex "000")
-                            ]
-                        ]
+                        [ Html.css [ Comic.panel, Comic.gutter.y ] ]
                         [ assetToHTML asset Asset.Regular ]
 
                 ContentGrid gridContent ->
-                    Html.div [ Html.css [ Style.content.grid ] ]
+                    Html.div [ Html.css [ Comic.tier.base ] ]
                         (gridContent
                             |> List.map
                                 (\{ value } ->
                                     case value of
                                         GridMarkdown markdown ->
                                             Html.div
-                                                [ Html.css
-                                                    [ Style.content.gridItem
-                                                    , Style.content.gridItemText
-                                                    , Style.color.primary
-                                                    , Css.margin2 (Css.px 15) (Css.px 10)
-                                                    , Css.border2 (Css.px 2) Css.solid
-                                                    , Css.padding (Css.px 10)
-                                                    , Css.boxShadow5 (Css.px 0) (Css.px 6) (Css.px 6) (Css.px -6) (Css.hex "000")
-                                                    ]
-                                                ]
+                                                [ Html.css [ Comic.panel, Comic.gutter.inner, Comic.tier.item ] ]
                                                 (markdownToHTML markdown)
 
                                         GridAsset asset ->
                                             Html.div
-                                                [ Html.css
-                                                    [ Style.content.gridItem
-                                                    , Css.margin2 (Css.px 15) (Css.px 0)
-                                                    , Css.border2 (Css.px 2) Css.solid
-                                                    , Css.boxShadow5 (Css.px 0) (Css.px 6) (Css.px 6) (Css.px -6) (Css.hex "000")
-                                                    ]
-                                                ]
+                                                [ Html.css [ Comic.panel, Comic.tier.item ] ]
                                                 [ assetToHTML asset (Asset.Grid (gridContent |> List.length)) ]
 
                                         GridUnknown ->

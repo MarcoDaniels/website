@@ -1,10 +1,10 @@
 module Asset exposing (Asset, AssetSize(..), assetAPI, assetDecoder, assetToHTML)
 
+import Comic
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
 import OptimizedDecoder as Decoder exposing (Decoder)
 import OptimizedDecoder.Pipeline as Decoder
-import Style
 
 
 type alias Asset =
@@ -44,8 +44,7 @@ assetToHTML data assetSize =
                     500
     in
     Html.img
-        [ Html.css
-            [ Style.content.center, Style.align.center, Style.wide.large ]
+        [ Html.css [ Comic.illustration ]
         , Html.alt data.title
         , Html.src (assetAPI data.path size)
         ]
