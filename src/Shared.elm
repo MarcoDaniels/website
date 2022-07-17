@@ -1,4 +1,4 @@
-module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template, wrapper)
+module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template, withStyled)
 
 import Comic
 import Css.Global
@@ -44,16 +44,12 @@ view sharedData _ model toMsg pageView =
         , Html.article [] pageView.body
         , footer { line = sharedData.footer, social = sharedData.social }
         ]
-            |> wrapper
+            |> withStyled
     }
 
 
-
--- TODO: rename
-
-
-wrapper : List (Html.Html msg) -> ElmHtml.Html msg
-wrapper children =
+withStyled : List (Html.Html msg) -> ElmHtml.Html msg
+withStyled children =
     Html.div [ Html.css [ Comic.page ] ]
         ([ Css.Global.global
             [ Css.Global.html [ Comic.shelf ], Css.Global.body [ Comic.book ] ]
