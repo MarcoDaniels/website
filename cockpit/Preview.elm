@@ -4,7 +4,7 @@ import Browser
 import Content exposing (Content, contentDecoder, contentView)
 import Html.Styled as Html
 import OptimizedDecoder as Decoder
-import Shared exposing (wrapper)
+import Shared exposing (withStyled)
 
 
 port updatePayload : (String -> msg) -> Sub msg
@@ -31,7 +31,7 @@ main =
                     data ->
                         contentView data
                 )
-                    |> wrapper
+                    |> withStyled
         , update =
             \msg _ ->
                 case msg of
