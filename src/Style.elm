@@ -1,6 +1,7 @@
-module Style exposing (align, color, container, content, font, gap, screen, space, wide)
+module Style exposing (align, color, comic, content, font, gap, screen, space, wide)
 
 import Css
+import Css.Animations
 import Css.Media
 
 
@@ -39,10 +40,11 @@ type alias Screen =
     { small : List Css.Style -> Css.Style, large : List Css.Style -> Css.Style }
 
 
+-- TODO: figure out screen
 screen : Screen
 screen =
-    { small = Css.Media.withMedia [ Css.Media.only Css.Media.screen [ Css.Media.maxWidth <| Css.px 550 ] ]
-    , large = Css.Media.withMedia [ Css.Media.only Css.Media.screen [ Css.Media.maxWidth <| Css.px 1200 ] ]
+    { small = Css.Media.withMedia [ Css.Media.only Css.Media.screen [ Css.Media.maxWidth <| Css.px 700 ] ]
+    , large = Css.Media.withMedia [ Css.Media.only Css.Media.screen [ Css.Media.minWidth <| Css.px 700 ] ]
     }
 
 
@@ -55,12 +57,12 @@ color : Category
 color =
     { primary =
         Css.batch
-            [ Css.backgroundColor <| Css.hex "FEFEFA"
-            , Css.color <| Css.hex "000000"
+            [ Css.backgroundColor <| Css.hex "FFF"
+            , Css.color <| Css.hex "1F1926"
             ]
     , secondary =
         Css.batch
-            [ Css.backgroundColor <| Css.hex "E1E1E1"
+            [ Css.backgroundColor <| Css.hex "F2EFEA"
             , Css.color <| Css.hex "000000"
             ]
     }
@@ -74,7 +76,6 @@ wide =
     , large =
         Css.batch
             [ Css.width <| Css.pct 100
-            , Css.maxWidth <| Css.px 750
             ]
     }
 
@@ -189,20 +190,6 @@ align =
     { center = Css.batch [ Css.margin2 (Css.px 0) Css.auto ] }
 
 
-container : { fit : Css.Style, wrapper : Css.Style }
-container =
-    { fit = Css.boxSizing Css.borderBox
-    , wrapper =
-        Css.batch
-            [ Css.borderWidth <| Css.px 0.1
-            , Css.borderStyle Css.solid
-            , Css.borderImageWidth <| Css.px 20
-            , Css.property "border-image-slice" "50%"
-            , Css.property "border-image-source" "url(\"data:image/svg+xml;charset=utf8,%3Csvg xmlns=%22http:%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox=%220 0 40 40%22%3E%3Crect x=%220.5%22 y=%220.5%22 width=%2239%22 height=%2239%22 fill=%22transparent%22 stroke=%22%23000%22 stroke-width=%221%22 %2F%3E%3C%2Fsvg%3E\")"
-            ]
-    }
-
-
 font : Font Size
 font =
     { none = empty
@@ -212,4 +199,73 @@ font =
     , mono = Css.batch [ Css.fontFamilies [ "Verdana, sans-serif" ], Css.lineHeight <| Css.rem 1.5 ]
     , upperCase = Css.textTransform Css.uppercase
     , title = Css.fontWeight <| Css.int 100
+    }
+
+
+comic =
+    { book =
+        Css.batch
+            [ space.none
+            , gap.none
+            , font.mono
+            , color.secondary
+            , Css.maxWidth <| Css.px 900
+            , Css.width <| Css.pct 100
+            , Css.margin2 (Css.px 0) Css.auto
+            ]
+    , pages =
+        let
+            pageBase =
+                Css.batch
+                    [ Css.property "content" "''"
+                    , Css.height <| Css.pct 98
+                    , Css.position Css.absolute
+                    , Css.width <| Css.pct 100
+                    , Css.zIndex <| Css.int -2
+                    ]
+        in
+        Css.batch
+            [ Css.padding <| Css.px 20
+            , Css.maxWidth <| Css.px 800
+            , Css.width <| Css.pct 100
+            , Css.position Css.relative
+            , Css.margin3 (Css.px 40) Css.auto (Css.px 0)
+            , Css.boxShadow5 (Css.px 0) (Css.px 6) (Css.px 6) (Css.px -6) (Css.hex "000")
+            , color.primary
+            , screen.large
+                [ Css.before
+                    [ pageBase
+                    , Css.backgroundColor <| Css.hex "fafafa"
+                    , Css.boxShadow4 (Css.px 0) (Css.px 0) (Css.px 8) (Css.rgba 0 0 0 0.2)
+                    , Css.left <| Css.px -5
+                    , Css.top <| Css.px 4
+                    , Css.transform <| Css.rotate <| Css.deg -2.5
+                    , Css.animationDuration <| Css.sec 2
+                    , Css.animationName
+                        (Css.Animations.keyframes
+                            [ ( 0, [ Css.Animations.property "transform" "rotate(0deg)" ] )
+                            , ( 100, [ Css.Animations.property "transform" "rotate(-2.5deg)" ] )
+                            ]
+                        )
+                    ]
+                , Css.after
+                    [ pageBase
+                    , Css.backgroundColor <| Css.hex "f6f6f6"
+                    , Css.boxShadow4 (Css.px 0) (Css.px 0) (Css.px 3) (Css.rgba 0 0 0 0.2)
+                    , Css.right <| Css.px -3
+                    , Css.top <| Css.px 1
+                    , Css.transform <| Css.rotate <| Css.deg 1.4
+                    , Css.animationDuration <| Css.sec 2
+                    , Css.animationIterationCount <| Css.int 1
+                    , Css.animationName
+                        (Css.Animations.keyframes
+                            [ ( 0, [ Css.Animations.property "transform" "rotate(0deg)" ] )
+                            , ( 100, [ Css.Animations.property "transform" "rotate(1.4deg)" ] )
+                            ]
+                        )
+                    ]
+                ]
+            ]
+    , canvas = Css.batch []
+    , gap = Css.batch [ Css.margin2 (Css.px 15) (Css.px 0) ]
     }

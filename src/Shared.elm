@@ -4,13 +4,12 @@ import Css.Global
 import Footer exposing (footer)
 import Html as ElmHtml
 import Html.Styled as Html
-import Html.Styled.Attributes as Html
 import Navigation exposing (Navigation, navigation)
 import Path exposing (Path)
 import Route exposing (Route)
 import Settings exposing (Settings, settingsData)
 import SharedTemplate exposing (SharedTemplate)
-import Style
+import Style exposing (comic)
 import View exposing (View)
 
 
@@ -41,14 +40,7 @@ view sharedData _ model toMsg pageView =
     { title = pageView.title
     , body =
         [ navigation sharedData.navigation
-        , Html.article
-            [ Html.css
-                [ Style.container.wrapper
-                , Style.space.medium
-                , Style.screen.small [ Style.space.small ]
-                ]
-            ]
-            pageView.body
+        , Html.article [] pageView.body
         , footer { line = sharedData.footer, social = sharedData.social }
         ]
             |> wrapper
@@ -57,16 +49,9 @@ view sharedData _ model toMsg pageView =
 
 wrapper : List (Html.Html msg) -> ElmHtml.Html msg
 wrapper children =
-    Html.div
-        [ Html.css
-            [ Style.container.fit
-            , Style.wide.large
-            , Style.align.center
-            , Style.screen.small [ Style.space.small ]
-            ]
-        ]
+    Html.div []
         ([ Css.Global.global
-            [ Css.Global.body [ Style.space.none, Style.gap.none, Style.font.mono, Style.color.primary ] ]
+            [ Css.Global.html [ comic.book ], Css.Global.body [ comic.pages ] ]
             |> List.singleton
          , children
          ]

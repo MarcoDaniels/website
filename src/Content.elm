@@ -1,6 +1,7 @@
 module Content exposing (Content, contentDecoder, contentView, link, markdownToHTML)
 
 import Asset exposing (Asset, assetDecoder, assetToHTML)
+import Css
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
 import Markdown.Block as Block
@@ -137,7 +138,15 @@ markdownToHTML raw =
                                 }
             , paragraph = Html.p [ Html.css [ Style.font.small ] ]
             , hardLineBreak = Html.br [] []
-            , blockQuote = Html.blockquote [ Html.css [ Style.gap.none, Style.space.small, Style.container.wrapper ] ]
+            , blockQuote =
+                Html.blockquote
+                    [ Html.css
+                        [ Style.gap.none
+                        , Style.space.small
+                        , Css.border2 (Css.px 2) Css.solid
+                        , Css.boxShadow5 (Css.px 0) (Css.px 6) (Css.px 6) (Css.px -6) (Css.hex "000")
+                        ]
+                    ]
             , strong = \children -> Html.strong [] children
             , emphasis = \children -> Html.em [] children
             , strikethrough = \children -> Html.del [] children
@@ -204,10 +213,26 @@ contentView =
         (\contentData ->
             case contentData.value of
                 ContentMarkdown markdown ->
-                    Html.div [] (markdownToHTML markdown)
+                    Html.div
+                        [ Html.css
+                            [ Style.color.primary
+                            , Css.margin2 (Css.px 15) (Css.px 0)
+                            , Css.border2 (Css.px 2) Css.solid
+                            , Css.padding (Css.px 10)
+                            , Css.boxShadow5 (Css.px 0) (Css.px 6) (Css.px 6) (Css.px -6) (Css.hex "000")
+                            ]
+                        ]
+                        (markdownToHTML markdown)
 
                 ContentAsset asset ->
-                    assetToHTML asset Asset.Regular
+                    Html.div
+                        [ Html.css
+                            [ Css.margin2 (Css.px 15) (Css.px 0)
+                            , Css.border2 (Css.px 2) Css.solid
+                            , Css.boxShadow5 (Css.px 0) (Css.px 6) (Css.px 6) (Css.px -6) (Css.hex "000")
+                            ]
+                        ]
+                        [ assetToHTML asset Asset.Regular ]
 
                 ContentGrid gridContent ->
                     Html.div [ Html.css [ Style.content.grid ] ]
@@ -220,12 +245,25 @@ contentView =
                                                 [ Html.css
                                                     [ Style.content.gridItem
                                                     , Style.content.gridItemText
+                                                    , Style.color.primary
+                                                    , Css.margin2 (Css.px 15) (Css.px 10)
+                                                    , Css.border2 (Css.px 2) Css.solid
+                                                    , Css.padding (Css.px 10)
+                                                    , Css.boxShadow5 (Css.px 0) (Css.px 6) (Css.px 6) (Css.px -6) (Css.hex "000")
                                                     ]
                                                 ]
                                                 (markdownToHTML markdown)
 
                                         GridAsset asset ->
-                                            Html.div [ Html.css [ Style.content.gridItem ] ] [ assetToHTML asset (Asset.Grid (gridContent |> List.length)) ]
+                                            Html.div
+                                                [ Html.css
+                                                    [ Style.content.gridItem
+                                                    , Css.margin2 (Css.px 15) (Css.px 0)
+                                                    , Css.border2 (Css.px 2) Css.solid
+                                                    , Css.boxShadow5 (Css.px 0) (Css.px 6) (Css.px 6) (Css.px -6) (Css.hex "000")
+                                                    ]
+                                                ]
+                                                [ assetToHTML asset (Asset.Grid (gridContent |> List.length)) ]
 
                                         GridUnknown ->
                                             Html.text ""
