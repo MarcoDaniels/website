@@ -1,7 +1,7 @@
 module Navigation exposing (Navigation, navigation, navigationDecoder)
 
 import Comic
-import Content exposing (link)
+import Data exposing (link)
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
 import OptimizedDecoder as Decoder exposing (Decoder)

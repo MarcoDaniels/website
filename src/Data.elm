@@ -1,8 +1,10 @@
-module Content exposing (Content, contentDecoder, contentView, link, markdownToHTML)
+module Data exposing (Content, Entries, Entry, contentDecoder, contentView, entryData, link, markdownToHTML)
 
 import Asset exposing (Asset, assetDecoder, assetToHTML)
+import Cockpit exposing (Cockpit(..), fetchData)
 import Comic
 import Css
+import DataSource exposing (DataSource)
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
 import Markdown.Block as Block
@@ -11,6 +13,26 @@ import Markdown.Parser as Parser
 import Markdown.Renderer as Render
 import OptimizedDecoder as Decoder exposing (Decoder)
 import OptimizedDecoder.Pipeline as Decoder
+import SPLAT exposing (fromURL, toURL)
+
+
+type alias Entries =
+    { entries : List Entry }
+
+
+type alias Entry =
+    { url : List String
+    , title : String
+    , description : String
+    , image : Maybe Asset
+    , content : List Content
+    }
+
+
+entryData : DataSource Entries
+entryData =
+    fetchData (Collection "marcoDaniels")
+        (Decoder.succeed Entries |> Decoder.required "entries" (Decoder.list entryDecoder))
 
 
 type alias Content =
@@ -25,6 +47,7 @@ type ContentValue
     = ContentMarkdown String
     | ContentAsset Asset
     | ContentGrid (List Grid)
+    | ContentReference (List Entry)
     | ContentUnknown
 
 
@@ -36,6 +59,16 @@ type GridValue
     = GridMarkdown String
     | GridAsset Asset
     | GridUnknown
+
+
+entryDecoder : Decoder Entry
+entryDecoder =
+    Decoder.succeed Entry
+        |> Decoder.required "url" (Decoder.string |> Decoder.map fromURL)
+        |> Decoder.required "title" Decoder.string
+        |> Decoder.required "description" Decoder.string
+        |> Decoder.required "image" (Decoder.maybe assetDecoder)
+        |> Decoder.required "content" (Decoder.list contentDecoder)
 
 
 fieldDecoder : Decoder Field
@@ -84,6 +117,10 @@ contentDecoder =
                         Decoder.succeed ContentGrid
                             |> Decoder.required "value"
                                 (Decoder.list (Decoder.succeed Grid |> fieldMap fieldGridDecoder))
+
+                    ( "collectionlink", "Reference" ) ->
+                        Decoder.succeed ContentReference
+                            |> Decoder.required "value" (Decoder.list entryDecoder)
 
                     _ ->
                         Decoder.succeed ContentUnknown
@@ -233,6 +270,34 @@ contentView =
 
                                         GridUnknown ->
                                             Html.text ""
+                                )
+                        )
+
+                ContentReference entries ->
+                    Html.div []
+                        (entries
+                            |> List.map
+                                (\{ url, title, description, image } ->
+                                    Html.div [ Html.css [ Comic.panel, Comic.gutter.y, Comic.gutter.inner ] ]
+                                        [ link
+                                            { to = toURL url
+                                            , attributes = []
+                                            , content =
+                                                [ Html.h2 [ Html.css [ Comic.font.mainTitle ] ] [ Html.text title ]
+                                                , Html.div [ Html.css [ Comic.tier.base ] ]
+                                                    [ Html.p [ Html.css [ Comic.tier.item ] ] [ Html.text description ]
+                                                    , case image of
+                                                        Just asset ->
+                                                            Html.div
+                                                                [ Html.css [ Comic.tier.item ] ]
+                                                                [ assetToHTML asset Asset.Regular ]
+
+                                                        Nothing ->
+                                                            Html.text ""
+                                                    ]
+                                                ]
+                                            }
+                                        ]
                                 )
                         )
 

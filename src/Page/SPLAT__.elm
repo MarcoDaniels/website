@@ -1,15 +1,11 @@
 module Page.SPLAT__ exposing (Data, Model, Msg, page)
 
-import Asset exposing (Asset, assetAPI, assetDecoder)
-import Cockpit exposing (Cockpit(..), fetchData)
-import Content exposing (Content, contentDecoder, contentView)
+import Asset exposing (Asset, assetAPI)
+import Data exposing (Entry, entryData, contentView)
 import DataSource exposing (DataSource)
 import Head.Seo as Seo
-import OptimizedDecoder as Decoder
-import OptimizedDecoder.Pipeline as Decoder
 import Page exposing (Page, StaticPayload)
 import Pages.Url
-import Utilities exposing (toURL)
 import View exposing (View)
 
 
@@ -25,17 +21,8 @@ type alias RouteParams =
     { splat : List String }
 
 
-type alias Entries =
-    { entries : List Data }
-
-
 type alias Data =
-    { url : List String
-    , title : String
-    , description : String
-    , image : Maybe Asset
-    , content : List Content
-    }
+    Entry
 
 
 page : Page RouteParams Data
@@ -70,12 +57,12 @@ page =
                     }
                     |> Seo.website
         , routes =
-            pageData
+            entryData
                 |> DataSource.map
                     (\{ entries } -> entries |> List.map (\item -> { splat = item.url }))
         , data =
             \route ->
-                pageData
+                entryData
                     |> DataSource.map
                         (\{ entries } ->
                             entries
@@ -95,20 +82,3 @@ page =
                 \maybeUrl sharedModel static ->
                     { title = static.data.title, body = contentView static.data.content }
             }
-
-
-pageData : DataSource Entries
-pageData =
-    fetchData (Collection "marcoDanielsPage")
-        (Decoder.succeed Entries
-            |> Decoder.required "entries"
-                (Decoder.list
-                    (Decoder.succeed Data
-                        |> Decoder.required "url" (Decoder.string |> Decoder.map toURL)
-                        |> Decoder.required "title" Decoder.string
-                        |> Decoder.required "description" Decoder.string
-                        |> Decoder.required "image" (Decoder.maybe assetDecoder)
-                        |> Decoder.required "content" (Decoder.list contentDecoder)
-                    )
-                )
-        )
