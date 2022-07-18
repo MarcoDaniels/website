@@ -24,7 +24,9 @@ font : { small : Css.Style, medium : Css.Style, large : Css.Style, upperCase : C
 font =
     { small = Css.fontSize <| Css.rem 1.05
     , medium = Css.fontSize <| Css.rem 1.25
-    , large = Css.fontSize <| Css.rem 2.15
+    , large =
+        Css.batch
+            [ Css.fontSize <| Css.rem 2.15, Css.lineHeight <| Css.rem 2 ]
     , upperCase = Css.textTransform Css.uppercase
     , mainTitle = Css.fontWeight <| Css.int 100
     }

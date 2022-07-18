@@ -1,7 +1,7 @@
 port module Preview exposing (main)
 
 import Browser
-import Content exposing (Content, contentDecoder, contentView)
+import Data exposing (Content, contentDecoder, contentView)
 import Html.Styled as Html
 import OptimizedDecoder as Decoder
 import Shared exposing (withStyled)
@@ -17,6 +17,7 @@ type Msg
 type alias PreviewModel =
     { content : List Content }
 
+-- TODO: use baseURL for assets
 
 main : Program () PreviewModel Msg
 main =

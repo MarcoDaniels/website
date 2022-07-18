@@ -17,7 +17,7 @@ fetchData dataType =
         endpoint =
             case dataType of
                 Collection collection ->
-                    "/collections/entries/" ++ collection ++ "?populate=1"
+                    "/collections/entries/" ++ collection ++ "?populate=3"
 
                 Singleton singleton ->
                     "/singletons/get/" ++ singleton

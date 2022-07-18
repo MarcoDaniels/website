@@ -38,7 +38,7 @@ view :
     -> View msg
     -> { title : String, body : ElmHtml.Html msg }
 view sharedData _ model toMsg pageView =
-    { title = pageView.title
+    { title = sharedData.site.title ++ " " ++ pageView.title
     , body =
         [ navigation sharedData.navigation
         , Html.article [] pageView.body

@@ -1,7 +1,8 @@
 module Footer exposing (Footer, footer)
 
 import Comic
-import Content exposing (link, markdownToHTML)
+import Css
+import Data exposing (link, markdownToHTML)
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
 import Icon exposing (icon)
@@ -17,7 +18,7 @@ footer { line, social } =
     Html.footer
         [ Html.css [ Comic.caption ] ]
         [ Html.div [] (markdownToHTML line)
-        , Html.div []
+        , Html.div [ Html.css [ Css.textAlign Css.right ] ]
             (social
                 |> List.map
                     (\media ->
