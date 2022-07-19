@@ -1,5 +1,6 @@
 port module Preview exposing (main)
 
+import Asset exposing (AssetMode(..))
 import Browser
 import Data exposing (Content, contentDecoder, contentView)
 import Html.Styled as Html
@@ -17,7 +18,6 @@ type Msg
 type alias PreviewModel =
     { content : List Content }
 
--- TODO: use baseURL for assets
 
 main : Program () PreviewModel Msg
 main =
@@ -37,7 +37,7 @@ main =
             \msg _ ->
                 case msg of
                     PreviewOp payload ->
-                        ( case Decoder.decodeString (Decoder.list contentDecoder) payload of
+                        ( case Decoder.decodeString (Decoder.list (contentDecoder PreviewAsset)) payload of
                             Ok decodedContent ->
                                 { content = decodedContent }
 
