@@ -41,8 +41,8 @@ let
 
   # concurrently Pages with Proxy & Preview
   start = pkgs.writeShellScriptBin "start" ''
-    elm make --optimize cockpit/Server.elm --output=dist/server.js
-    elm make --optimize cockpit/Preview.elm --output=preview/preview.js
+    ${pkgs.elmPackages.elm}/bin/elm make --optimize cockpit/Server.elm --output=dist/server.js
+    ${pkgs.elmPackages.elm}/bin/elm make --optimize cockpit/Preview.elm --output=preview/preview.js
     cp cockpit/Preview.html preview/index.html
     ${pkgs.concurrently}/bin/concurrently "yarn start" "devProxy"
   '';
@@ -51,6 +51,12 @@ let
     ${pkgs.yarn}/bin/yarn
     ${pkgs.yarn}/bin/yarn build
   '';
+
+  # TODO: build preview should be a derivation
+  buildPreview = pkgs.writeShellScriptBin "buildPreview" ''
+    ${pkgs.elmPackages.elm}/bin/elm make --optimize cockpit/Preview.elm --output=preview/preview.js
+    cp cockpit/Preview.html preview/index.html
+   '';
 
   # to include flags: buildLambda AssetRequest "{flags:{token:'123',domain:'abc'}}"
   buildLambda = pkgs.writeScriptBin "buildLambda" ''
@@ -93,5 +99,6 @@ in pkgs.mkShell {
     jsHandler
     buildLambda
     start
+    buildPreview
   ];
 }

@@ -1,6 +1,6 @@
 module Data exposing (Content, Entries, Entry, contentDecoder, contentView, entryData, link, markdownToHTML)
 
-import Asset exposing (Asset, assetDecoder, assetToHTML)
+import Asset exposing (Asset, AssetMode(..), assetDecoder, assetView)
 import Cockpit exposing (Cockpit(..), fetchData)
 import Comic
 import Css
@@ -32,7 +32,7 @@ type alias Entry =
 entryData : DataSource Entries
 entryData =
     fetchData (Collection "marcoDaniels")
-        (Decoder.succeed Entries |> Decoder.required "entries" (Decoder.list entryDecoder))
+        (Decoder.succeed Entries |> Decoder.required "entries" (Decoder.list (entryDecoder RenderAsset)))
 
 
 type alias Content =
@@ -61,14 +61,14 @@ type GridValue
     | GridUnknown
 
 
-entryDecoder : Decoder Entry
-entryDecoder =
+entryDecoder : AssetMode -> Decoder Entry
+entryDecoder assetMode =
     Decoder.succeed Entry
         |> Decoder.required "url" (Decoder.string |> Decoder.map fromURL)
         |> Decoder.required "title" Decoder.string
         |> Decoder.required "description" Decoder.string
-        |> Decoder.required "image" (Decoder.maybe assetDecoder)
-        |> Decoder.required "content" (Decoder.list contentDecoder)
+        |> Decoder.required "image" (Decoder.maybe (assetDecoder assetMode))
+        |> Decoder.required "content" (Decoder.list (contentDecoder assetMode))
 
 
 fieldDecoder : Decoder Field
@@ -78,8 +78,8 @@ fieldDecoder =
         |> Decoder.required "label" Decoder.string
 
 
-fieldGridDecoder : Field -> Decoder GridValue
-fieldGridDecoder field =
+fieldGridDecoder : AssetMode -> Field -> Decoder GridValue
+fieldGridDecoder assetMode field =
     case ( field.fieldType, field.label ) of
         ( "markdown", _ ) ->
             Decoder.succeed GridMarkdown
@@ -87,7 +87,7 @@ fieldGridDecoder field =
 
         ( "asset", _ ) ->
             Decoder.succeed GridAsset
-                |> Decoder.required "value" assetDecoder
+                |> Decoder.required "value" (assetDecoder assetMode)
 
         _ ->
             Decoder.succeed GridUnknown
@@ -99,8 +99,8 @@ fieldMap fieldToDecoder =
         (Decoder.field "field" fieldDecoder |> Decoder.andThen fieldToDecoder)
 
 
-contentDecoder : Decoder Content
-contentDecoder =
+contentDecoder : AssetMode -> Decoder Content
+contentDecoder assetMode =
     Decoder.succeed Content
         |> fieldMap
             (\field ->
@@ -111,16 +111,16 @@ contentDecoder =
 
                     ( "asset", _ ) ->
                         Decoder.succeed ContentAsset
-                            |> Decoder.required "value" assetDecoder
+                            |> Decoder.required "value" (assetDecoder assetMode)
 
                     ( "repeater", "Grid" ) ->
                         Decoder.succeed ContentGrid
                             |> Decoder.required "value"
-                                (Decoder.list (Decoder.succeed Grid |> fieldMap fieldGridDecoder))
+                                (Decoder.list (Decoder.succeed Grid |> fieldMap (fieldGridDecoder assetMode)))
 
                     ( "collectionlink", "Reference" ) ->
                         Decoder.succeed ContentReference
-                            |> Decoder.required "value" (Decoder.list entryDecoder)
+                            |> Decoder.required "value" (Decoder.list (entryDecoder assetMode))
 
                     _ ->
                         Decoder.succeed ContentUnknown
@@ -250,7 +250,7 @@ contentView =
                 ContentAsset asset ->
                     Html.div
                         [ Html.css [ Comic.panel, Comic.gutter.y ] ]
-                        [ assetToHTML asset Asset.Regular ]
+                        [ assetView asset Asset.Regular ]
 
                 ContentGrid gridContent ->
                     Html.div [ Html.css [ Comic.tier.base ] ]
@@ -266,7 +266,7 @@ contentView =
                                         GridAsset asset ->
                                             Html.div
                                                 [ Html.css [ Comic.panel, Comic.tier.item ] ]
-                                                [ assetToHTML asset (Asset.Grid (gridContent |> List.length)) ]
+                                                [ assetView asset (Asset.Grid (gridContent |> List.length)) ]
 
                                         GridUnknown ->
                                             Html.text ""
@@ -290,7 +290,7 @@ contentView =
                                                         Just asset ->
                                                             Html.div
                                                                 [ Html.css [ Comic.tier.item ] ]
-                                                                [ assetToHTML asset Asset.Regular ]
+                                                                [ assetView asset Asset.Regular ]
 
                                                         Nothing ->
                                                             Html.text ""
