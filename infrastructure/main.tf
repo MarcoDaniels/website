@@ -114,14 +114,6 @@ resource "aws_cloudfront_distribution" "distribution" {
 
   aliases = [local.project.domain]
 
-  default_root_object = "index.html"
-
-  custom_error_response {
-    error_code         = 403
-    response_code      = 404
-    response_page_path = "/418"
-  }
-
   default_cache_behavior {
     target_origin_id = local.origins.website
 

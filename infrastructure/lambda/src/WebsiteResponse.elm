@@ -1,15 +1,26 @@
 module WebsiteResponse exposing (main, websiteResponseHeaders)
 
 import AWS exposing (Header)
-import CloudWorker exposing (cloudWorker, originResponse, toResponse, withHeaders)
+import CloudWorker exposing (cloudWorker, originResponse, toResponse, withHeader, withHeaders)
 
 
 main : Program () (CloudWorker.Model ()) CloudWorker.Msg
 main =
     originResponse
         { origin =
-            \{ response } _ ->
-                response
+            \{ response, request } _ ->
+                (case ( response.status, request.uri ) of
+                    ( "403", _ ) ->
+                        { response | status = "302", statusDescription = "Found" }
+                            |> withHeader { key = "location", value = "/418" }
+
+                    ( _, uri ) ->
+                        if String.endsWith "418/index.html" uri then
+                            { response | status = "404" }
+
+                        else
+                            response
+                )
                     |> withHeaders websiteResponseHeaders
                     |> toResponse
         }
