@@ -18,7 +18,7 @@ footer { line, social } =
     Html.footer
         [ Html.css [ Comic.caption ] ]
         [ Html.div [] (markdownToHTML line)
-        , Html.div [ Html.css [ Css.textAlign Css.right ] ]
+        , Html.div [ Html.css [ Css.textAlign Css.center ] ]
             (social
                 |> List.map
                     (\media ->

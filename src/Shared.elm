@@ -1,4 +1,4 @@
-module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template, withStyled)
+module Shared exposing (Data, Model, Msg(..), template, withStyled)
 
 import Comic
 import Css.Global
@@ -15,15 +15,11 @@ import View exposing (View)
 
 
 type Msg
-    = SharedMsg SharedMsg
+    = NoOp
 
 
 type alias Data =
     Settings
-
-
-type SharedMsg
-    = NoOp
 
 
 type alias Model =
