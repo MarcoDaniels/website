@@ -76,29 +76,35 @@ book =
             [ pageBase
             , Css.backgroundColor color.page1
             , Css.boxShadow4 (Css.px 0) (Css.px 0) (Css.px 8) color.shadow
-            , Css.left <| Css.px -5
-            , Css.top <| Css.px 4
-            , Css.transform <| Css.rotate <| Css.deg -2.5
-            , Css.animationName
-                (Css.Animations.keyframes
-                    [ ( 0, [ Css.Animations.property "transform" "rotate(0deg)" ] )
-                    , ( 100, [ Css.Animations.property "transform" "rotate(-2.5deg)" ] )
-                    ]
-                )
+            , Css.top <| Css.px -10
+            , onLargeScreen
+                [ Css.left <| Css.px -5
+                , Css.top <| Css.px 4
+                , Css.transform <| Css.rotate <| Css.deg -2.5
+                , Css.animationName
+                    (Css.Animations.keyframes
+                        [ ( 0, [ Css.Animations.property "transform" "rotate(0deg)" ] )
+                        , ( 100, [ Css.Animations.property "transform" "rotate(-2.5deg)" ] )
+                        ]
+                    )
+                ]
             ]
         , Css.after
             [ pageBase
             , Css.backgroundColor color.page2
             , Css.boxShadow4 (Css.px 0) (Css.px 0) (Css.px 3) color.shadow
-            , Css.right <| Css.px -3
-            , Css.top <| Css.px 1
-            , Css.transform <| Css.rotate <| Css.deg 1.4
-            , Css.animationName
-                (Css.Animations.keyframes
-                    [ ( 0, [ Css.Animations.property "transform" "rotate(0deg)" ] )
-                    , ( 100, [ Css.Animations.property "transform" "rotate(1.4deg)" ] )
-                    ]
-                )
+            , Css.top <| Css.px -5
+            , onLargeScreen
+                [ Css.right <| Css.px -3
+                , Css.top <| Css.px 1
+                , Css.transform <| Css.rotate <| Css.deg 1.4
+                , Css.animationName
+                    (Css.Animations.keyframes
+                        [ ( 0, [ Css.Animations.property "transform" "rotate(0deg)" ] )
+                        , ( 100, [ Css.Animations.property "transform" "rotate(1.4deg)" ] )
+                        ]
+                    )
+                ]
             ]
         ]
 
