@@ -35,3 +35,9 @@ jobs:
         run: nix-shell --run "ciBuild"
       - name: Sync Website
         run: aws s3 sync ./dist s3://${{secrets.AWS_S3_BUCKET}}
+      - name: Build Preview
+        run: nix-shell --run "buildPreview"
+      - name: Sync Preview
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: preview

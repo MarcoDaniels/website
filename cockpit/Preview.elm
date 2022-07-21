@@ -27,7 +27,11 @@ main =
             \{ content } ->
                 (case content of
                     [] ->
-                        [ Html.div [] [ Html.h1 [] [ Html.text "Ooops!" ] ] ]
+                        [ Html.div []
+                            [ Html.h1 [] [ Html.text "Ooops!" ]
+                            , Html.p [] [ Html.text "The preview needs the CMS context to load..." ]
+                            ]
+                        ]
 
                     data ->
                         contentView data
