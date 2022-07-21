@@ -18001,30 +18001,36 @@ var $author$project$Comic$book = function () {
 						$rtfeldman$elm_css$Css$px(0),
 						$rtfeldman$elm_css$Css$px(8),
 						$author$project$Comic$color.ee),
-						$rtfeldman$elm_css$Css$left(
-						$rtfeldman$elm_css$Css$px(-5)),
 						$rtfeldman$elm_css$Css$top(
-						$rtfeldman$elm_css$Css$px(4)),
-						$rtfeldman$elm_css$Css$transform(
-						$rtfeldman$elm_css$Css$rotate(
-							$rtfeldman$elm_css$Css$deg(-2.5))),
-						$rtfeldman$elm_css$Css$animationName(
-						$rtfeldman$elm_css$Css$Animations$keyframes(
-							_List_fromArray(
-								[
-									_Utils_Tuple2(
-									0,
+						$rtfeldman$elm_css$Css$px(-10)),
+						$author$project$Comic$onLargeScreen(
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Css$left(
+								$rtfeldman$elm_css$Css$px(-5)),
+								$rtfeldman$elm_css$Css$top(
+								$rtfeldman$elm_css$Css$px(4)),
+								$rtfeldman$elm_css$Css$transform(
+								$rtfeldman$elm_css$Css$rotate(
+									$rtfeldman$elm_css$Css$deg(-2.5))),
+								$rtfeldman$elm_css$Css$animationName(
+								$rtfeldman$elm_css$Css$Animations$keyframes(
 									_List_fromArray(
 										[
-											A2($rtfeldman$elm_css$Css$Animations$property, 'transform', 'rotate(0deg)')
-										])),
-									_Utils_Tuple2(
-									100,
-									_List_fromArray(
-										[
-											A2($rtfeldman$elm_css$Css$Animations$property, 'transform', 'rotate(-2.5deg)')
-										]))
-								])))
+											_Utils_Tuple2(
+											0,
+											_List_fromArray(
+												[
+													A2($rtfeldman$elm_css$Css$Animations$property, 'transform', 'rotate(0deg)')
+												])),
+											_Utils_Tuple2(
+											100,
+											_List_fromArray(
+												[
+													A2($rtfeldman$elm_css$Css$Animations$property, 'transform', 'rotate(-2.5deg)')
+												]))
+										])))
+							]))
 					])),
 				$rtfeldman$elm_css$Css$after(
 				_List_fromArray(
@@ -18037,30 +18043,36 @@ var $author$project$Comic$book = function () {
 						$rtfeldman$elm_css$Css$px(0),
 						$rtfeldman$elm_css$Css$px(3),
 						$author$project$Comic$color.ee),
-						$rtfeldman$elm_css$Css$right(
-						$rtfeldman$elm_css$Css$px(-3)),
 						$rtfeldman$elm_css$Css$top(
-						$rtfeldman$elm_css$Css$px(1)),
-						$rtfeldman$elm_css$Css$transform(
-						$rtfeldman$elm_css$Css$rotate(
-							$rtfeldman$elm_css$Css$deg(1.4))),
-						$rtfeldman$elm_css$Css$animationName(
-						$rtfeldman$elm_css$Css$Animations$keyframes(
-							_List_fromArray(
-								[
-									_Utils_Tuple2(
-									0,
+						$rtfeldman$elm_css$Css$px(-5)),
+						$author$project$Comic$onLargeScreen(
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Css$right(
+								$rtfeldman$elm_css$Css$px(-3)),
+								$rtfeldman$elm_css$Css$top(
+								$rtfeldman$elm_css$Css$px(1)),
+								$rtfeldman$elm_css$Css$transform(
+								$rtfeldman$elm_css$Css$rotate(
+									$rtfeldman$elm_css$Css$deg(1.4))),
+								$rtfeldman$elm_css$Css$animationName(
+								$rtfeldman$elm_css$Css$Animations$keyframes(
 									_List_fromArray(
 										[
-											A2($rtfeldman$elm_css$Css$Animations$property, 'transform', 'rotate(0deg)')
-										])),
-									_Utils_Tuple2(
-									100,
-									_List_fromArray(
-										[
-											A2($rtfeldman$elm_css$Css$Animations$property, 'transform', 'rotate(1.4deg)')
-										]))
-								])))
+											_Utils_Tuple2(
+											0,
+											_List_fromArray(
+												[
+													A2($rtfeldman$elm_css$Css$Animations$property, 'transform', 'rotate(0deg)')
+												])),
+											_Utils_Tuple2(
+											100,
+											_List_fromArray(
+												[
+													A2($rtfeldman$elm_css$Css$Animations$property, 'transform', 'rotate(1.4deg)')
+												]))
+										])))
+							]))
 					]))
 			]));
 }();
@@ -18771,6 +18783,13 @@ var $author$project$Preview$main = $elm$browser$Browser$element(
 										_List_fromArray(
 											[
 												$rtfeldman$elm_css$Html$Styled$text('Ooops!')
+											])),
+										A2(
+										$rtfeldman$elm_css$Html$Styled$p,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$rtfeldman$elm_css$Html$Styled$text('The preview needs the CMS context to load...')
 											]))
 									]))
 							]);
