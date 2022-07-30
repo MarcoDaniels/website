@@ -1,6 +1,6 @@
 module Data exposing (Content, Entries, Entry, contentDecoder, contentView, entryData, link, markdownToHTML)
 
-import Asset exposing (Asset, AssetMode(..), assetDecoder, assetView)
+import Asset exposing (Asset, assetDecoder, assetView)
 import Cockpit exposing (Cockpit(..), fetchData)
 import Comic
 import Css
@@ -13,6 +13,7 @@ import Markdown.Parser as Parser
 import Markdown.Renderer as Render
 import OptimizedDecoder as Decoder exposing (Decoder)
 import OptimizedDecoder.Pipeline as Decoder
+import Render
 import SPLAT exposing (fromURL, toURL)
 
 
@@ -29,7 +30,7 @@ type alias Entry =
     }
 
 
-type alias EntryReference =
+type alias Reference =
     { url : List String
     , title : String
     , description : String
@@ -40,7 +41,7 @@ type alias EntryReference =
 entryData : DataSource Entries
 entryData =
     fetchData (Collection "marcoDaniels")
-        (Decoder.succeed Entries |> Decoder.required "entries" (Decoder.list (entryDecoder RenderAsset)))
+        (Decoder.succeed Entries |> Decoder.required "entries" (Decoder.list (entryDecoder Render.Pages)))
 
 
 type alias Content =
@@ -55,7 +56,7 @@ type ContentValue
     = ContentMarkdown String
     | ContentAsset Asset
     | ContentGrid (List Grid)
-    | ContentReference (List Entry)
+    | ContentReference (List Reference)
     | ContentUnknown
 
 
@@ -69,14 +70,32 @@ type GridValue
     | GridUnknown
 
 
-entryDecoder : AssetMode -> Decoder Entry
-entryDecoder assetMode =
+entryDecoder : Render.Mode -> Decoder Entry
+entryDecoder renderMode =
     Decoder.succeed Entry
         |> Decoder.required "url" (Decoder.string |> Decoder.map fromURL)
         |> Decoder.required "title" Decoder.string
         |> Decoder.required "description" Decoder.string
-        |> Decoder.required "image" (Decoder.maybe (assetDecoder assetMode))
-        |> Decoder.required "content" (Decoder.list (contentDecoder assetMode))
+        |> Decoder.required "image" (Decoder.maybe (assetDecoder renderMode))
+        |> Decoder.required "content" (Decoder.list (contentDecoder renderMode))
+
+
+referenceDecoder : Render.Mode -> Decoder Reference
+referenceDecoder renderMode =
+    case renderMode of
+        Render.Preview ->
+            Decoder.succeed Reference
+                |> Decoder.required "link" (Decoder.string |> Decoder.map fromURL)
+                |> Decoder.required "display" Decoder.string
+                |> Decoder.required "display" Decoder.string
+                |> Decoder.required "link" (Decoder.maybe (assetDecoder renderMode))
+
+        Render.Pages ->
+            Decoder.succeed Reference
+                |> Decoder.required "url" (Decoder.string |> Decoder.map fromURL)
+                |> Decoder.required "title" Decoder.string
+                |> Decoder.required "description" Decoder.string
+                |> Decoder.required "image" (Decoder.maybe (assetDecoder renderMode))
 
 
 fieldDecoder : Decoder Field
@@ -86,8 +105,8 @@ fieldDecoder =
         |> Decoder.required "label" Decoder.string
 
 
-fieldGridDecoder : AssetMode -> Field -> Decoder GridValue
-fieldGridDecoder assetMode field =
+fieldGridDecoder : Render.Mode -> Field -> Decoder GridValue
+fieldGridDecoder renderMode field =
     case ( field.fieldType, field.label ) of
         ( "markdown", _ ) ->
             Decoder.succeed GridMarkdown
@@ -95,7 +114,7 @@ fieldGridDecoder assetMode field =
 
         ( "asset", _ ) ->
             Decoder.succeed GridAsset
-                |> Decoder.required "value" (assetDecoder assetMode)
+                |> Decoder.required "value" (assetDecoder renderMode)
 
         _ ->
             Decoder.succeed GridUnknown
@@ -124,31 +143,23 @@ nullableContent decodeTo decodeWith =
         |> Decoder.resolve
 
 
-contentDecoder : AssetMode -> Decoder Content
-contentDecoder assetMode =
+contentDecoder : Render.Mode -> Decoder Content
+contentDecoder renderMode =
     Decoder.succeed Content
         |> fieldMap
             (\field ->
                 case ( field.fieldType, field.label ) of
                     ( "markdown", _ ) ->
-                        nullableContent
-                            ContentMarkdown
-                            Decoder.string
+                        nullableContent ContentMarkdown Decoder.string
 
                     ( "asset", _ ) ->
-                        nullableContent
-                            ContentAsset
-                            (assetDecoder assetMode)
+                        nullableContent ContentAsset (assetDecoder renderMode)
 
                     ( "repeater", "Grid" ) ->
-                        nullableContent
-                            ContentGrid
-                            (Decoder.list (Decoder.succeed Grid |> fieldMap (fieldGridDecoder assetMode)))
+                        nullableContent ContentGrid (Decoder.list (Decoder.succeed Grid |> fieldMap (fieldGridDecoder renderMode)))
 
                     ( "collectionlink", "Reference" ) ->
-                        nullableContent
-                            ContentReference
-                            (Decoder.list (entryDecoder assetMode))
+                        nullableContent ContentReference (Decoder.list (referenceDecoder renderMode))
 
                     _ ->
                         Decoder.succeed ContentUnknown
