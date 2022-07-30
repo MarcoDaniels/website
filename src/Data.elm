@@ -29,6 +29,14 @@ type alias Entry =
     }
 
 
+type alias EntryReference =
+    { url : List String
+    , title : String
+    , description : String
+    , image : Maybe Asset
+    }
+
+
 entryData : DataSource Entries
 entryData =
     fetchData (Collection "marcoDaniels")
@@ -99,6 +107,23 @@ fieldMap fieldToDecoder =
         (Decoder.field "field" fieldDecoder |> Decoder.andThen fieldToDecoder)
 
 
+nullableContent : (a -> ContentValue) -> Decoder a -> Decoder ContentValue
+nullableContent decodeTo decodeWith =
+    let
+        toDecoder value =
+            case value of
+                Just _ ->
+                    Decoder.succeed decodeTo
+                        |> Decoder.required "value" decodeWith
+
+                Nothing ->
+                    Decoder.succeed ContentUnknown
+    in
+    Decoder.succeed toDecoder
+        |> Decoder.required "value" (Decoder.nullable decodeWith)
+        |> Decoder.resolve
+
+
 contentDecoder : AssetMode -> Decoder Content
 contentDecoder assetMode =
     Decoder.succeed Content
@@ -106,21 +131,24 @@ contentDecoder assetMode =
             (\field ->
                 case ( field.fieldType, field.label ) of
                     ( "markdown", _ ) ->
-                        Decoder.succeed ContentMarkdown
-                            |> Decoder.required "value" Decoder.string
+                        nullableContent
+                            ContentMarkdown
+                            Decoder.string
 
                     ( "asset", _ ) ->
-                        Decoder.succeed ContentAsset
-                            |> Decoder.required "value" (assetDecoder assetMode)
+                        nullableContent
+                            ContentAsset
+                            (assetDecoder assetMode)
 
                     ( "repeater", "Grid" ) ->
-                        Decoder.succeed ContentGrid
-                            |> Decoder.required "value"
-                                (Decoder.list (Decoder.succeed Grid |> fieldMap (fieldGridDecoder assetMode)))
+                        nullableContent
+                            ContentGrid
+                            (Decoder.list (Decoder.succeed Grid |> fieldMap (fieldGridDecoder assetMode)))
 
                     ( "collectionlink", "Reference" ) ->
-                        Decoder.succeed ContentReference
-                            |> Decoder.required "value" (Decoder.list (entryDecoder assetMode))
+                        nullableContent
+                            ContentReference
+                            (Decoder.list (entryDecoder assetMode))
 
                     _ ->
                         Decoder.succeed ContentUnknown
