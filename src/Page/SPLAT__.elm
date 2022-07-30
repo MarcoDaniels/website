@@ -1,11 +1,12 @@
 module Page.SPLAT__ exposing (Data, Model, Msg, page)
 
-import Asset exposing (Asset, AssetMode(..), assetAPI)
+import Asset exposing (Asset, assetAPI)
 import Data exposing (Entry, contentView, entryData)
 import DataSource exposing (DataSource)
 import Head.Seo as Seo
 import Page exposing (Page, StaticPayload)
 import Pages.Url
+import Render
 
 
 type alias Model =
@@ -37,7 +38,7 @@ page =
                             Just image ->
                                 { url =
                                     static.sharedData.site.baseURL
-                                        ++ assetAPI { src = image.path, width = 300, mode = RenderAsset }
+                                        ++ assetAPI { src = image.path, width = 300, render = Render.Pages }
                                         |> Pages.Url.external
                                 , alt = image.title
                                 , dimensions = Just { width = image.width, height = image.height }

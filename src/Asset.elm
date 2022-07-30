@@ -1,15 +1,11 @@
-module Asset exposing (Asset, AssetMode(..), AssetSize(..), assetAPI, assetDecoder, assetView)
+module Asset exposing (Asset, AssetSize(..), assetAPI, assetDecoder, assetView)
 
 import Comic
 import Html.Styled as Html
 import Html.Styled.Attributes as Html
 import OptimizedDecoder as Decoder exposing (Decoder)
 import OptimizedDecoder.Pipeline as Decoder
-
-
-type AssetMode
-    = PreviewAsset
-    | RenderAsset
+import Render
 
 
 type alias Asset =
@@ -18,11 +14,11 @@ type alias Asset =
     , width : Int
     , height : Int
     , mime : String
-    , mode : AssetMode
+    , render : Render.Mode
     }
 
 
-assetDecoder : AssetMode -> Decoder Asset
+assetDecoder : Render.Mode -> Decoder Asset
 assetDecoder mode =
     Decoder.succeed Asset
         |> Decoder.required "path" Decoder.string
@@ -39,7 +35,7 @@ type AssetSize
 
 
 assetView : Asset -> AssetSize -> Html.Html msg
-assetView { title, path, mode } assetSize =
+assetView { title, path, render } assetSize =
     let
         size =
             case assetSize of
@@ -53,22 +49,22 @@ assetView { title, path, mode } assetSize =
     Html.img
         [ Html.css [ Comic.illustration ]
         , Html.alt title
-        , Html.src (assetAPI { src = path, width = size, mode = mode })
+        , Html.src (assetAPI { src = path, width = size, render = render })
         ]
         []
 
 
-assetAPI : { src : String, width : Int, mode : AssetMode } -> String
-assetAPI { src, width, mode } =
+assetAPI : { src : String, width : Int, render: Render.Mode } -> String
+assetAPI { src, width, render } =
     let
         buildAPI =
             [ "/image/api", src, "?w=", String.fromInt width, "&o=1&q=70&m=fitToWidth" ]
     in
-    (case mode of
-        PreviewAsset ->
+    (case render of
+        Render.Preview ->
             "https://marcodaniels.com" :: buildAPI
 
-        RenderAsset ->
+        Render.Pages ->
             buildAPI
     )
         |> String.concat
