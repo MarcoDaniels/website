@@ -212,14 +212,17 @@ markdownToHTML raw =
                                 , attributes = [ Html.href destination ]
                                 , content = content
                                 }
-            , paragraph = Html.p [ Html.css [ Comic.font.small ] ]
+            , paragraph = Html.p []
             , hardLineBreak = Html.br [] []
             , blockQuote =
-                Html.blockquote [ Html.css [ Comic.panel, Comic.gutter.inner ] ]
+                \children ->
+                    Html.blockquote
+                        [ Html.css [ Comic.font.extraSmall ] ]
+                        [ Html.em [] children ]
             , strong = \children -> Html.strong [] children
             , emphasis = \children -> Html.em [] children
             , strikethrough = \children -> Html.del [] children
-            , codeSpan = \content -> Html.code [] [ Html.text content ]
+            , codeSpan = \content -> Html.code [ Html.css [ Comic.font.extraSmall ] ] [ Html.text content ]
             , image = \_ -> Html.div [] []
             , text = Html.text
             , orderedList =
