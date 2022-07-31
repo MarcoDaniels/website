@@ -1,10 +1,10 @@
 port module Preview exposing (main)
 
-import Asset exposing (AssetMode(..))
 import Browser
 import Data exposing (Content, contentDecoder, contentView)
 import Html.Styled as Html
 import OptimizedDecoder as Decoder
+import Render
 import Shared exposing (withStyled)
 
 
@@ -41,7 +41,7 @@ main =
             \msg _ ->
                 case msg of
                     PreviewOp payload ->
-                        ( case Decoder.decodeString (Decoder.list (contentDecoder PreviewAsset)) payload of
+                        ( case Decoder.decodeString (Decoder.list (contentDecoder Render.Preview)) payload of
                             Ok decodedContent ->
                                 { content = decodedContent }
 

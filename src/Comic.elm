@@ -20,9 +20,10 @@ color =
     }
 
 
-font : { small : Css.Style, medium : Css.Style, large : Css.Style, upperCase : Css.Style, mainTitle : Css.Style }
+font : { extraSmall : Css.Style, small : Css.Style, medium : Css.Style, large : Css.Style, upperCase : Css.Style, mainTitle : Css.Style }
 font =
-    { small = Css.fontSize <| Css.rem 1.05
+    { extraSmall = Css.fontSize <| Css.rem 0.97
+    , small = Css.fontSize <| Css.rem 1.05
     , medium = Css.fontSize <| Css.rem 1.25
     , large =
         Css.batch
@@ -137,6 +138,7 @@ panel =
         , Css.boxShadow5 (Css.px 0) (Css.px 6) (Css.px 6) (Css.px -6) color.ink
         , Css.backgroundColor color.page
         , Css.color color.ink
+        , font.small
         ]
 
 
