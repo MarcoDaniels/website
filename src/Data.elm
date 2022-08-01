@@ -5,7 +5,7 @@ import Cockpit exposing (Cockpit(..), fetchData)
 import Comic
 import Css
 import DataSource exposing (DataSource)
-import Html.Styled as Html
+import Html.Styled as Html exposing (fromUnstyled)
 import Html.Styled.Attributes as Html
 import Markdown.Block as Block
 import Markdown.Html
@@ -15,6 +15,7 @@ import OptimizedDecoder as Decoder exposing (Decoder)
 import OptimizedDecoder.Pipeline as Decoder
 import Render
 import SPLAT exposing (fromURL, toURL)
+import SyntaxHighlight
 
 
 type alias Entries =
@@ -222,7 +223,11 @@ markdownToHTML raw =
             , strong = \children -> Html.strong [] children
             , emphasis = \children -> Html.em [] children
             , strikethrough = \children -> Html.del [] children
-            , codeSpan = \content -> Html.code [ Html.css [ Comic.font.extraSmall ] ] [ Html.text content ]
+            , codeSpan =
+                \content ->
+                    Html.code
+                        [ Html.css [ Comic.font.extraSmall ] ]
+                        [ Html.text content ]
             , image = \_ -> Html.div [] []
             , text = Html.text
             , orderedList =
@@ -241,7 +246,17 @@ markdownToHTML raw =
                                 )
                         )
             , html = Markdown.Html.oneOf []
-            , codeBlock = \_ -> Html.div [] []
+            , codeBlock =
+                \{ body } ->
+                    Html.div [ Html.css [ Comic.font.extraSmall ] ]
+                        [ SyntaxHighlight.useTheme SyntaxHighlight.oneDark
+                            |> fromUnstyled
+                        , SyntaxHighlight.elm body
+                            |> Result.map (SyntaxHighlight.toBlockHtml (Just 1))
+                            |> Result.map fromUnstyled
+                            |> Result.withDefault
+                                (Html.pre [] [ Html.code [] [ Html.text body ] ])
+                        ]
             , thematicBreak = Html.hr [] []
             , table = Html.table []
             , tableHeader = Html.thead []

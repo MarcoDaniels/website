@@ -43,8 +43,8 @@ shelf =
         , Css.margin <| Css.px 0
         , Css.fontFamilies [ "Verdana, sans-serif" ]
         , Css.lineHeight <| Css.rem 1.5
-        , Css.maxWidth <| Css.px 900
-        , Css.width <| Css.pct 100
+        , Css.maxWidth <| Css.pct 100
+        , Css.width <| Css.px 900
         , Css.margin2 (Css.px 0) Css.auto
         ]
 
@@ -65,8 +65,8 @@ book =
                 ]
     in
     Css.batch
-        [ Css.maxWidth <| Css.px 800
-        , Css.width <| Css.pct 100
+        [ Css.maxWidth <| Css.pct 100
+        , Css.width <| Css.px 800
         , Css.position Css.relative
         , Css.margin3 (Css.px 40) Css.auto (Css.px 0)
         , Css.boxShadow5 (Css.px 0) (Css.px 6) (Css.px 6) (Css.px -6) color.shadow
@@ -139,6 +139,7 @@ panel =
         , Css.backgroundColor color.page
         , Css.color color.ink
         , font.small
+        , Css.maxWidth <| Css.vw 83
         ]
 
 
