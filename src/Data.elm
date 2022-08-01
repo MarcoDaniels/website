@@ -16,6 +16,7 @@ import OptimizedDecoder.Pipeline as Decoder
 import Render
 import SPLAT exposing (fromURL, toURL)
 import SyntaxHighlight
+import Time exposing (Posix)
 
 
 type alias Entries =
@@ -27,6 +28,7 @@ type alias Entry =
     , title : String
     , description : String
     , image : Maybe Asset
+    , date : Maybe String
     , content : List Content
     }
 
@@ -71,6 +73,51 @@ type GridValue
     | GridUnknown
 
 
+formatDate : ( Time.Month, Int ) -> String
+formatDate =
+    \( month, year ) ->
+        [ case month of
+            Time.Jan ->
+                "01"
+
+            Time.Feb ->
+                "02"
+
+            Time.Mar ->
+                "03"
+
+            Time.Apr ->
+                "04"
+
+            Time.May ->
+                "05"
+
+            Time.Jun ->
+                "06"
+
+            Time.Jul ->
+                "07"
+
+            Time.Aug ->
+                "08"
+
+            Time.Sep ->
+                "09"
+
+            Time.Oct ->
+                "10"
+
+            Time.Nov ->
+                "11"
+
+            Time.Dec ->
+                "12"
+        , "/"
+        , String.fromInt year
+        ]
+            |> String.concat
+
+
 entryDecoder : Render.Mode -> Decoder Entry
 entryDecoder renderMode =
     Decoder.succeed Entry
@@ -78,6 +125,18 @@ entryDecoder renderMode =
         |> Decoder.required "title" Decoder.string
         |> Decoder.required "description" Decoder.string
         |> Decoder.required "image" (Decoder.maybe (assetDecoder renderMode))
+        |> Decoder.required "_modified"
+            (Decoder.maybe
+                (Decoder.int
+                    |> Decoder.andThen
+                        (\ms ->
+                            Time.millisToPosix (ms * 1000)
+                                |> (\posix -> ( Time.toMonth Time.utc posix, Time.toYear Time.utc posix ))
+                                |> formatDate
+                                |> Decoder.succeed
+                        )
+                )
+            )
         |> Decoder.required "content" (Decoder.list (contentDecoder renderMode))
 
 

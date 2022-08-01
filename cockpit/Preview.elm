@@ -16,20 +16,26 @@ type Msg
 
 
 type alias PreviewModel =
-    { content : List Content }
+    { content : List Content, error : Maybe String }
 
 
 main : Program () PreviewModel Msg
 main =
     Browser.element
-        { init = \_ -> ( { content = [] }, Cmd.none )
+        { init = \_ -> ( { content = [], error = Nothing }, Cmd.none )
         , view =
-            \{ content } ->
+            \{ content, error } ->
                 (case content of
                     [] ->
                         [ Html.div []
                             [ Html.h1 [] [ Html.text "Ooops!" ]
                             , Html.p [] [ Html.text "The preview needs the CMS context to load..." ]
+                            , case error of
+                                Just err ->
+                                    Html.p [] [ Html.text err ]
+
+                                Nothing ->
+                                    Html.text ""
                             ]
                         ]
 
@@ -38,15 +44,15 @@ main =
                 )
                     |> withStyled
         , update =
-            \msg _ ->
+            \msg model ->
                 case msg of
                     PreviewOp payload ->
                         ( case Decoder.decodeString (Decoder.list (contentDecoder Render.Preview)) payload of
                             Ok decodedContent ->
-                                { content = decodedContent }
+                                { model | content = decodedContent }
 
-                            Err _ ->
-                                { content = [] }
+                            Err err ->
+                                { content = [], error = Decoder.errorToString err |> Just }
                         , Cmd.none
                         )
         , subscriptions = \_ -> updatePayload PreviewOp
