@@ -1,9 +1,13 @@
 module Page.SPLAT__ exposing (Data, Model, Msg, page)
 
 import Asset exposing (Asset, assetAPI)
+import Comic
+import Css
 import Data exposing (Entry, contentView, entryData)
 import DataSource exposing (DataSource)
 import Head.Seo as Seo
+import Html.Styled as Html
+import Html.Styled.Attributes as Html
 import Page exposing (Page, StaticPayload)
 import Pages.Url
 import Render
@@ -74,11 +78,24 @@ page =
                                         else
                                             next
                                     )
-                                    { url = [], title = "", description = "", image = Nothing, content = [] }
+                                    { url = [], title = "", description = "", image = Nothing, date = Nothing, content = [] }
                         )
         }
         |> Page.buildNoState
             { view =
                 \maybeUrl sharedModel static ->
-                    { title = static.data.title, body = contentView static.data.content }
+                    { title = static.data.title
+                    , body =
+                        [ case ( List.head static.data.url, static.data.date ) of
+                            ( Just "note", Just date ) ->
+                                [ Html.div [ Html.css [ Comic.font.extraSmall, Css.textAlign Css.right ] ]
+                                    [ Html.em [] [ Html.text date ] ]
+                                ]
+
+                            _ ->
+                                []
+                        , contentView static.data.content
+                        ]
+                            |> List.concat
+                    }
             }
