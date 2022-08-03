@@ -397,20 +397,20 @@ contentView =
                                     Html.div [ Html.css [ Comic.panel, Comic.gutter.y, Comic.gutter.inner ] ]
                                         [ link
                                             { to = toURL url
-                                            , attributes = []
+                                            , attributes = [ Html.css [ Comic.tier.base ] ]
                                             , content =
-                                                [ Html.h2 [ Html.css [ Comic.font.mainTitle ] ] [ Html.text title ]
-                                                , Html.div [ Html.css [ Comic.tier.base ] ]
-                                                    [ Html.p [ Html.css [ Comic.tier.item ] ] [ Html.text description ]
-                                                    , case image of
-                                                        Just asset ->
-                                                            Html.div
-                                                                [ Html.css [ Comic.tier.item ] ]
-                                                                [ assetView asset Asset.Regular ]
-
-                                                        Nothing ->
-                                                            Html.text ""
+                                                [ Html.div [ Html.css [ Comic.tier.item ] ]
+                                                    [ Html.h2 [ Html.css [ Comic.font.mainTitle ] ] [ Html.text title ]
+                                                    , Html.p [] [ Html.text description ]
                                                     ]
+                                                , case image of
+                                                    Just asset ->
+                                                        Html.div
+                                                            [ Html.css [ Comic.tier.item ] ]
+                                                            [ assetView asset Asset.Regular ]
+
+                                                    Nothing ->
+                                                        Html.text ""
                                                 ]
                                             }
                                         ]

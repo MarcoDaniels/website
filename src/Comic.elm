@@ -81,6 +81,7 @@ book =
             , onLargeScreen
                 [ Css.left <| Css.px -5
                 , Css.top <| Css.px 4
+                , Css.animationDuration <| Css.sec 6
                 , Css.transform <| Css.rotate <| Css.deg -2.5
                 , Css.animationName
                     (Css.Animations.keyframes
@@ -98,6 +99,7 @@ book =
             , onLargeScreen
                 [ Css.right <| Css.px -3
                 , Css.top <| Css.px 1
+                , Css.animationDuration <| Css.sec 6
                 , Css.transform <| Css.rotate <| Css.deg 1.4
                 , Css.animationName
                     (Css.Animations.keyframes
