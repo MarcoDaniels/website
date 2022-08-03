@@ -17,7 +17,7 @@ footer : Footer -> Html.Html msg
 footer { line, social } =
     Html.footer
         [ Html.css [ Comic.caption ] ]
-        [ Html.div [] (markdownToHTML line)
+        [ Html.div [ Html.css [ Comic.font.extraSmall ] ] (markdownToHTML line)
         , Html.div [ Html.css [ Css.textAlign Css.center ] ]
             (social
                 |> List.map
