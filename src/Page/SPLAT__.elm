@@ -56,8 +56,8 @@ page =
                                 , mimeType = Nothing
                                 }
                     , description = static.data.description
+                    , title = static.data.title
                     , locale = Nothing
-                    , title = static.sharedData.site.title
                     }
                     |> Seo.website
         , routes =
