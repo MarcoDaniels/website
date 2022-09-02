@@ -47,8 +47,7 @@ view sharedData _ model toMsg pageView =
 withStyled : List (Html.Html msg) -> ElmHtml.Html msg
 withStyled children =
     Html.div [ Html.css [ Comic.page ] ]
-        ([ Css.Global.global
-            [ Css.Global.html [ Comic.shelf ], Css.Global.body [ Comic.book ] ]
+        ([ Css.Global.global [ Css.Global.html [ Comic.shelf ] ]
             |> List.singleton
          , children
          ]

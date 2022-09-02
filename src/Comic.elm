@@ -51,8 +51,8 @@ shelf =
 
 {-| Book: comic contents
 -}
-book : Css.Style
-book =
+book : Int -> Css.Style
+book size =
     let
         pageBase =
             Css.batch
@@ -63,6 +63,13 @@ book =
                 , Css.zIndex <| Css.int -2
                 , Css.animationDuration <| Css.sec 2
                 ]
+
+        pages =
+            if size < 5 then
+                { before = -2.5, after = 1.4 }
+
+            else
+                { before = -0.5, after = 0.4 }
     in
     Css.batch
         [ Css.maxWidth <| Css.pct 100
@@ -82,11 +89,11 @@ book =
                 [ Css.left <| Css.px -5
                 , Css.top <| Css.px 4
                 , Css.animationDuration <| Css.sec 6
-                , Css.transform <| Css.rotate <| Css.deg -2.5
+                , Css.transform <| Css.rotate <| Css.deg pages.before
                 , Css.animationName
                     (Css.Animations.keyframes
                         [ ( 0, [ Css.Animations.property "transform" "rotate(0deg)" ] )
-                        , ( 100, [ Css.Animations.property "transform" "rotate(-2.5deg)" ] )
+                        , ( 100, [ Css.Animations.property "transform" ("rotate(" ++ String.fromFloat pages.before ++ "deg)") ] )
                         ]
                     )
                 ]
@@ -100,11 +107,11 @@ book =
                 [ Css.right <| Css.px -3
                 , Css.top <| Css.px 1
                 , Css.animationDuration <| Css.sec 6
-                , Css.transform <| Css.rotate <| Css.deg 1.4
+                , Css.transform <| Css.rotate <| Css.deg pages.after
                 , Css.animationName
                     (Css.Animations.keyframes
                         [ ( 0, [ Css.Animations.property "transform" "rotate(0deg)" ] )
-                        , ( 100, [ Css.Animations.property "transform" "rotate(1.4deg)" ] )
+                        , ( 100, [ Css.Animations.property "transform" ("rotate(" ++ String.fromFloat pages.after ++ "deg)") ] )
                         ]
                     )
                 ]
