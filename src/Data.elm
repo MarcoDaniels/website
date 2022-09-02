@@ -285,7 +285,14 @@ markdownToHTML raw =
             , codeSpan =
                 \content ->
                     Html.code
-                        [ Html.css [ Comic.font.extraSmall ] ]
+                        [ Html.css
+                            [ Comic.font.extraSmall
+                            , Css.backgroundColor (Css.hex "f0f0f0")
+                            , Css.padding2 (Css.px 2) (Css.px 5)
+                            , Css.borderRadius (Css.px 3)
+                            , Css.color (Css.hex "8959a8")
+                            ]
+                        ]
                         [ Html.text content ]
             , image = \_ -> Html.div [] []
             , text = Html.text
