@@ -3,6 +3,7 @@ module Page.SPLAT__ exposing (Data, Model, Msg, page)
 import Asset exposing (Asset, assetAPI)
 import Comic
 import Css
+import Css.Global
 import Data exposing (Entry, contentView, entryData)
 import DataSource exposing (DataSource)
 import Head.Seo as Seo
@@ -86,7 +87,8 @@ page =
                 \maybeUrl sharedModel static ->
                     { title = static.data.title
                     , body =
-                        [ case ( List.head static.data.url, static.data.date ) of
+                        [ [ Css.Global.global [ Css.Global.body [ static.data.content |> List.length |> Comic.book ] ] ]
+                        , case ( List.head static.data.url, static.data.date ) of
                             ( Just "note", Just date ) ->
                                 [ Html.div [ Html.css [ Comic.font.extraSmall, Css.textAlign Css.right ] ]
                                     [ Html.em [] [ Html.text date ] ]
