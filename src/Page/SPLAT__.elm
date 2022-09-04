@@ -43,7 +43,7 @@ page =
                             Just image ->
                                 { url =
                                     static.sharedData.site.baseURL
-                                        ++ assetAPI { src = image.path, width = 300, render = Render.Pages }
+                                        ++ assetAPI { src = image.path, width = 800, render = Render.Pages }
                                         |> Pages.Url.external
                                 , alt = image.title
                                 , dimensions = Just { width = image.width, height = image.height }
@@ -57,7 +57,7 @@ page =
                                 , mimeType = Nothing
                                 }
                     , description = static.data.description
-                    , title = static.data.title
+                    , title = static.sharedData.site.title ++ " " ++ static.data.title
                     , locale = Nothing
                     }
                     |> Seo.website
