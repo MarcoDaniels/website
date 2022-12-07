@@ -18,6 +18,10 @@ main =
                         if String.endsWith "418/index.html" uri then
                             { response | status = "404" }
 
+                        else if List.member uri [ ".js", ".css", ".ico" ] then
+                            response
+                                |> withHeader { key = "cache-control", value = "public, max-age=864000" }
+
                         else
                             response
                 )
