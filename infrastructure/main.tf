@@ -169,6 +169,11 @@ resource "aws_cloudfront_distribution" "distribution" {
       lambda_arn = module.asset-request.qualified-arn
     }
 
+    lambda_function_association {
+      event_type = "origin-response"
+      lambda_arn = module.asset-response.qualified-arn
+    }
+
     min_ttl     = 60
     default_ttl = 3600
     max_ttl     = 86400
@@ -234,6 +239,12 @@ module "asset-request" {
     token  = local.assetAPI.token
     domain = local.assetAPI.domain
   }
+}
+
+module "asset-response" {
+  source       = "./lambda"
+  lambda-name  = "AssetResponse"
+  project-name = local.project.name
 }
 
 // route53
