@@ -51,6 +51,10 @@ in mkLambda {
       module = "AssetRequest";
       flags = ''"{flags:{token:'""$"{token}"',domain:'""$"{domain}"'}}"'';
     }
+    {
+      module = "AssetResponse";
+      flags = "";
+    }
   ];
   srcdir = "./infrastructure/lambda/src";
 }
