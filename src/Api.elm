@@ -4,6 +4,8 @@ import ApiRoute
 import DataSource exposing (DataSource)
 import Dict
 import Html as ElmHtml
+import Humans
+import Robots
 import Route exposing (Route)
 import Settings exposing (settingsData)
 import Xml exposing (Value)
@@ -20,15 +22,32 @@ routes getStaticRoutes _ =
             |> DataSource.map
                 (\settings ->
                     { body =
-                        [ "User-agent: *"
-                        , "Host: " ++ settings.site.baseURL
-                        , "Sitemap: " ++ settings.site.baseURL ++ "/sitemap.xml"
-                        ]
-                            |> String.join "\n"
+                        Robots.robots
+                            { host = settings.site.baseURL
+                            , sitemap = Robots.SingleValue (settings.site.baseURL ++ "/sitemap.xml")
+                            , policies =
+                                [ Robots.policy
+                                    { userAgent = Robots.SingleValue "*"
+                                    , allow = Just (Robots.SingleValue "*")
+                                    , disallow = Nothing
+                                    }
+                                ]
+                            }
                     }
                 )
         )
         |> ApiRoute.literal "robots.txt"
+        |> ApiRoute.single
+    , ApiRoute.succeed
+        (DataSource.succeed
+            { body =
+                Humans.humans
+                    [ { headline = "Team", content = [ "Marco Martins" ] }
+                    , { headline = "Technology", content = [ "elm, terraform, nix" ] }
+                    ]
+            }
+        )
+        |> ApiRoute.literal "humans.txt"
         |> ApiRoute.single
     , ApiRoute.succeed
         (settingsData
