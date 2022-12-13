@@ -9,7 +9,7 @@ type StaticRoute
 staticRoute : String -> StaticRoute
 staticRoute url =
     case
-        [ ".js", ".css", ".json", ".ico" ]
+        [ ".js", ".css", ".json", ".ico", ".xml", ".txt" ]
             |> List.filter (\ext -> String.endsWith ext url)
     of
         [] ->

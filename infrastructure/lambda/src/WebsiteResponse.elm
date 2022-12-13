@@ -18,7 +18,12 @@ main =
                         if String.endsWith "418/index.html" uri then
                             { response | status = "404" }
 
-                        else if List.member uri [ ".js", ".css", ".ico" ] then
+                        else if
+                            [ ".js", ".css", ".json", ".ico", ".xml", ".txt" ]
+                                |> List.filter (\ext -> String.endsWith ext uri)
+                                |> List.isEmpty
+                                |> not
+                        then
                             response
                                 |> withHeader { key = "cache-control", value = "public, max-age=864000" }
 
