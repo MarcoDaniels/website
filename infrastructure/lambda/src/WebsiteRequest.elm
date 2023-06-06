@@ -2,8 +2,27 @@ module WebsiteRequest exposing (main)
 
 import AWS exposing (InputEvent, OutputEvent)
 import CloudWorker exposing (cloudWorker, originRequest, toRequest)
-import StaticRoute exposing (staticRoute)
 
+type StaticRoute
+    = HTML String
+    | Other String
+
+
+staticRoute : String -> StaticRoute
+staticRoute url =
+    case
+        [ ".js", ".css", ".json", ".ico", ".xml", ".txt" ]
+            |> List.filter (\ext -> String.endsWith ext url)
+    of
+        [] ->
+            if String.endsWith "/" url then
+                HTML <| url ++ "index.html"
+
+            else
+                HTML <| url ++ "/index.html"
+
+        _ ->
+            Other url
 
 main : Program () (CloudWorker.Model ()) CloudWorker.Msg
 main =
@@ -11,10 +30,10 @@ main =
         { origin =
             \{ request } _ ->
                 (case staticRoute request.uri of
-                    StaticRoute.HTML uri ->
+                    HTML uri ->
                         { request | uri = uri }
 
-                    StaticRoute.Other _ ->
+                    Other _ ->
                         request
                 )
                     |> toRequest

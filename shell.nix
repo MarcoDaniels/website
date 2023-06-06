@@ -2,49 +2,51 @@ let
   pkgs = (import ./nix/shared.nix).pkgs;
   jsHandler = (import ./nix/shared.nix).jsHandler;
 
-  devProxy = pkgs.writeScriptBin "devProxy" ''
-    #!/usr/bin/env node
-    const http = require('http')
-    const https = require('https')
-    const fs = require('fs')
-    const {Elm} = require('${toString ./.}/dist/server')
-    const app = Elm.Server.init({flags:{baseUrl:process.env.COCKPIT_BASE_URL,token:process.env.COCKPIT_API_TOKEN}})
-
-    const responseCallback = (clientRes) => (serverResponse) => {
-        const responseCaller = (data) => {
-            clientRes.writeHead(serverResponse.statusCode, data.headers)
-            serverResponse.pipe(clientRes, {end: true})
-
-            app.ports.responseOutput.unsubscribe(responseCaller)
-        }
-        app.ports.responseOutput.subscribe(responseCaller)
-        app.ports.responseInput.send({headers: serverResponse.headers})
-    }
-
-    http.createServer((incomingMessage, serverResponse) => {
-        const serverCaller = (options) => {
-            if (Boolean(options.fileSystem)) {
-                fs.createReadStream(options.path).pipe(serverResponse)
-            } else {
-                const proxy = (Boolean(options.secure) ? https : http).request(options, responseCallback(serverResponse))
-                incomingMessage.pipe(proxy, {end: true})
-            }
-
-            app.ports.serverOutput.unsubscribe(serverCaller)
-        }
-        app.ports.serverOutput.subscribe(serverCaller)
-        app.ports.serverInput.send(incomingMessage)
-    }).listen(8000)
-
-    console.log(`running devProxy in http://localhost:8000`)
-  '';
+  cockpitProxy = let
+    proxyName = "cockpit-proxy";
+    proxyVersion = "0.0.1";
+    proxySrc = fetchGit {
+      url = "git@github.com:MarcoDaniels/cockpit-cms-proxy.git";
+      rev = "36d58329d0972d372addbeac883e4c925cc017ca";
+    };
+    proxyElm = pkgs.stdenv.mkDerivation {
+      name = "${proxyName}-elm-dep";
+      version = proxyVersion;
+      src = proxySrc;
+      buildInputs = [ pkgs.elm2nix pkgs.nix pkgs.cacert ];
+      buildPhase = ''
+        ${pkgs.elm2nix}/bin/elm2nix convert > default.nix
+        ${pkgs.elm2nix}/bin/elm2nix snapshot
+      '';
+      installPhase = ''
+        mkdir -p $out
+        cp default.nix registry.dat $out
+      '';
+    };
+  in pkgs.stdenv.mkDerivation {
+    name = proxyName;
+    version = proxyVersion;
+    src = proxySrc;
+    buildInputs = [ pkgs.elmPackages.elm ];
+    configurePhase = pkgs.elmPackages.fetchElmDeps {
+      elmPackages = import proxyElm;
+      elmVersion = "0.19.1";
+      registryDat = "${proxyElm}/registry.dat";
+    };
+    buildPhase = ''
+      elm make --optimize src/Main.elm --output=dist/elm.js
+      sed -e '1i\#!/usr/bin/env node' src/index.js > dist/${proxyName}
+    '';
+    installPhase = ''
+      mkdir -p $out/bin
+      cp -a dist/. $out/bin/
+      chmod +x $out/bin/${proxyName}
+    '';
+  };
 
   # concurrently Pages with Proxy & Preview
   start = pkgs.writeShellScriptBin "start" ''
-    ${pkgs.elmPackages.elm}/bin/elm make --optimize cockpit/Server.elm --output=dist/server.js
-    ${pkgs.elmPackages.elm}/bin/elm make --optimize cockpit/Preview.elm --output=preview/preview.js
-    cp cockpit/Preview.html preview/index.html
-    ${pkgs.concurrently}/bin/concurrently "yarn start" "devProxy"
+    ${pkgs.concurrently}/bin/concurrently "yarn start" "${cockpitProxy}/bin/cockpit-proxy"
   '';
 
   ciBuild = pkgs.writeShellScriptBin "ciBuild" ''
@@ -56,7 +58,7 @@ let
   buildPreview = pkgs.writeShellScriptBin "buildPreview" ''
     ${pkgs.elmPackages.elm}/bin/elm make --optimize cockpit/Preview.elm --output=preview/preview.js
     cp cockpit/Preview.html preview/index.html
-   '';
+  '';
 
   # to include flags: buildLambda AssetRequest "{flags:{token:'123',domain:'abc'}}"
   buildLambda = pkgs.writeScriptBin "buildLambda" ''
@@ -93,7 +95,7 @@ in pkgs.mkShell {
     pkgs.elmPackages.elm-format
     pkgs.elmPackages.elm-test
     pkgs.elm2nix
-    devProxy
+
     ciBuild
     testLambda
     jsHandler
