@@ -4,10 +4,10 @@ let
 
   cockpitProxy = let
     proxyName = "cockpit-proxy";
-    proxyVersion = "0.0.1";
+    proxyVersion = "1.0.0";
     proxySrc = fetchGit {
       url = "git@github.com:MarcoDaniels/cockpit-cms-proxy.git";
-      rev = "36d58329d0972d372addbeac883e4c925cc017ca";
+      rev = "7ae8b96057d1b67dfb2e5ff226f76be91fbc1777";
     };
     proxyElm = pkgs.stdenv.mkDerivation {
       name = "${proxyName}-elm-dep";
@@ -42,6 +42,21 @@ let
       cp -a dist/. $out/bin/
       chmod +x $out/bin/${proxyName}
     '';
+  };
+
+  dot2Env = pkgs.stdenv.mkDerivation {
+    name = "dot2Env";
+    version = "0.0.1";
+    src = fetchGit {
+      url = "git@github.com:MarcoDaniels/scripts.git";
+      rev = "38119e17ab198abe0fdf4ae2e3222596925f4b00";
+    };
+    installPhase = ''
+      mkdir -p $out/bin
+      cp $src/dot2Env.sh $out/bin/dot2Env
+      chmod +x $out/bin/dot2Env
+    '';
+    doCheck = true;
   };
 
   # concurrently Pages with Proxy & Preview
@@ -96,6 +111,7 @@ in pkgs.mkShell {
     pkgs.elmPackages.elm-test
     pkgs.elm2nix
 
+    dot2Env
     ciBuild
     testLambda
     jsHandler
