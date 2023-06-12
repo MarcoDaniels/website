@@ -6,7 +6,7 @@ let
     proxyName = "cockpit-proxy";
     proxyVersion = "1.0.0";
     proxySrc = fetchGit {
-      url = "git@github.com:MarcoDaniels/cockpit-cms-proxy.git";
+      url = "https://github.com/MarcoDaniels/cockpit-cms-proxy.git";
       rev = "7ae8b96057d1b67dfb2e5ff226f76be91fbc1777";
     };
     proxyElm = pkgs.stdenv.mkDerivation {
@@ -48,7 +48,7 @@ let
     name = "dot2Env";
     version = "0.0.1";
     src = fetchGit {
-      url = "git@github.com:MarcoDaniels/scripts.git";
+      url = "https://github.com/MarcoDaniels/scripts.git";
       rev = "38119e17ab198abe0fdf4ae2e3222596925f4b00";
     };
     installPhase = ''
