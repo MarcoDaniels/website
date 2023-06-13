@@ -27,7 +27,7 @@ let
     name = proxyName;
     version = proxyVersion;
     src = proxySrc;
-    buildInputs = [ pkgs.elmPackages.elm ];
+    buildInputs = [ pkgs.elmPackages.elm pkgs.nix pkgs.cacert ];
     configurePhase = pkgs.elmPackages.fetchElmDeps {
       elmPackages = import proxyElm;
       elmVersion = "0.19.1";
