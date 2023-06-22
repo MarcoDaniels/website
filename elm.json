@@ -41,7 +41,6 @@
             "elm/virtual-dom": "1.0.2",
             "elm-community/dict-extra": "2.4.0",
             "elm-community/list-extra": "8.5.2",
-            "elm-explorations/test": "1.2.2",
             "fredcy/elm-parseint": "2.0.1",
             "jfmengels/elm-review": "2.6.2",
             "mgold/elm-nonempty-list": "4.2.0",

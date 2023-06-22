@@ -64,17 +64,6 @@ let
     ${pkgs.concurrently}/bin/concurrently "yarn start" "${cockpitProxy}/bin/cockpit-proxy"
   '';
 
-  ciBuild = pkgs.writeShellScriptBin "ciBuild" ''
-    ${pkgs.yarn}/bin/yarn
-    ${pkgs.yarn}/bin/yarn build
-  '';
-
-  # TODO: build preview should be a derivation
-  buildPreview = pkgs.writeShellScriptBin "buildPreview" ''
-    ${pkgs.elmPackages.elm}/bin/elm make --optimize cockpit/Preview.elm --output=preview/preview.js
-    cp cockpit/Preview.html preview/index.html
-  '';
-
   # to include flags: buildLambda AssetRequest "{flags:{token:'123',domain:'abc'}}"
   buildLambda = pkgs.writeScriptBin "buildLambda" ''
     ${pkgs.elmPackages.elm}/bin/elm make infrastructure/lambda/src/$1.elm --output infrastructure/lambda/result/$1/elm.js
@@ -112,11 +101,9 @@ in pkgs.mkShell {
     pkgs.elm2nix
 
     dot2Env
-    ciBuild
     testLambda
     jsHandler
     buildLambda
     start
-    buildPreview
   ];
 }
