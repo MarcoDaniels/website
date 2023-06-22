@@ -1,40 +1,41 @@
-# TODO: nix will be used only for development for now
+{ token, url }:
 let
-  pkgs = import (import ./nix/pin.nix).nixpkgs { };
+  pkgs = (import ./nix/shared.nix).pkgs;
 
-  yarnPkg = pkgs.yarn2nix-moretea.mkYarnPackage {
-    name = "marco-daniels";
-    packageJSON = ./package.json;
-    src = ./.;
-    yarnLock = ./yarn.lock;
-    publishBinsFor = [ "elm-pages" ];
+  yarnPkgs = pkgs.yarn2nix-moretea.mkYarnPackage {
+    name = "yarnPkgs";
+    version = "0.0.1";
+    src = pkgs.nix-gitignore.gitignoreSource [ ] ./.;
+    publishBinsFor = [ "elm-pages" "elm-review" "elm-optimize-level-2" ];
   };
-in pkgs.stdenv.mkDerivation {
-  name = "marco-daniels";
-  src = pkgs.lib.cleanSource ./.;
 
-  buildInputs =
-    [ pkgs.elmPackages.elm pkgs.elmPackages.elm-format pkgs.yarn yarnPkg ];
+in pkgs.stdenv.mkDerivation {
+  name = "marco-daniels-website";
+  version = "0.0.1";
+  src = pkgs.nix-gitignore.gitignoreSource [ ] ./.;
+  buildInputs = [ yarnPkgs pkgs.elmPackages.elm pkgs.yarn pkgs.nodejs-16_x ];
+
+  COCKPIT_API_URL = url;
+  COCKPIT_API_TOKEN = token;
+
+  postUnpack = ''
+    export HOME="$TMP"
+  '';
 
   patchPhase = ''
     rm -rf elm-stuff
-    ln -sf ${yarnPkg}/node_modules .
+    ln -sf ${yarnPkgs}/node_modules .
   '';
 
-  shellHook = ''
-    ln -fs ${yarnPkg}/node_modules .
-  '';
-
-  configurePhase = pkgs.elmPackages.fetchElmDeps {
+  buildPhase = pkgs.elmPackages.fetchElmDeps {
+    elmVersion = "0.19.1";
     elmPackages = import ./nix/elm-srcs.nix;
     registryDat = ./nix/registry.dat;
-    elmVersion = "0.19.1";
   };
 
-  # Error: EROFS: read-only file system
   installPhase = ''
-    export out=/tmp/foo
-    mkdir -p $out
-    elm-pages build
+    mkdir -p $out dist
+    ${yarnPkgs}/bin/elm-pages build
+    cp -r dist/. $out/.
   '';
 }

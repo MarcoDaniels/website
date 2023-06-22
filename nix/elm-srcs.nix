@@ -15,6 +15,11 @@
         version = "1.0.5";
       };
 
+      "billstclair/elm-xml-eeue56" = {
+        sha256 = "0d9p27wfw0bl2krxl7xxjpg0aavc213k4v9bn8ayz5k9ml92v1kc";
+        version = "3.1.1";
+      };
+
       "elm/url" = {
         sha256 = "0av8x5syid40sgpl5vd7pry2rq0q4pga28b4yykn9gd9v12rs3l4";
         version = "1.0.0";
@@ -23,6 +28,16 @@
       "NoRedInk/elm-json-decode-pipeline" = {
         sha256 = "1k241pjz1wj5rqv95f1j86msa0s0p6w4v8n0jn26aw6cbadw363b";
         version = "1.0.1";
+      };
+
+      "marcodaniels/elm-robots-humans" = {
+        sha256 = "04pwgxrygj8ch71mwbmxs7ay467416vasa390bg2xxclbpw5vnkp";
+        version = "1.0.0";
+      };
+
+      "pablohirafuji/elm-syntax-highlight" = {
+        sha256 = "1bs1xhj1ncd98j4fb06rnhspgy4q1wfz1c85rc51lri0cgkwdabg";
+        version = "3.4.1";
       };
 
       "elm/json" = {
@@ -43,6 +58,11 @@
       "dillonkearns/elm-markdown" = {
         sha256 = "05chrkn14b3yyv3sq3466ys4bhwdxva853fzbyc1dyjpk3vslqsc";
         version = "7.0.0";
+      };
+
+      "elm/time" = {
+        sha256 = "0vch7i86vn0x8b850w1p69vplll1bnbkp8s383z7pinyg94cm2z1";
+        version = "1.0.0";
       };
 
       "MartinSStewart/elm-serialize" = {
@@ -188,11 +208,6 @@
       "elm/http" = {
         sha256 = "008bs76mnp48b4dw8qwjj4fyvzbxvlrl4xpa2qh1gg2kfwyw56v1";
         version = "2.0.0";
-      };
-
-      "elm/time" = {
-        sha256 = "0vch7i86vn0x8b850w1p69vplll1bnbkp8s383z7pinyg94cm2z1";
-        version = "1.0.0";
       };
 
       "elm-explorations/test" = {
