@@ -61,7 +61,7 @@ let
 
   # concurrently Pages with Proxy & Preview
   start = pkgs.writeShellScriptBin "start" ''
-    ${pkgs.concurrently}/bin/concurrently "yarn start" "${cockpitProxy}/bin/cockpit-proxy"
+    ${pkgs.concurrently}/bin/concurrently "${pkgs.elmPackages.elm-pages}/bin/elm-pages dev" "${cockpitProxy}/bin/cockpit-proxy"
   '';
 
   # to include flags: buildLambda AssetRequest "{flags:{token:'123',domain:'abc'}}"
@@ -92,12 +92,12 @@ in pkgs.mkShell {
   buildInputs = [
     pkgs.nixfmt
     pkgs.terraform
-    pkgs.nodejs-16_x
+    pkgs.nodejs_18
     pkgs.concurrently
-    pkgs.yarn
     pkgs.elmPackages.elm
     pkgs.elmPackages.elm-format
     pkgs.elmPackages.elm-test
+    pkgs.elmPackages.elm-pages
     pkgs.elm2nix
 
     dot2Env
