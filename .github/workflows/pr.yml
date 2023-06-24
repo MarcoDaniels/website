@@ -27,4 +27,4 @@ jobs:
           name: marco-daniels
           authToken: ${{secrets.CACHIX_AUTH_TOKEN}}
       - name: Build Website
-        run: nix-build default.nix --argstr url ${{secrets.COCKPIT_API_URL}} --argstr token ${{secrets.COCKPIT_API_TOKEN}}
+        run: nix-build default.nix --argstr url $COCKPIT_API_URL --argstr token ${{secrets.COCKPIT_API_TOKEN}}
