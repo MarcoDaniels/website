@@ -4,7 +4,7 @@ let
 
   cockpitProxy = let
       proxyName = "cockpit-proxy";
-      proxyVersion = "2.0.0";
+      proxyVersion = "2.0.1";
       nixGleamSrc = pkgs.stdenv.mkDerivation {
           name = "nix-gleam";
           src = fetchGit {
