@@ -1,15 +1,19 @@
 module AssetResponse exposing (main)
 
-import CloudWorker exposing (cloudWorker, originResponse, toResponse, withHeader)
+import BaseLambda exposing (ports)
+import CloudFront exposing (cloudFront)
+import CloudFront.Header exposing (withHeader)
+import CloudFront.Lambda exposing (originResponse, toResponse)
 
 
-main : Program () (CloudWorker.Model ()) CloudWorker.Msg
+main : Program () (CloudFront.Model ()) CloudFront.Msg
 main =
-    originResponse
-        { origin =
-            \{ response, request } _ ->
-                response
-                    |> withHeader { key = "cache-control", value = "public, max-age=31536000" }
-                    |> toResponse
-        }
-        |> cloudWorker
+    ports
+        |> (originResponse
+                (\{ response, request } _ ->
+                    response
+                        |> withHeader { key = "cache-control", value = "public, max-age=31536000" }
+                        |> toResponse
+                )
+                |> cloudFront
+           )

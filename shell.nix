@@ -1,6 +1,5 @@
 let
   pkgs = (import ./nix/shared.nix).pkgs;
-  jsHandler = (import ./nix/shared.nix).jsHandler;
 
   cockpitProxy = let
       proxyName = "cockpit-proxy";
@@ -46,28 +45,10 @@ let
     ${pkgs.concurrently}/bin/concurrently "${pkgs.elmPackages.elm-pages}/bin/elm-pages dev" cockpit_cms_proxy
   '';
 
-  # to include flags: buildLambda AssetRequest "{flags:{token:'123',domain:'abc'}}"
-  buildLambda = pkgs.writeScriptBin "buildLambda" ''
-    ${pkgs.elmPackages.elm}/bin/elm make infrastructure/lambda/src/$1.elm --output infrastructure/lambda/result/$1/elm.js
-    ${jsHandler}/bin/jsHandler $1 infrastructure/lambda/result/$1/index.js $2
-  '';
-
-  testLambda = pkgs.writeScriptBin "testLambda" ''
-    #!/usr/bin/env node
-    const fs = require('fs')
-    const lambda = process.argv[2]
-    const testPayload = process.argv[3]
-    const {handler} = require("${
-      toString ./.
-    }/infrastructure/lambda/result/" + lambda)
-    const payload = JSON.parse(fs.readFileSync("${
-      toString ./.
-    }/tests/" + testPayload + ".json"))
-
-    logJSON = (_, content) =>
-        console.log(JSON.stringify(content, null, 4))
-
-    handler(payload, "", logJSON)
+  elmPostInstall = pkgs.writeShellScriptBin "elmPostInstall" ''
+    ${pkgs.elm2nix}/bin/elm2nix convert > nix/elm-srcs.nix
+    ${pkgs.elm2nix}/bin/elm2nix snapshot
+    mv registry.dat nix/
   '';
 
 in pkgs.mkShell {
@@ -84,9 +65,7 @@ in pkgs.mkShell {
 
     cockpitProxy
     dot2Env
-    testLambda
-    jsHandler
-    buildLambda
     start
+    elmPostInstall
   ];
 }

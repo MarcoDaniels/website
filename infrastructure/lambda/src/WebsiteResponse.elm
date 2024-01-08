@@ -1,39 +1,42 @@
 module WebsiteResponse exposing (main, websiteResponseHeaders)
 
-import AWS exposing (Header)
-import CloudWorker exposing (cloudWorker, originResponse, toResponse, withHeader, withHeaders)
+import BaseLambda exposing (ports)
+import CloudFront exposing (cloudFront)
+import CloudFront.Header exposing (Header, withHeader, withHeaders)
+import CloudFront.Lambda exposing (originResponse, toResponse)
 
 
-main : Program () (CloudWorker.Model ()) CloudWorker.Msg
+main : Program () (CloudFront.Model ()) CloudFront.Msg
 main =
-    originResponse
-        { origin =
-            \{ response, request } _ ->
-                (case ( response.status, request.uri ) of
-                    ( "403", _ ) ->
-                        { response | status = "302", statusDescription = "Found" }
-                            |> withHeader { key = "location", value = "/418" }
+    ports
+        |> (originResponse
+                (\{ response, request } _ ->
+                    (case ( response.status, request.uri ) of
+                        ( "403", _ ) ->
+                            { response | status = "302", statusDescription = "Found" }
+                                |> withHeader { key = "location", value = "/418" }
 
-                    ( _, uri ) ->
-                        if String.endsWith "418/index.html" uri then
-                            { response | status = "404" }
+                        ( _, uri ) ->
+                            if String.endsWith "418/index.html" uri then
+                                { response | status = "404" }
 
-                        else if
-                            [ ".js", ".css", ".json", ".ico", ".xml", ".txt" ]
-                                |> List.filter (\ext -> String.endsWith ext uri)
-                                |> List.isEmpty
-                                |> not
-                        then
-                            response
-                                |> withHeader { key = "cache-control", value = "public, max-age=864000" }
+                            else if
+                                [ ".js", ".css", ".json", ".ico", ".xml", ".txt" ]
+                                    |> List.filter (\ext -> String.endsWith ext uri)
+                                    |> List.isEmpty
+                                    |> not
+                            then
+                                response
+                                    |> withHeader { key = "cache-control", value = "public, max-age=864000" }
 
-                        else
-                            response
+                            else
+                                response
+                    )
+                        |> withHeaders websiteResponseHeaders
+                        |> toResponse
                 )
-                    |> withHeaders websiteResponseHeaders
-                    |> toResponse
-        }
-        |> cloudWorker
+                |> cloudFront
+           )
 
 
 websiteResponseHeaders : List Header

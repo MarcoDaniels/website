@@ -1,7 +1,9 @@
 module WebsiteRequest exposing (main)
 
-import AWS exposing (InputEvent, OutputEvent)
-import CloudWorker exposing (cloudWorker, originRequest, toRequest)
+import BaseLambda exposing (ports)
+import CloudFront exposing (cloudFront)
+import CloudFront.Lambda exposing (originRequest, toRequest)
+
 
 type StaticRoute
     = HTML String
@@ -24,18 +26,20 @@ staticRoute url =
         _ ->
             Other url
 
-main : Program () (CloudWorker.Model ()) CloudWorker.Msg
-main =
-    originRequest
-        { origin =
-            \{ request } _ ->
-                (case staticRoute request.uri of
-                    HTML uri ->
-                        { request | uri = uri }
 
-                    Other _ ->
-                        request
+main : Program () (CloudFront.Model ()) CloudFront.Msg
+main =
+    ports
+        |> (originRequest
+                (\{ request } _ ->
+                    (case staticRoute request.uri of
+                        HTML uri ->
+                            { request | uri = uri }
+
+                        Other _ ->
+                            request
+                    )
+                        |> toRequest
                 )
-                    |> toRequest
-        }
-        |> cloudWorker
+                |> cloudFront
+           )
