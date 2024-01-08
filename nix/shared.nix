@@ -5,17 +5,4 @@ let
     sha256 = "10qbybc9k3dj1xap9n0i3z7pc3svzwhclgsyfzzsf8cfh8l518pn";
   }) { };
 
-  jsHandler = pkgs.writeShellScriptBin "jsHandler" ''
-    echo "const {Elm} = require('./elm');
-    const app = Elm.$1.init($3);
-    exports.handler = (event, context, callback) => {
-        const caller = (output) => {
-            callback(null, output);
-            app.ports.outputEvent.unsubscribe(caller);
-        }
-        app.ports.outputEvent.subscribe(caller);
-        app.ports.inputEvent.send(event);
-    } " > $2
-  '';
-
-in { pkgs = pkgs; jsHandler = jsHandler; }
+in { pkgs = pkgs; }
