@@ -10,13 +10,8 @@ data "archive_file" "zip" {
   output_path = "${path.module}/result/${var.lambda-name}/index.zip"
 
   source {
-    content  = templatefile("${path.module}/result/${var.lambda-name}/index.js", var.replacements)
+    content  = templatefile("${path.module}/result/${var.lambda-name}.js", var.replacements)
     filename = "index.js"
-  }
-
-  source {
-    content  = templatefile("${path.module}/result/${var.lambda-name}/elm.js", var.replacements)
-    filename = "elm.js"
   }
 }
 
@@ -75,7 +70,7 @@ resource "aws_lambda_function" "lambda-function" {
   filename         = data.archive_file.zip.output_path
   source_code_hash = data.archive_file.zip.output_base64sha256
   handler          = "index.handler"
-  runtime          = "nodejs14.x"
+  runtime          = "nodejs20.x"
 
   depends_on = [
     aws_iam_role_policy_attachment.lambda-logs,

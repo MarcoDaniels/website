@@ -5,7 +5,7 @@ let
     name = "elm-aws-cloudfront";
     src = fetchGit {
       url = "https://github.com/MarcoDaniels/elm-aws-cloudfront.git";
-      ref = "refs/tags/nix-1.0.0";
+      ref = "refs/tags/nix-1.0.1";
     };
     installPhase = ''
       mkdir -p $out
@@ -22,7 +22,7 @@ in cloudfront.buildElmAWSCloudFront {
     { module = ./src/WebsiteResponse.elm; }
     {
       module = ./src/AssetRequest.elm;
-      flags = [ ''token:"token"'' ''domain:"domain"'' ];
+      flags = [ ''token:"''${token}"'' ''domain:"''${domain}"'' ];
     }
     { module = ./src/AssetResponse.elm; }
   ];

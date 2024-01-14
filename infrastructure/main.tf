@@ -10,12 +10,12 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "3.70.0"
+      version = "5.32.1"
     }
 
     dhall = {
       source  = "awakesecurity/dhall"
-      version = "0.0.2"
+      version = "0.0.7"
     }
   }
 }
@@ -44,7 +44,11 @@ provider "aws" {
 // S3
 resource "aws_s3_bucket" "bucket" {
   bucket_prefix = local.aws.bucketPrefix
-  acl           = "private"
+}
+
+resource "aws_s3_bucket_acl" "bucket-acl" {
+  bucket = aws_s3_bucket.bucket.id
+  acl    = "private"
 }
 
 data "aws_iam_policy_document" "bucket-policy" {
