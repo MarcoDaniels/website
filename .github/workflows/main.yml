@@ -33,10 +33,12 @@ jobs:
       - name: Build Website
         run: nix-shell buildWebsite.nix --run "buildWebsite"
       - name: Deploy Website
-        uses: LarchLiu/actions-save-files@v3
+        uses: LarchLiu/actions-save-files@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          publish_branch: data
+          publish_dir: output
+          destination_dir: .
       - name: Build Preview
         run: nix-build buildPreview.nix
       - name: Sync Preview
