@@ -32,8 +32,11 @@ jobs:
           authToken: ${{secrets.CACHIX_AUTH_TOKEN}}
       - name: Build Website
         run: nix-shell buildWebsite.nix --run "buildWebsite"
-      - name: Sync Website
-        run: aws s3 sync ./dist s3://${{secrets.AWS_S3_BUCKET}}
+      - name: Deploy Website
+        uses: LarchLiu/actions-save-files@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
       - name: Build Preview
         run: nix-build buildPreview.nix
       - name: Sync Preview
