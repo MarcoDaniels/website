@@ -37,7 +37,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: data
-          publish_dir: output
+          publish_dir: dist
           destination_dir: .
       - name: Build Preview
         run: nix-build buildPreview.nix
